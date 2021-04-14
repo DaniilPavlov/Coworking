@@ -225,8 +225,7 @@ class Database {
         await getFirstReview(pinID), context);
   }
 
-  ///Adds the specified review to the database. The review should already have
-  ///its pinID attribute set.
+
   ///добавляем отзыв в базу
   static void addReview(Review review) {
     Firestore.instance.collection("reviews").add(review.asMap());
@@ -246,10 +245,7 @@ class Database {
     });
   }
 
-  /// Removes a flag from a review.
-  ///
-  /// Removes the currently logged in user's flag from the review indicated by
-  /// [id].
+
   /// удаляем флаг с отзыва
   static void unFlag(String id) {
     Firestore.instance
@@ -263,10 +259,7 @@ class Database {
     });
   }
 
-  /// Marks a review as flagged.
-  ///
-  /// Flags a review, indicated by [id] in the database, as the currently logged
-  /// in user.
+
   /// добавляем флаг на отзыв
   static void flag(String id) {
     Map<String, dynamic> flag = Map();
@@ -275,10 +268,7 @@ class Database {
     Firestore.instance.collection("flags").add(flag);
   }
 
-  /// Checks if the currently logged in user has flagged this review.
-  ///
-  /// Queries the database to determine whether the currently logged in user has
-  /// flagged the review specified by [id].
+
   /// проверяем поставил ли флажок пользователь данному комментарию
   static Future<bool> isFlagged(id) {
     return Firestore.instance
@@ -329,7 +319,6 @@ class Database {
     });
   }
 
-  /// Returns all of the reviews that are currently flagged.
   /// возвращаем все плохие отзывы для админа
   static Stream<List<Review>> flaggedReviews(BuildContext context) {
     return Firestore.instance

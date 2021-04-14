@@ -1,6 +1,5 @@
 import 'package:coworking/resources/database.dart';
 import 'package:coworking/resources/review.dart';
-import 'package:coworking/widgets/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';

@@ -48,7 +48,6 @@ class Pin {
 
   Set<Review> get reviews => _reviews;
 
-  ///Adds a review to the database
   ///добавляем ревью в базу
   void addReview(Review review) {
     _reviews.add(review);

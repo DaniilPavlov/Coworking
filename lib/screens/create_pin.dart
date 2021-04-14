@@ -128,17 +128,17 @@ class _PinFormState extends State<PinForm>
               option == null ? "Необходима категория места" : null,
           options: Category.all(),
         ),
-        CheckBoxPicker(
-          options: Tag.all(),
-          onSaved: (Set<Option> tags) {
-            setState(() {
-              for (Option option in tags) {
-                this.tags.add(option);
-              }
-            });
-            return;
-          },
-        ),
+        // CheckBoxPicker(
+        //   options: Tag.all(),
+        //   onSaved: (Set<Option> tags) {
+        //     setState(() {
+        //       for (Option option in tags) {
+        //         this.tags.add(option);
+        //       }
+        //     });
+        //     return;
+        //   },
+        // ),
         TextFormField(
           controller: nameController,
           validator: (text) =>

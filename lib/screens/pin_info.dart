@@ -12,7 +12,6 @@ import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
 import 'map.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:coworking/widgets/check_box_picker.dart';
 
 class PinInfo extends StatefulWidget {
   final Pin pin;
@@ -71,7 +70,6 @@ class _PinInfoState extends State<PinInfo> {
     TextEditingController nameController = TextEditingController();
 
     void _savePin() async {
-
       var newImage = imagePickerKey.currentState.value;
       var timeKey = new DateTime.now();
       final StorageReference postImageRef =
@@ -106,8 +104,7 @@ class _PinInfoState extends State<PinInfo> {
     }
 
     ///нужно переделать кнопку в изменить пин для создателя \ админа
-    ///
-    ///
+
     Widget editPinButton(context) => Builder(
         builder: (context) => IconButton(
             icon: Icon(
@@ -208,14 +205,7 @@ class _PinInfoState extends State<PinInfo> {
                       } else {
                         return Center(child: CircularProgressIndicator());
                       }
-                    })))
-        // Clipboard.setData(
-        //     ClipboardData(text: widget.pin.id.hashCode.toString()));
-        // Scaffold.of(context).showSnackBar(SnackBar(
-        //   content: Text("Пин изменен"),
-        // ));
-
-        );
+                    }))));
 
     Widget bar = SliverAppBar(
       pinned: true,

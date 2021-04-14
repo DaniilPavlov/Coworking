@@ -2,7 +2,7 @@ import 'package:coworking/resources/pin.dart';
 import 'package:edit_distance/edit_distance.dart';
 import 'package:flutter/material.dart';
 
-
+/// НУЖНО ДОБАВИТЬ ФИЛЬТР (ПО КАТЕГОРИЯМ МЕСТ)
 class MapSearchDelegate extends SearchDelegate<Pin> {
   final Levenshtein distance = Levenshtein();
   final Set<Pin> pins;
@@ -12,13 +12,14 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
+      ///очистка строки запроса
       IconButton(
         icon: Icon(
           Icons.clear,
           semanticLabel: "Clear",
         ),
         onPressed: () {
-          query = ''; // reset query on clear
+          query = '';
         },
       )
     ];
@@ -26,7 +27,7 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
 
   @override
   Widget buildLeading(BuildContext context) {
-    return BackButton(); // button before search query
+    return BackButton();
   }
 
   @override
@@ -34,15 +35,12 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
     List<Pin> results = List<Pin>();
 
     for (Pin pin in pins) {
-      /* a much better algorithm would look for terms in the query separately
-       * using a fuzzy-match and rank results based on how close they are to terms.
-       */
-      // if pin's name contains query, add as result
+      // если в названии пина есть заданный набор букв - выводим
       if (pin.name.contains(RegExp(query, caseSensitive: false))) {
         results.add(pin);
       }
 
-      //Find pin by id
+      //найти пин по id
       try {
         if (pin.id.hashCode == int.parse(query)) {
           results.add(pin);
@@ -81,15 +79,12 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
     List<Pin> suggestions = List<Pin>();
 
     for (Pin pin in pins) {
-      /* a much better algorithm would look for terms in the query separately
-       * using a fuzzy-match and rank results based on how close they are to terms.
-       */
-      // if pin's name contains query, add as result
+      // если в названии пина есть заданный набор букв - выводим
       if (pin.name.contains(RegExp(query, caseSensitive: false)) ||
           distance.distance(pin.name, query) < 4) {
         suggestions.add(pin);
       }
     }
-    return Column(); // TODO: add suggestions
+    return Column(); // TODO: добавить suggestions
   }
 }

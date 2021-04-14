@@ -4,7 +4,6 @@ import 'package:coworking/resources/review.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
-
 import 'database.dart';
 
 class Account {
@@ -14,10 +13,6 @@ class Account {
 
   String _userName;
   String _email;
-
-  int _visitedCount;
-
-  List<Review> _helpfulReviews = List<Review>();
 
   Account(
     this.id, {
@@ -55,20 +50,6 @@ class Account {
         hasUpdated.complete();
       });
     });
-  }
-
-  int get visitedCount => _visitedCount;
-
-  void incVisitedCount() {
-    _visitedCount++;
-    // TODO: update DB
-  }
-
-  List<Review> get helpful => _helpfulReviews;
-
-  void addHelpful(Review review) {
-    _helpfulReviews.add(review);
-    // TODO: update DB
   }
 
   Map<String, dynamic> asMap() {
