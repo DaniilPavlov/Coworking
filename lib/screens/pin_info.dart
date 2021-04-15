@@ -103,109 +103,100 @@ class _PinInfoState extends State<PinInfo> {
       }
     }
 
-    ///нужно переделать кнопку в изменить пин для создателя \ админа
-
-    Widget editPinButton(context) => Builder(
-        builder: (context) => IconButton(
-            icon: Icon(
-              Icons.edit_location_rounded,
-              color: Colors.orange,
-              semanticLabel: "Edit Pin",
-              size: 35,
-            ),
-            color: Colors.white,
-            onPressed: () => showModalBottomSheet(
-                context: context,
-                builder: (_) => FutureBuilder(
-                    future: Database.isPinOwner(widget.pin),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return (snapshot.data == true)
-                            ? WillPopScope(
-                                onWillPop: () async {
-                                  return true;
-                                },
-                                child: Scaffold(
-                                    appBar: AppBar(actions: <Widget>[
-                                      IconButton(
-                                        icon: Icon(Icons.save),
-                                        onPressed: () {
-                                          _savePin();
-                                        },
-                                      )
-                                    ]),
-                                    body: SingleChildScrollView(
-                                      child: Container(
-                                          padding: EdgeInsets.all(10),
-                                          child: Form(
-                                            key: _formKey,
-                                            child: Column(children: <Widget>[
-                                              ImagePickerBox(
-                                                key: imagePickerKey,
-                                                validator: (image) => image ==
-                                                        null
-                                                    ? "Необходима фотография места"
-                                                    : null,
+    editPinButton(context) => FutureBuilder(
+        future: Database.isPinOwner(widget.pin),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return (snapshot.data == true)
+                ? WillPopScope(
+                    onWillPop: () async {
+                      return true;
+                    },
+                    child: IconButton(
+                        icon: Icon(
+                          Icons.edit_location_rounded,
+                          color: Colors.orange,
+                          semanticLabel: "Edit Pin",
+                          size: 35,
+                        ),
+                        color: Colors.white,
+                        onPressed: () => showModalBottomSheet(
+                              context: context,
+                              builder: (_) => Scaffold(
+                                  appBar: AppBar(actions: <Widget>[
+                                    IconButton(
+                                      icon: Icon(Icons.save),
+                                      onPressed: () {
+                                        _savePin();
+                                      },
+                                    )
+                                  ]),
+                                  body: SingleChildScrollView(
+                                    child: Container(
+                                        padding: EdgeInsets.all(10),
+                                        child: Form(
+                                          key: _formKey,
+                                          child: Column(children: <Widget>[
+                                            ImagePickerBox(
+                                              key: imagePickerKey,
+                                              validator: (image) => image ==
+                                                      null
+                                                  ? "Необходима фотография места"
+                                                  : null,
+                                            ),
+                                            RadioButtonPicker(
+                                              key: categoryPickerKey,
+                                              validator: (option) => option ==
+                                                      null
+                                                  ? "Необходима категория места"
+                                                  : null,
+                                              options: Category.all(),
+                                            ),
+                                            TextFormField(
+                                              controller: nameController,
+                                              validator: (text) => text.isEmpty
+                                                  ? "Необходимо название места"
+                                                  : null,
+                                              decoration: InputDecoration(
+                                                hintText: "Название места",
+                                                contentPadding:
+                                                    EdgeInsets.all(8.0),
                                               ),
-                                              RadioButtonPicker(
-                                                key: categoryPickerKey,
-                                                validator: (option) => option ==
-                                                        null
-                                                    ? "Необходима категория места"
-                                                    : null,
-                                                options: Category.all(),
-                                              ),
-                                              TextFormField(
-                                                controller: nameController,
-                                                validator: (text) => text
-                                                        .isEmpty
-                                                    ? "Необходимо название места"
-                                                    : null,
-                                                decoration: InputDecoration(
-                                                  hintText: "Название места",
-                                                  contentPadding:
-                                                      EdgeInsets.all(8.0),
-                                                ),
-                                              ),
-                                              ButtonTheme(
-                                                minWidth: 120.0,
-                                                height: 60.0,
-                                                child: RaisedButton(
-                                                  onPressed: () {
-                                                    // удаление
-                                                    setState(() {
-                                                      MapBodyState
-                                                          .doPinToDelete(
-                                                              widget.pin);
-                                                      Database.deletePin(
-                                                          widget.pin);
-                                                    });
-                                                    Navigator.of(context)
-                                                        .pop(context);
-                                                    // Clipboard.setData(ClipboardData(text: widget.pin.name));
-                                                    // Scaffold.of(context).showSnackBar(SnackBar(
-                                                    //   content: Text(widget.pin.name),
-                                                    // ));
-                                                  },
-                                                  child: Text(
-                                                    'Удалить',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 26.0,
-                                                    ),
+                                            ),
+                                            ButtonTheme(
+                                              minWidth: 120.0,
+                                              height: 60.0,
+                                              child: RaisedButton(
+                                                onPressed: () {
+                                                  // удаление
+                                                  setState(() {
+                                                    MapBodyState.doPinToDelete(
+                                                        widget.pin);
+                                                    Database.deletePin(
+                                                        widget.pin);
+                                                  });
+                                                  Navigator.of(context)
+                                                      .pop(context);
+                                                },
+                                                child: Text(
+                                                  'Удалить',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 26.0,
                                                   ),
-                                                  color: Colors.red,
                                                 ),
+                                                color: Colors.red,
                                               ),
-                                            ]),
-                                          )),
-                                    )),
-                              )
-                            : Container();
-                      } else {
-                        return Center(child: CircularProgressIndicator());
-                      }
-                    }))));
+                                            ),
+                                          ]),
+                                        )),
+                                  )),
+                            )))
+                : Container();
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        });
 
     Widget bar = SliverAppBar(
       pinned: true,

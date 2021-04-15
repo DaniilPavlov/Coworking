@@ -132,8 +132,6 @@ class _PinListItemState extends State<PinListItem> {
                 future: Database.isReviewOwner(widget.review),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    // print("SNAPSHOT DATA");
-                    print(snapshot.data);
                     return (snapshot.data == true)
                         ? WillPopScope(
                             onWillPop: () async {
@@ -188,10 +186,6 @@ class _PinListItemState extends State<PinListItem> {
                                       onPressed: () {
                                         Database.deleteReview(widget.review);
                                         Navigator.pop(context);
-                                        // Clipboard.setData(ClipboardData(text: "Ваш комментарий был удален"));
-                                        // Scaffold.of(context).showSnackBar(SnackBar(
-                                        //   content: Text("Ваш комментарий был удален"),
-                                        // ));
                                       },
                                       child: Text(
                                         'Удалить',

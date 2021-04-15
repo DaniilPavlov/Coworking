@@ -305,18 +305,22 @@ class Database {
   }
 
   static Future<bool> isPinOwner(Pin pin) {
-    Future<bool> curUser = isAdmin();
-    DocumentReference docRef =
-        Firestore.instance.collection("pins").document(pin.id);
-    return docRef.get().then((datasnapshot) {
-      if (datasnapshot.data['author'].toString() == Account.currentAccount.id) {
+    return Firestore.instance
+        .collection("users").where("userID", isEqualTo: Account.currentAccount.id).getDocuments().then((datasnap){
+      if (datasnap.documents.first.data["isAdmin"] == true) {
         return true;
-      } else if (curUser !=null) {
-        return true;
-      } else {
-        return false;
       }
+      DocumentReference docRef =
+      Firestore.instance.collection("pins").document(pin.id);
+      return docRef.get().then((datasnapshot) {
+        if (datasnapshot.data['author'].toString() == Account.currentAccount.id) {
+          return true;
+        } else {
+          return false;
+        }
+      });
     });
+
   }
 
   /// возвращаем все плохие отзывы для админа

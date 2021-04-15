@@ -10,17 +10,22 @@ class Review {
   final DateTime timestamp;
 
   Pin pin;
-
   String body;
 
-  int _flagCount;
+  bool isFood;
+  bool isFree;
+  bool isRazors;
+  int rate;
 
   Review(
     this.id,
     this.author,
     this.body,
     this.timestamp,
-    this._flagCount,
+    this.isFood,
+    this.isFree,
+    this.isRazors,
+    this.rate,
   );
 
   @override
@@ -36,8 +41,11 @@ class Review {
     review["author"] = author.id;
     review["dateAdded"] = Timestamp.fromDate(timestamp);
     review["content"] = body;
-    review["flagCount"] = _flagCount;
     review["pinID"] = pin?.id;
+    review["isFood"] = isFood;
+    review["isFree"] = isFree;
+    review["isRazors"] = isRazors;
+    review["rate"] = rate;
     return review;
   }
 
@@ -53,7 +61,10 @@ class Review {
       Account(data["author"]),
       data["content"],
       data["dateAdded"].toDate(),
-      data["flagCount"],
+      data["isFood"],
+        data["isFree"],
+        data["isRazors"],
+        data["rate"]
     );
   }
 }

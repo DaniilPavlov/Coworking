@@ -9,7 +9,7 @@ class UserCommentsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: Text('Your Reviews'),
+        title: Text('Ваши отзывы'),
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios,
