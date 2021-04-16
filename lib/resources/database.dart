@@ -225,7 +225,6 @@ class Database {
         await getFirstReview(pinID), context);
   }
 
-
   ///добавляем отзыв в базу
   static void addReview(Review review) {
     Firestore.instance.collection("reviews").add(review.asMap());
@@ -245,7 +244,6 @@ class Database {
     });
   }
 
-
   /// удаляем флаг с отзыва
   static void unFlag(String id) {
     Firestore.instance
@@ -259,7 +257,6 @@ class Database {
     });
   }
 
-
   /// добавляем флаг на отзыв
   static void flag(String id) {
     Map<String, dynamic> flag = Map();
@@ -267,7 +264,6 @@ class Database {
     flag["userID"] = Account.currentAccount.id;
     Firestore.instance.collection("flags").add(flag);
   }
-
 
   /// проверяем поставил ли флажок пользователь данному комментарию
   static Future<bool> isFlagged(id) {
@@ -306,21 +302,24 @@ class Database {
 
   static Future<bool> isPinOwner(Pin pin) {
     return Firestore.instance
-        .collection("users").where("userID", isEqualTo: Account.currentAccount.id).getDocuments().then((datasnap){
+        .collection("users")
+        .where("userID", isEqualTo: Account.currentAccount.id)
+        .getDocuments()
+        .then((datasnap) {
       if (datasnap.documents.first.data["isAdmin"] == true) {
         return true;
       }
       DocumentReference docRef =
-      Firestore.instance.collection("pins").document(pin.id);
+          Firestore.instance.collection("pins").document(pin.id);
       return docRef.get().then((datasnapshot) {
-        if (datasnapshot.data['author'].toString() == Account.currentAccount.id) {
+        if (datasnapshot.data['author'].toString() ==
+            Account.currentAccount.id) {
           return true;
         } else {
           return false;
         }
       });
     });
-
   }
 
   /// возвращаем все плохие отзывы для админа

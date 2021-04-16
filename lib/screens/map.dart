@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:io';
 
 import 'package:permission_handler/permission_handler.dart';
 
@@ -164,33 +165,65 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   ///WIDGET BUILD
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: MapBody(
-        mapMoveCallback: (value) => currentMapPosition = value,
-        initialPosition: currentMapPosition,
-        mapOverlap: mapOverlap,
-        drawerHeight: drawerHeight,
-        pins: pins,
-        pinAnimation: drawerAnimator,
-        pinsStream: pinsStream,
-      ),
-      drawer: MenuDrawer(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: currentFab,
-      resizeToAvoidBottomInset: false,
-      // сделанно для того, чтобы при открытии клавиатуры карта не изменяла размер
-      extendBody: true,
-      // сверху над картой помещаем боттом нав бар
-      bottomNavigationBar: BottomBar(
-        pinFormKey,
-        closeDrawer,
-        mapOverlap == EdgeInsets.zero ? barHeightChange : (_) {},
-        drawerHeight,
-        drawerAnimator,
-        showDrawer,
-        updateMapPosition,
-      ),
-    );
+    return WillPopScope(
+        onWillPop: () {
+          showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                      title: Text(
+                        "Вы действительно хотите выйти?",
+                        style: TextStyle(color: Colors.orange),
+                      ),
+                      actions: <Widget>[
+                        FlatButton(
+                            child: Text(
+                              "Да",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            color: Colors.orange,
+                            onPressed: () {
+                              exit(0);
+                            }),
+                        SizedBox(
+                          width: 100,
+                        ),
+                        FlatButton(
+                          child: Text("Нет",
+                              style: TextStyle(color: Colors.white)),
+                          color: Colors.orange,
+                          onPressed: () => Navigator.pop(context, false),
+                        ),
+                      ]));
+          return;
+        },
+        child: Scaffold(
+          body: MapBody(
+            mapMoveCallback: (value) => currentMapPosition = value,
+            initialPosition: currentMapPosition,
+            mapOverlap: mapOverlap,
+            drawerHeight: drawerHeight,
+            pins: pins,
+            pinAnimation: drawerAnimator,
+            pinsStream: pinsStream,
+          ),
+          drawer: MenuDrawer(),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
+          floatingActionButton: currentFab,
+          resizeToAvoidBottomInset: false,
+          // сделанно для того, чтобы при открытии клавиатуры карта не изменяла размер
+          extendBody: true,
+          // сверху над картой помещаем боттом нав бар
+          bottomNavigationBar: BottomBar(
+            pinFormKey,
+            closeDrawer,
+            mapOverlap == EdgeInsets.zero ? barHeightChange : (_) {},
+            drawerHeight,
+            drawerAnimator,
+            showDrawer,
+            updateMapPosition,
+          ),
+        ));
   }
 
   @override

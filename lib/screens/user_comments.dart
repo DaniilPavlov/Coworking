@@ -28,7 +28,7 @@ class UserCommentsPage extends StatelessWidget {
               const PopupMenuItem(
                 child: Text(
                   "\nЗдесь будут отображаться все отзывы, написанные Вами.\n"
-                  "\nПо нажатию Dы можете переместиться к месту, которое описывали.\n",
+                  "\nПо нажатию Вы можете переместиться к месту.\n",
                   textAlign: TextAlign.justify,
                 ),
               ),

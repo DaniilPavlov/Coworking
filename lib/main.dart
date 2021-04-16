@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:coworking/screens/login.dart';
+import 'package:coworking/screens/authStatus.dart';
 
 void main() => runApp(MyApp());
 
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: LoginScreen(),
+      home: AuthStatusScreen(),
     );
   }
 }

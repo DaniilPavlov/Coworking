@@ -338,8 +338,9 @@ class CustomListItem extends ListTile {
 
 /// Любимые отзывы
 class StarredReviewsListItem extends ListTile {
-  const StarredReviewsListItem(this.review);
+  const StarredReviewsListItem(this.review,this.location);
 
+  final LatLng location;
   final Review review;
 
   @override
@@ -350,8 +351,7 @@ class StarredReviewsListItem extends ListTile {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Expanded(
-            flex: 3,
+          Container(
             child: CustomListItem(
               name: review.pin.name,
               date: review.timestamp,
@@ -360,10 +360,29 @@ class StarredReviewsListItem extends ListTile {
           ),
           IconButton(
             icon: Icon(
+              Icons.gps_fixed_outlined,
+              color: Colors.black,
+              semanticLabel: "Go to pin",
+            ),
+            iconSize: 40.0,
+            color: Color.fromRGBO(0, 0, 0, 0.3),
+            onPressed: () {
+              ///заменяем страницу в стеке страниц
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MapPage(
+                        currentMapPosition: location,
+                      )));
+            },
+          ),
+          Spacer(),
+          IconButton(
+            icon: Icon(
               Icons.star,
               semanticLabel: "Remove",
             ),
-            iconSize: 28.0,
+            iconSize: 30.0,
             onPressed: () {
               Database.removeFavourite(review.id);
             },

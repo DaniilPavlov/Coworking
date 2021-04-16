@@ -3,6 +3,7 @@ import 'package:coworking/resources/database.dart';
 import 'package:coworking/resources/review.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:coworking/screens/login.dart';
 
 import '../main.dart';
 import '../sign_in.dart';
@@ -25,14 +26,14 @@ class AccountPage extends StatelessWidget {
             tooltip: "Help",
             icon: Icon(
               Icons.help,
-              color: Colors.white,
+              color: Colors.black,
             ),
             itemBuilder: (BuildContext context) => <PopupMenuEntry>[
               const PopupMenuItem(
-                child: Text("\nЭто страница вашего профиля.\n"
+                child: Text("\nЭто страница Вашего профиля.\n"
                     "\nВы можете поменять свое имя, посмотреть количество "
-                    "посещенных вами мест, написанных отзывов "
-                    "и выйти/удалить аккаунт.\n"),
+                    "посещенных Вами мест, написанных отзывов "
+                    "и выйти либо удалить аккаунт.\n"),
               ),
             ],
           )
@@ -260,6 +261,7 @@ void signOut(BuildContext context) {
   SignIn().signOutGoogle();
 
   ///изменил рут на тру, теперь все нормально закрывается
-  Navigator.pushAndRemoveUntil(context,
-      MaterialPageRoute(builder: (context) => MyApp()), (route) => true);
+  Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+      (Route<dynamic> route) => false);
 }
