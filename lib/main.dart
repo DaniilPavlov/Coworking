@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Study Together',
+      title: 'Work Space',
       theme: ThemeData(
         // textSelectionHandleColor: Colors.deepPurple,
         // textSelectionColor: Colors.deepPurple,

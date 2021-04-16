@@ -16,69 +16,71 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          body: SizedBox.expand(
-            child: Card(
-              margin: MediaQuery.of(context).padding +
-                  EdgeInsets.symmetric(vertical: 128.0, horizontal: 15.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  Text(
-                    "Study Together",
-                    textScaleFactor: 3.0,
-                    style: TextStyle(
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Image.asset("assets/logo.png"),
-                  ),
-                  Builder(
-                    builder: (context) => GoogleSignInButton(
-                      onPressed: () async {
-                        Scaffold.of(context).showBodyScrim(true, 0.5);
-                        setState(() {
-                          isLoading = true;
-                        });
-                        FirebaseUser user = await SignIn().signInWithGoogle();
-                        setState(() {
-                          isLoading = false;
-                        });
-
-                        if (user != null) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (_) => MapPage()),
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                ],
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/logo.webp"),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Column(children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(top: 140, left: 20, right: 20),
+            child: Container(
+              child: Align(
+                child: Text(
+                  'Добро пожаловать в Work Space!',
+                  style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ),
-        ),
-        Visibility(
-          child: Container(
-            alignment: Alignment.center,
-            child: SizedBox(
-              width: 150,
-              height: 150,
-              child: CircularProgressIndicator(
-                strokeWidth: 10.0,
-                semanticsLabel: "Signing in",
+          SizedBox(height: 50),
+          Container(
+            child: Builder(
+              builder: (context) => GoogleSignInButton(
+                onPressed: () async {
+                  Scaffold.of(context).showBodyScrim(true, 0.5);
+                  setState(() {
+                    isLoading = true;
+                  });
+                  FirebaseUser user = await SignIn().signInWithGoogle();
+                  setState(() {
+                    isLoading = false;
+                  });
+                  if (user != null) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => MapPage()),
+                    );
+                  }
+                },
               ),
             ),
+            height: 50,
           ),
-          visible: isLoading,
-        ),
-      ],
+          Visibility(
+            child: Container(
+              alignment: Alignment.center,
+              child: SizedBox(
+                width: 150,
+                height: 150,
+                child: CircularProgressIndicator(
+                  strokeWidth: 10.0,
+                  semanticsLabel: "Signing in",
+                ),
+              ),
+            ),
+            visible: isLoading,
+          ),
+        ]),
+      ),
     );
   }
 }
