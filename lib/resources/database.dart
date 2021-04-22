@@ -8,6 +8,7 @@ import 'package:coworking/resources/visited.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:coworking/screens/pin_info.dart';
 
 import 'account.dart';
 import 'category.dart';
@@ -40,6 +41,7 @@ class Database {
           document["name"],
           document["imageUrl"],
           Category.find(document["category"]),
+          document["rating"],
           context,
           review: (documentChange.type == DocumentChangeType.added)
               ? await getFirstReview(document.documentID)
@@ -66,6 +68,29 @@ class Database {
       reviews.sort((firstReview, secondReview) =>
           firstReview.timestamp.compareTo((secondReview.timestamp)));
       return reviews;
+    });
+  }
+
+  static Future updateRateOfPin(String pinID) async {
+    double rating = 0;
+    return await Firestore.instance
+        .collection("reviews")
+        .where("pinID", isEqualTo: pinID)
+        .getDocuments()
+        .then((query) {
+      for (DocumentSnapshot documentSnapshot in query.documents) {
+        Map<String, dynamic> reviewMap = documentSnapshot.data;
+        Review review = Review.fromMap(documentSnapshot.documentID, reviewMap);
+        rating = rating + review.totalRate;
+      }
+      rating = rating / query.documents.length;
+      DocumentReference docRef =
+          Firestore.instance.collection("pins").document(pinID);
+      docRef.updateData(<String, dynamic>{"rating": rating});
+      print("RATING");
+      rating = double.parse(rating.toStringAsFixed(2));
+      print(rating);
+      return rating;
     });
   }
 
@@ -121,29 +146,23 @@ class Database {
     Category category,
     BuildContext context,
   ) async {
-    //Add the image to the database
+    //ждем загрузки фото
     var timeKey = new DateTime.now();
     final StorageReference postImageRef =
         FirebaseStorage.instance.ref().child("Pin Images");
     final StorageUploadTask uploadTask =
         postImageRef.child(timeKey.toString() + ".jpg").putFile(image);
     var imageUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
+    //добавляем пин в базу
+    DocumentReference newPin = await Firestore.instance.collection("pins").add(
+        Pin.newPinMap(
+            name, location, author, imageUrl, category, review.totalRate));
 
-    //Add the pin to the database
-    DocumentReference newPin =
-        await Firestore.instance.collection("pins").add(Pin.newPinMap(
-              name,
-              location,
-              author,
-              imageUrl,
-              category,
-            ));
-
-    //Create map for initial review
+    //создаем map для отзыва
     Map<String, dynamic> initialReviewMap =
         Review.newReviewMap(review, newPin.documentID);
 
-    //Add the review to the database
+    //добавляем отзыв
     DocumentReference initialReview =
         await Firestore.instance.collection("reviews").add(initialReviewMap);
 
@@ -156,6 +175,7 @@ class Database {
       name,
       imageUrl,
       category,
+      review.totalRate,
       context,
       review: review,
     );

@@ -247,10 +247,12 @@ class _PinInfoState extends State<PinInfo> {
             appBar: AppBar(actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.save),
-                onPressed: () {
+                onPressed: () async {
                   if (reviewFormKey.currentState.isValid) {
                     Review review = reviewFormKey.currentState.getReview();
                     widget.pin.addReview(review);
+                    widget.pin.rating =
+                        await Database.updateRateOfPin(widget.pin.id);
                     Navigator.pop(context);
                   }
                 },
@@ -288,6 +290,26 @@ class _PinInfoState extends State<PinInfo> {
                         child: Text("Категория:"),
                       ),
                       categoryChip,
+                      FutureBuilder(
+                          future: Database.updateRateOfPin(widget.pin.id),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              widget.pin.rating = snapshot.data;
+                              return (snapshot.hasData)
+                                  ? Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 16.0),
+                                      child: Text(
+                                        "Рейтинг: " +
+                                            widget.pin.rating.toString() +
+                                            " / 10",
+                                      ),
+                                    )
+                                  : Container();
+                            } else {
+                              return Center(child: CircularProgressIndicator());
+                            }
+                          })
                     ]),
                     Wrap(
                       spacing: 8.0,

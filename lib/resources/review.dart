@@ -15,18 +15,20 @@ class Review {
   bool isFood;
   bool isFree;
   bool isRazors;
-  int rate;
+  bool isWiFi;
+  double userRate;
+  double totalRate;
 
-  Review(
-    this.id,
-    this.author,
-    this.body,
-    this.timestamp,
-    this.isFood,
-    this.isFree,
-    this.isRazors,
-    this.rate,
-  );
+  Review(this.id,
+      this.author,
+      this.body,
+      this.timestamp,
+      this.isFood,
+      this.isFree,
+      this.isRazors,
+      this.isWiFi,
+      this.userRate,
+      this.totalRate);
 
   @override
   int get hashCode => id.hashCode;
@@ -45,7 +47,9 @@ class Review {
     review["isFood"] = isFood;
     review["isFree"] = isFree;
     review["isRazors"] = isRazors;
-    review["rate"] = rate;
+    review["isWiFi"] = isWiFi;
+    review["userRate"] = userRate;
+    review["totalRate"] = totalRate;
     return review;
   }
 
@@ -62,9 +66,11 @@ class Review {
       data["content"],
       data["dateAdded"].toDate(),
       data["isFood"],
-        data["isFree"],
-        data["isRazors"],
-        data["rate"]
+      data["isFree"],
+      data["isRazors"],
+      data["isWiFi"],
+      data["userRate"],
+      data["totalRate"]
     );
   }
 }

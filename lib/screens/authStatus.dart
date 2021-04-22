@@ -9,7 +9,6 @@ class AuthStatusScreen extends StatelessWidget {
     ///нужно проверить на удалении
     doAuth() async {
       await SignIn().signInWithGoogle();
-      print("go");
     }
 
     return FutureBuilder(

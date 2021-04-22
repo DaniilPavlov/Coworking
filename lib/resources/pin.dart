@@ -10,7 +10,6 @@ import 'account.dart';
 import 'category.dart';
 import 'database.dart';
 
-
 class Pin {
   String id;
   LatLng location;
@@ -24,6 +23,7 @@ class Pin {
   Set<Review> _reviews = Set<Review>();
   Set<Tag> tags = Set();
   int _visitorCount = 0;
+  double rating;
 
   Pin(
     this.id,
@@ -32,8 +32,9 @@ class Pin {
     this.name,
     this.imageUrl,
     this._category,
+    this.rating,
     BuildContext context, {
-      tags,
+    tags,
     Review review,
   }) {
     marker = _createMarker(context);
@@ -54,8 +55,6 @@ class Pin {
     review.pin = this;
     Database.addReview(review);
   }
-
-
 
   int get visitorCount => _visitorCount;
 
@@ -90,6 +89,7 @@ class Pin {
     pin["author"] = author.id;
     pin["imageUrl"] = imageUrl;
     pin["category"] = category.text;
+    pin["rating"] = rating;
     return pin;
   }
 
@@ -99,6 +99,7 @@ class Pin {
     Account author,
     String imageUrl,
     Category category,
+    double rating,
   ) {
     Map<String, dynamic> pin = Map();
     pin["name"] = name;
@@ -107,6 +108,7 @@ class Pin {
     pin["author"] = author.id;
     pin["imageUrl"] = imageUrl;
     pin["category"] = category.text;
+    pin["rating"] = rating;
     return pin;
   }
 
@@ -119,6 +121,7 @@ class Pin {
       pinMap["name"],
       pinMap["imageUrl"],
       Category.find(pinMap["category"]),
+      pinMap["rating"],
       context,
       review: review,
     );

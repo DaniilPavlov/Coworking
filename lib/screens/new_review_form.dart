@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:coworking/resources/account.dart';
 import 'package:coworking/resources/review.dart';
+import 'package:coworking/resources/pin.dart';
 
 class NewReviewForm extends StatefulWidget {
   NewReviewForm({Key key}) : super(key: key);
@@ -17,6 +18,7 @@ class NewReviewFormState extends State<NewReviewForm>
   bool isFood = false;
   bool isFree = false;
   bool isRazors = false;
+  bool isWiFi = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -55,7 +57,7 @@ class NewReviewFormState extends State<NewReviewForm>
                     textAlign: TextAlign.left,
                   ),
                   GridView.count(
-                    childAspectRatio: 4,
+                    childAspectRatio: 5,
                     crossAxisCount: 2,
                     shrinkWrap: true,
                     children: <Widget>[
@@ -109,14 +111,30 @@ class NewReviewFormState extends State<NewReviewForm>
                       ),
                       Container(
                         alignment: Alignment.centerLeft,
-                        child: Text("Ваша личная оценка места"),
+                        child: Text("Есть WiFi"),
+                      ),
+                      Container(
+                        alignment: Alignment.center,
+                        child: Checkbox(
+                          value: isWiFi,
+                          onChanged: (value) {
+                            setState(() {
+                              isWiFi = value;
+                            });
+                          },
+                          tristate: false,
+                        ),
+                      ),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                            "Ваша личная оценка места (введите число от 0 до 10)"),
                       ),
                       Container(
                         alignment: Alignment.center,
                         child: TextFormField(
                           textAlign: TextAlign.center,
                           controller: rateController,
-
                           validator: (input) {
                             final RegExp shutterSpeedRegEx =
                                 RegExp("[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)");
@@ -124,10 +142,11 @@ class NewReviewFormState extends State<NewReviewForm>
                               return "Вы не ввели оценку";
                             else if (!shutterSpeedRegEx.hasMatch(input))
                               return "Введите число";
-                            else if (int.parse(rateController.text) > 10 || int.parse(rateController.text) < 0)
+                            else if (double.parse(rateController.text) > 10 ||
+                                double.parse(rateController.text) < 0)
                               return "От 0 до 10";
-                            else return null;
-
+                            else
+                              return null;
                           },
                         ),
                       ),
@@ -140,6 +159,18 @@ class NewReviewFormState extends State<NewReviewForm>
 
   bool get isValid => formKey.currentState.validate();
 
+  double countRate() {
+    double totalRate = 1;
+    if (isFood) totalRate++;
+    if (isFree) totalRate++;
+    if (isRazors) totalRate++;
+    if (isWiFi) totalRate++;
+    totalRate = totalRate + (double.parse(this.rateController.text) / 2);
+    totalRate = double.parse(totalRate.toStringAsFixed(2));
+    print(totalRate);
+    return totalRate;
+  }
+
   Review getReview() {
     formKey.currentState.save();
     return Review(
@@ -150,6 +181,8 @@ class NewReviewFormState extends State<NewReviewForm>
         isFood,
         isFree,
         isRazors,
-        int.parse(this.rateController.text));
+        isWiFi,
+        double.parse(this.rateController.text),
+        countRate());
   }
 }
