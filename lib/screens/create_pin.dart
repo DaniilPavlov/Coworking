@@ -1,8 +1,6 @@
 import 'dart:io';
 
-import 'package:coworking/resources/option.dart';
 import 'package:coworking/resources/tag.dart';
-import 'package:coworking/widgets/check_box_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:coworking/resources/account.dart';
@@ -128,17 +126,6 @@ class _PinFormState extends State<PinForm>
               option == null ? "Необходима категория места" : null,
           options: Category.all(),
         ),
-        // CheckBoxPicker(
-        //   options: Tag.all(),
-        //   onSaved: (Set<Option> tags) {
-        //     setState(() {
-        //       for (Option option in tags) {
-        //         this.tags.add(option);
-        //       }
-        //     });
-        //     return;
-        //   },
-        // ),
         TextFormField(
           controller: nameController,
           validator: (text) =>
@@ -157,7 +144,6 @@ class _PinFormState extends State<PinForm>
   Future<Pin> createPin(Review review) async {
     File image = imagePickerKey.currentState.value;
     String name = nameController.text;
-    Set<Tag> tags = this.tags;
 
     Category category = categoryPickerKey.currentState.value;
 

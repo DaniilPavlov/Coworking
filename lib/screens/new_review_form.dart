@@ -40,7 +40,7 @@ class NewReviewFormState extends State<NewReviewForm>
             TextFormField(
               controller: reviewController,
               validator: (text) => text.isEmpty ? "Отзыв обязателен" : null,
-              maxLines: 5,
+              maxLines: 3,
               decoration: InputDecoration(
                 hintText: "Отзыв",
                 contentPadding: EdgeInsets.all(8.0),
@@ -116,16 +116,18 @@ class NewReviewFormState extends State<NewReviewForm>
                         child: TextFormField(
                           textAlign: TextAlign.center,
                           controller: rateController,
+
                           validator: (input) {
                             final RegExp shutterSpeedRegEx =
                                 RegExp("[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)");
                             if (input.length == 0)
-                              return null;
-                            else if (!shutterSpeedRegEx.hasMatch(input)) {
-                              return "Оценка должна быть числовым форматом.";
-                            } else {
-                              return null;
-                            }
+                              return "Вы не ввели оценку";
+                            else if (!shutterSpeedRegEx.hasMatch(input))
+                              return "Введите число";
+                            else if (int.parse(rateController.text) > 10 || int.parse(rateController.text) < 0)
+                              return "От 0 до 10";
+                            else return null;
+
                           },
                         ),
                       ),
@@ -148,6 +150,6 @@ class NewReviewFormState extends State<NewReviewForm>
         isFood,
         isFree,
         isRazors,
-        int.parse(rateController.text));
+        int.parse(this.rateController.text));
   }
 }

@@ -251,8 +251,9 @@ void deleteAccount(BuildContext context) {
   ///изменил рут на тру, теперь все нормально закрывается
   FirebaseAuth.instance.currentUser().then((user) {
     user.delete();
-    Navigator.pushAndRemoveUntil(context,
-        MaterialPageRoute(builder: (context) => MyApp()), (route) => true);
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+        (Route<dynamic> route) => true);
   });
 }
 
@@ -260,8 +261,8 @@ void signOut(BuildContext context) {
   FirebaseAuth.instance.signOut();
   SignIn().signOutGoogle();
 
-  ///изменил рут на тру, теперь все нормально закрывается
+  ///изменил рут на тру, теперь при перезаходе пины активны
   Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => LoginScreen()),
-      (Route<dynamic> route) => false);
+      (Route<dynamic> route) => true);
 }

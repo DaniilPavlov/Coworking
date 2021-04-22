@@ -375,6 +375,7 @@ class MapBodyState extends State<MapBody> {
             padding: widget.mapOverlap +
                 EdgeInsets.only(
                     bottom: widget.drawerHeight * widget.pinAnimation.value),
+            // поднимаем +- и надпись гугл
             markers: markers,
             myLocationEnabled: locationEnabled,
             myLocationButtonEnabled: locationEnabled,
@@ -383,7 +384,7 @@ class MapBodyState extends State<MapBody> {
         ),
         Align(
           child: Transform.translate(
-            // corrects the offset caused by the mapOverlap
+            // ставим пин ниже, иначе будет высоко
             offset: Offset(
               0.0,
               (widget.mapOverlap.top -
@@ -394,9 +395,9 @@ class MapBodyState extends State<MapBody> {
 
             ///тут наводимся куда поставить наш пин
             child: ScaleTransition(
-              scale: widget.pinAnimation, // scale the pin with this animation
+              scale: widget.pinAnimation, // масштабирование пина
               child: FractionalTranslation(
-                translation: Offset(0.0, -0.5), // aligns pin point to centre
+                translation: Offset(0.0, -0.5), // корректируем пин в центр
                 child: Icon(
                   Icons.location_on,
                   size: 48.0,
@@ -464,7 +465,9 @@ class BottomBar extends StatelessWidget {
               axisAlignment: -1.0,
               child: Padding(
                 padding: EdgeInsets.only(bottom: keyboardPadding),
-                child: CreatePin(drawerHeight, key: pinFormKey),
+
+                ///добавил 15, при изменении drawerHeight ничего не происходило
+                child: CreatePin(drawerHeight + 15, key: pinFormKey),
               ),
             ),
           ),
