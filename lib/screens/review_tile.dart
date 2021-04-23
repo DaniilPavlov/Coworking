@@ -3,7 +3,7 @@ import 'package:coworking/resources/review.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:coworking/screens/new_review_form.dart';
 
 import 'map.dart';
 
@@ -83,6 +83,13 @@ class _PinListItemState extends State<PinListItem> {
   bool isFlagged = false;
   bool isFavourite = false;
   String oldComment = "";
+  var oldRazors = false;
+  var oldFood = false;
+  var oldFree = false;
+  var oldWiFi = false;
+  var oldRate = 0.0;
+  var rateController = TextEditingController();
+  var reviewController = TextEditingController();
 
   @override
   void initState() {
@@ -97,29 +104,58 @@ class _PinListItemState extends State<PinListItem> {
       });
     });
     oldComment = widget.review.body;
-
+    oldRazors = widget.review.isRazors;
+    oldFood = widget.review.isFood;
+    oldFree = widget.review.isFree;
+    oldWiFi = widget.review.isWiFi;
+    oldRate = widget.review.userRate;
+    rateController.text = widget.review.userRate.toString();
+    reviewController.text = widget.review.body;
     super.initState();
   }
 
-  final _formKey = GlobalKey<FormBuilderState>();
-
+  ///нужно поднять ошибки при неудачном сохранении
   void _saveReview() async {
-    if (_formKey.currentState.saveAndValidate()) {
-      print(_formKey.currentState.value);
-      if (widget.review.body != "") {
-        await Database().editReview(widget.review);
-        oldComment = widget.review.body;
-        Navigator.of(context).pop(context);
-        Clipboard.setData(ClipboardData(text: widget.review.body));
-        Scaffold.of(context).showSnackBar(SnackBar(
-          content: Text(widget.review.body),
-        ));
-      } else {
-        widget.review.body = oldComment;
-        // widget.review.body = oldComment;
-      }
+    final RegExp shutterSpeedRegEx =
+        RegExp("[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)");
+    if (widget.review.body != "" &&
+        widget.review.userRate.toString() != "" &&
+        shutterSpeedRegEx.hasMatch(widget.review.userRate.toString()) &&
+        (double.parse(rateController.text) <= 10 ||
+            double.parse(rateController.text) > 0)) {
+      widget.review.body = reviewController.text;
+      widget.review.userRate = double.parse(rateController.text);
+      widget.review.totalRate = NewReviewFormState().countRate(widget.review.isFood, widget.review.isFree,
+          widget.review.isRazors, widget.review.isWiFi, widget.review.userRate / 2);
+      print("NEW TOTAL");
+      print(widget.review.totalRate);
+      await Database().editReview(widget.review);
+      oldComment = widget.review.body;
+      oldRazors = widget.review.isRazors;
+      oldFood = widget.review.isFood;
+      oldFree = widget.review.isFree;
+      oldWiFi = widget.review.isWiFi;
+      oldRate = widget.review.userRate;
+      Navigator.of(context).pop(context);
+      widget.review.pin.rating =
+          await Database.updateRateOfPin(widget.review.pin.id);
+      Clipboard.setData(ClipboardData(text: widget.review.body));
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text(widget.review.body),
+      ));
+    } else {
+      widget.review.body = oldComment;
+      widget.review.isRazors = oldRazors;
+      widget.review.isFood = oldFood;
+      widget.review.isFree = oldFree;
+      widget.review.isWiFi = oldWiFi;
+      widget.review.userRate = oldRate;
+      rateController.text = oldRate.toString();
+      reviewController.text = oldComment;
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -137,78 +173,176 @@ class _PinListItemState extends State<PinListItem> {
                             onWillPop: () async {
                               setState(() {
                                 widget.review.body = oldComment;
+                                widget.review.isRazors = oldRazors;
+                                widget.review.isFood = oldFood;
+                                widget.review.isFree = oldFree;
+                                widget.review.isWiFi = oldWiFi;
+                                widget.review.userRate = oldRate;
+                                rateController.text = oldRate.toString();
+                                reviewController.text = oldComment;
                               });
                               return true;
                             },
                             child: Scaffold(
-                              appBar: AppBar(actions: <Widget>[
-                                IconButton(
-                                  icon: Icon(Icons.save),
-                                  onPressed: () {
-                                    _saveReview();
-                                  },
-                                )
-                              ]),
-                              body: SingleChildScrollView(
-                                child: Column(children: <Widget>[Container(
-                                  padding: EdgeInsets.all(10),
-                                  child: FormBuilder(
-                                    // context,
-                                    key: _formKey,
-                                    autovalidateMode: AutovalidateMode.disabled,
-                                    initialValue: {},
-                                    readOnly: false,
-                                    child: FormBuilderTextField(
-                                      initialValue: widget.review.body,
-                                      attribute: "body",
-                                      maxLines: 5,
-                                      decoration: InputDecoration(
-                                        labelText: "Отзыв",
-                                        hintText: "Ваш текст",
-                                        contentPadding: EdgeInsets.all(8.0),
-                                      ),
-                                      onChanged: (dynamic val) {
-                                        setState(() {
-                                          widget.review.body = val;
-                                        });
+                              appBar: AppBar(
+                                  title: new Text("Изменение отзыва",
+                                      textAlign: TextAlign.center),
+                                  actions: <Widget>[
+                                    IconButton(
+                                      icon: Icon(Icons.save),
+                                      onPressed: () {
+                                        _saveReview();
                                       },
-                                      validators: [
-                                        FormBuilderValidators.required(),
-                                        FormBuilderValidators.maxLength(100),
-                                      ],
                                     ),
+                                  ]),
+                              body: SingleChildScrollView(
+                                  child: Column(children: <Widget>[
+                                TextFormField(
+                                  controller: reviewController,
+                                  validator: (text) =>
+                                      text.isEmpty ? "Отзыв обязателен" : null,
+                                  maxLines: 3,
+                                  decoration: InputDecoration(
+                                    hintText: "Отзыв",
+                                    contentPadding: EdgeInsets.all(8.0),
                                   ),
                                 ),
-                                  ButtonTheme(
-                                    minWidth: 120.0,
-                                    height: 60.0,
-                                    child: RaisedButton(
-                                      onPressed: () {
-                                        Database.deleteReview(widget.review);
-                                        Navigator.pop(context);
-                                      },
-                                      child: Text(
-                                        'Удалить',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 26.0,
-                                        ),
+                                Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(children: <Widget>[
+                                      Text(
+                                        "Раздел оценки места",
+                                        style:
+                                            Theme.of(context).textTheme.subhead,
+                                        textAlign: TextAlign.left,
                                       ),
-                                      color: Colors.red,
+
+                                      /// добавляю стейтфул, чтобы чек боксы изменялись. иначе они не обновляются
+                                      StatefulBuilder(builder:
+                                          (BuildContext context,
+                                              StateSetter setState) {
+                                        return GridView.count(
+                                          childAspectRatio: 5,
+                                          crossAxisCount: 2,
+                                          shrinkWrap: true,
+                                          children: <Widget>[
+                                            Container(
+                                              alignment: Alignment.centerLeft,
+                                              child:
+                                                  Text("Можно приобрести еду"),
+                                            ),
+                                            Container(
+                                              alignment: Alignment.center,
+                                              child: Checkbox(
+                                                value: widget.review.isFood,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    widget.review.isFood =
+                                                        value;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                            Container(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                  "Можно находиться бесплатно"),
+                                            ),
+                                            Container(
+                                              alignment: Alignment.center,
+                                              child: Checkbox(
+                                                value: widget.review.isFree,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    widget.review.isFree =
+                                                        value;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                            Container(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text("Есть розетки"),
+                                            ),
+                                            Container(
+                                              alignment: Alignment.center,
+                                              child: Checkbox(
+                                                value: widget.review.isRazors,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    widget.review.isRazors =
+                                                        value;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                            Container(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text("Есть WiFi"),
+                                            ),
+                                            Container(
+                                              alignment: Alignment.center,
+                                              child: Checkbox(
+                                                value: widget.review.isWiFi,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    widget.review.isWiFi =
+                                                        value;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                            Container(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                  "Ваша личная оценка места (введите число от 0 до 10)"),
+                                            ),
+                                            Container(
+                                              alignment: Alignment.center,
+                                              child: TextFormField(
+                                                textAlign: TextAlign.center,
+                                                controller: rateController,
+                                                validator: (input) =>
+                                                    input.isEmpty
+                                                        ? "Оценка обязательна"
+                                                        : null,
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }),
+                                    ])),
+                                ButtonTheme(
+                                  minWidth: 120.0,
+                                  height: 50.0,
+                                  child: RaisedButton(
+                                    onPressed: () async {
+                                      Database.deleteReview(widget.review);
+                                      Navigator.pop(context);
+                                      widget.review.pin.rating =
+                                          await Database.updateRateOfPin(
+                                              widget.review.pin.id);
+                                    },
+                                    child: Text(
+                                      'Удалить',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 26.0,
+                                      ),
                                     ),
+                                    color: Colors.red,
                                   ),
-                              ])
-                              ),
+                                ),
+                              ])),
                             ),
                           )
                         : Scaffold(
-                      body: SingleChildScrollView(
-                        child: Container(
-                          padding: EdgeInsets.all(10),
-                          child: Text(widget.review.body)
-                        ),
-                      ),
-                    );
+                            body: SingleChildScrollView(
+                              child: Container(
+                                  padding: EdgeInsets.all(10),
+                                  child: Text(widget.review.body)),
+                            ),
+                          );
                   } else {
                     return Center(child: CircularProgressIndicator());
                   }
@@ -335,10 +469,9 @@ class CustomListItem extends ListTile {
   }
 }
 
-
 /// Любимые отзывы
 class StarredReviewsListItem extends ListTile {
-  const StarredReviewsListItem(this.review,this.location);
+  const StarredReviewsListItem(this.review, this.location);
 
   final LatLng location;
   final Review review;
@@ -372,8 +505,8 @@ class StarredReviewsListItem extends ListTile {
                   context,
                   MaterialPageRoute(
                       builder: (context) => MapPage(
-                        currentMapPosition: location,
-                      )));
+                            currentMapPosition: location,
+                          )));
             },
           ),
           Spacer(),

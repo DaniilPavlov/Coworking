@@ -2,7 +2,7 @@ import 'package:coworking/resources/database.dart';
 import 'package:coworking/resources/review.dart';
 import 'package:flutter/material.dart';
 
-import 'comment_tile.dart';
+import 'review_tile.dart';
 
 
 class FlaggedCommentsPage extends StatelessWidget {

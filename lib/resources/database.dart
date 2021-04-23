@@ -382,7 +382,9 @@ class Database {
     Firestore.instance
         .collection("reviews")
         .document(review.id)
-        .setData({"content": review.body}, merge: true);
+        .setData({"content": review.body, "isFood": review.isFood,
+      "isFree": review.isFree,"isRazors": review.isRazors,
+      "isWiFi": review.isWiFi,"userRate": review.userRate, "totalRate": review.totalRate}, merge: true);
     // return true;
   }
 

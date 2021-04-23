@@ -1,4 +1,3 @@
-import 'package:coworking/resources/tag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:coworking/resources/account.dart';
@@ -6,7 +5,7 @@ import 'package:coworking/resources/category.dart';
 import 'package:coworking/resources/database.dart';
 import 'package:coworking/resources/pin.dart';
 import 'package:coworking/resources/review.dart';
-import 'package:coworking/screens/comment_tile.dart';
+import 'package:coworking/screens/review_tile.dart';
 import 'package:coworking/screens/new_review_form.dart';
 import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
@@ -283,45 +282,32 @@ class _PinInfoState extends State<PinInfo> {
               slivers: <Widget>[
                 bar,
                 SliverToBoxAdapter(
-                  child: Column(children: <Widget>[
-                    Row(children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text("Категория:"),
-                      ),
-                      categoryChip,
-                      FutureBuilder(
-                          future: Database.updateRateOfPin(widget.pin.id),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              widget.pin.rating = snapshot.data;
-                              return (snapshot.hasData)
-                                  ? Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 16.0),
-                                      child: Text(
-                                        "Рейтинг: " +
-                                            widget.pin.rating.toString() +
-                                            " / 10",
-                                      ),
-                                    )
-                                  : Container();
-                            } else {
-                              return Center(child: CircularProgressIndicator());
-                            }
-                          })
-                    ]),
-                    Wrap(
-                      spacing: 8.0,
-                      children: List.generate(widget.pin.tags.length, (i) {
-                        Tag tag = widget.pin.tags.elementAt(i);
-                        return Chip(
-                          label: Text(tag.text),
-                          labelStyle: TextStyle(color: Colors.white),
-                          backgroundColor: tag.colour,
-                        );
-                      }),
+                  child: Row(children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text("Категория:"),
                     ),
+                    categoryChip,
+                    FutureBuilder(
+                        future: Database.updateRateOfPin(widget.pin.id),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            widget.pin.rating = snapshot.data;
+                            return (snapshot.hasData)
+                                ? Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 16.0),
+                                    child: Text(
+                                      "Рейтинг: " +
+                                          widget.pin.rating.toString() +
+                                          " / 10",
+                                    ),
+                                  )
+                                : Container();
+                          } else {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                        })
                   ]),
                 ),
                 snapshot.hasData

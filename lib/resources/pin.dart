@@ -1,11 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/resources/review.dart';
-import 'package:coworking/resources/tag.dart';
+
 import 'package:coworking/screens/pin_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 import 'account.dart';
 import 'category.dart';
 import 'database.dart';
@@ -21,7 +20,6 @@ class Pin {
 
   Category _category;
   Set<Review> _reviews = Set<Review>();
-  Set<Tag> tags = Set();
   int _visitorCount = 0;
   double rating;
 
@@ -42,7 +40,6 @@ class Pin {
       _reviews.add(review);
       review.pin = this;
     }
-    if (tags != null) this.tags = tags;
   }
 
   Category get category => _category;

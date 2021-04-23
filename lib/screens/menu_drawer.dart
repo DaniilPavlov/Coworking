@@ -1,13 +1,13 @@
 import 'package:coworking/resources/account.dart';
 import 'package:coworking/resources/database.dart';
-import 'package:coworking/screens/starred_comments.dart';
-import 'package:coworking/screens/user_comments.dart';
+import 'package:coworking/screens/starred_reviews.dart';
+import 'package:coworking/screens/user_reviews.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../sign_in.dart';
 import 'account.dart';
-import 'flagged_comments.dart';
+import 'flagged_reviews.dart';
 
 class MenuDrawer extends StatefulWidget {
   @override

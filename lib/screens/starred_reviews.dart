@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:coworking/resources/account.dart';
 import 'package:coworking/resources/review.dart';
-import 'package:coworking/screens/comment_tile.dart';
+import 'package:coworking/screens/review_tile.dart';
 
 class StarredCommentsPage extends StatelessWidget {
   @override

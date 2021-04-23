@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:coworking/resources/account.dart';
 import 'package:coworking/resources/review.dart';
-import 'package:coworking/resources/pin.dart';
 
 class NewReviewForm extends StatefulWidget {
   NewReviewForm({Key key}) : super(key: key);
@@ -45,7 +44,7 @@ class NewReviewFormState extends State<NewReviewForm>
               maxLines: 3,
               decoration: InputDecoration(
                 hintText: "Отзыв",
-                contentPadding: EdgeInsets.all(8.0),
+                contentPadding: EdgeInsets.all(10.0),
               ),
             ),
             Padding(
@@ -159,13 +158,14 @@ class NewReviewFormState extends State<NewReviewForm>
 
   bool get isValid => formKey.currentState.validate();
 
-  double countRate() {
+  double countRate(
+      bool isFood, bool isFree, bool isRazors, bool isWiFi, double userRate) {
     double totalRate = 1;
     if (isFood) totalRate++;
     if (isFree) totalRate++;
     if (isRazors) totalRate++;
     if (isWiFi) totalRate++;
-    totalRate = totalRate + (double.parse(this.rateController.text) / 2);
+    totalRate = totalRate + userRate;
     totalRate = double.parse(totalRate.toStringAsFixed(2));
     print(totalRate);
     return totalRate;
@@ -183,6 +183,7 @@ class NewReviewFormState extends State<NewReviewForm>
         isRazors,
         isWiFi,
         double.parse(this.rateController.text),
-        countRate());
+        countRate(isFood, isFree, isRazors, isWiFi,
+            (double.parse(this.rateController.text) / 2)));
   }
 }
