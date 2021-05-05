@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/models/account.dart';
 import 'package:coworking/models/meeting.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
+import 'dart:async';
 
 class DatabaseMeeting {
   Firestore _firestore = Firestore.instance;
@@ -56,11 +58,17 @@ class DatabaseMeeting {
 
   Future<String> addMeeting(Meeting meeting) async {
     String retVal = "error";
+    List<String> members = List();
+    List<String> tokens = List();
     try {
+      members.add(Account.currentAccount.id);
+      tokens.add(Account.currentAccount.notifyToken);
       DocumentReference _docRef = await _firestore.collection("meetings").add({
         'place': meeting.place.trim(),
         'description': meeting.description,
         'author': meeting.author.id,
+        'members': members,
+        'tokens': tokens,
         'dateCompleted': meeting.dateCompleted,
         // 'pinId': meeting.pin
       });
@@ -114,28 +122,50 @@ class DatabaseMeeting {
   }
 
   static void deleteMeeting(Meeting meeting) {
-    Firestore.instance.collection("reviews").document(meeting.id).delete();
+    Firestore.instance.collection("meetings").document(meeting.id).delete();
   }
 
-  Future<String> joinGroup(String groupId, Account account) async {
+  static Stream<List<Meeting>> meetingsOfUser(
+      Account account, BuildContext context) {
+    return Firestore.instance
+        .collection("meetings")
+
+        ///РАБОТАЕТ!!!
+        .where("members", arrayContains: account.id)
+        .snapshots()
+        .asyncMap((querySnapshot) async {
+      Completer<List<Meeting>> meetingsCompleter =
+          new Completer<List<Meeting>>();
+      List<Meeting> meetings = [];
+      for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
+        Map<String, dynamic> meetingMap = documentSnapshot.data;
+        Meeting meeting =
+            Meeting.fromMap(documentSnapshot.documentID, meetingMap);
+        // meeting.pin = await getPinByID(meetingMap["pinID"], context);
+        meetings.add(meeting);
+      }
+      meetingsCompleter.complete(meetings);
+      return meetingsCompleter.future;
+    });
+  }
+
+  /// Сделать проверку состаю ли я в митинге, вроде все ок
+  /// но если поменять аккаунт на устройстве - токен останется такой же
+  Future<String> joinMeeting(String meetingId) async {
     String retVal = "error";
     List<String> members = List();
     List<String> tokens = List();
     try {
-      members.add(account.id);
-      tokens.add(account.notifyToken);
-      await _firestore.collection("groups").document(groupId).updateData({
+      members.add(Account.currentAccount.id);
+      tokens.add(Account.currentAccount.notifyToken);
+      await _firestore.collection("meetings").document(meetingId).updateData({
         'members': FieldValue.arrayUnion(members),
         'tokens': FieldValue.arrayUnion(tokens),
       });
 
-      await _firestore.collection("users").document(account.id).updateData({
-        'groupId': groupId.trim(),
-      });
-
       retVal = "success";
     } on PlatformException catch (e) {
-      retVal = "Make sure you have the right group ID!";
+      retVal = "Убедитесь, что вы получили верный id встречи!";
       print(e);
     } catch (e) {
       print(e);
@@ -144,7 +174,8 @@ class DatabaseMeeting {
     return retVal;
   }
 
-  Future<String> leaveGroup(String groupId, Account account) async {
+  /// Добавить выход из группы
+  Future<String> leaveMeeting(String groupId, Account account) async {
     String retVal = "error";
     List<String> members = List();
     List<String> tokens = List();
@@ -159,91 +190,6 @@ class DatabaseMeeting {
       await _firestore.collection("users").document(account.id).updateData({
         'groupId': null,
       });
-    } catch (e) {
-      print(e);
-    }
-
-    return retVal;
-  }
-
-  Future<String> addCurrentMeeting(String groupId, Meeting meeting) async {
-    String retVal = "error";
-
-    try {
-      DocumentReference _docRef = await _firestore
-          .collection("groups")
-          .document(groupId)
-          .collection("meetings")
-          .add({
-        'name': meeting.place.trim(),
-        'author': meeting.author,
-        'dateCompleted': meeting.dateCompleted,
-        // 'pinId': meeting.pin
-      });
-
-      //add current book to group schedule
-      await _firestore.collection("groups").document(groupId).updateData({
-        "currentMeetingId": _docRef.documentID,
-        "currentMeetingDue": meeting.dateCompleted,
-      });
-
-      //adding a notification document
-      DocumentSnapshot doc =
-          await _firestore.collection("groups").document(groupId).get();
-      createNotifications(List<String>.from(doc.data["tokens"]) ?? [],
-          meeting.place, meeting.author.id);
-
-      retVal = "success";
-    } catch (e) {
-      print(e);
-    }
-
-    return retVal;
-  }
-
-  Future<Meeting> getCurrentMeeting(String groupId, String bookId) async {
-    Meeting retVal;
-
-    try {
-      DocumentSnapshot _docSnapshot = await _firestore
-          .collection("groups")
-          .document(groupId)
-          .collection("meetings")
-          .document(bookId)
-          .get();
-      // retVal = Meeting.fromDocumentSnapshot(doc: _docSnapshot);
-    } catch (e) {
-      print(e);
-    }
-
-    return retVal;
-  }
-
-  /// ТУТ НУЖНО РАЗОБРАТЬСЯ С НОТИФАЙТОКЕНОМ И ОСТАЛЬНЫМ
-  Future<String> createUser(Account account) async {
-    String retVal = "error";
-
-    try {
-      await _firestore.collection("users").document(account.id).setData({
-        /// оставляем только нотифай токен, потому что регистрация через гугл
-        'notifToken': account.notifyToken,
-      });
-      retVal = "success";
-    } catch (e) {
-      print(e);
-    }
-
-    return retVal;
-  }
-
-  ///ТОЖЕ ПОКА НЕ ИСПОЛЬЗУЕТСЯ
-  Future<Account> getUser(String uid) async {
-    Account retVal;
-
-    try {
-      DocumentSnapshot _docSnapshot =
-          await _firestore.collection("users").document(uid).get();
-      retVal = Account.fromDocumentSnapshot(doc: _docSnapshot);
     } catch (e) {
       print(e);
     }

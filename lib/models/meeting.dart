@@ -10,8 +10,8 @@ class Meeting {
   Account author;
   Pin pin;
 
-  // List<String> members;
-  // List<String> tokens;
+  List<String> members;
+  List<String> tokens;
   Timestamp dateCompleted;
 
   Meeting(
@@ -19,8 +19,8 @@ class Meeting {
     this.place,
     this.description,
     this.author,
-    // this.members,
-    // this.tokens,
+    this.members,
+    this.tokens,
     this.dateCompleted,
   );
 
@@ -30,6 +30,8 @@ class Meeting {
       this.place,
       this.description,
       this.author,
+      this.members,
+      this.tokens,
       this.dateCompleted,
     );
   }
@@ -39,8 +41,8 @@ class Meeting {
     meeting["place"] = place;
     meeting["description"] = description;
     meeting["author"] = author.id;
-    // meeting["members"] = members;
-    // meeting["tokens"] = tokens;
+    meeting["members"] = members;
+    meeting["tokens"] = tokens;
     // meeting["pinID"] = pin?.id;
     meeting["dateCompleted"] = dateCompleted;
     return meeting;
@@ -58,6 +60,8 @@ class Meeting {
       data["place"],
       data["description"],
       Account(data["author"]),
+      List<String>.from(data["members"]),
+      List<String>.from(data["tokens"]),
       data["dateCompleted"],
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:coworking/services/authStatus.dart';
+import 'package:coworking/services/auth_status.dart';
 
 void main() => runApp(MyApp());
 

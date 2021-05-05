@@ -201,25 +201,6 @@ class DatabaseMap {
     });
   }
 
-  static Stream<List<Meeting>> meetingsByUser(
-      Account account, BuildContext context) {
-    return Firestore.instance
-        .collection("meetings")
-        .where("author", isEqualTo: account.id)
-        .snapshots()
-        .asyncMap((querySnapshot) async {
-      Completer<List<Meeting>> meetingsCompleter = new Completer<List<Meeting>>();
-      List<Meeting> meetings = [];
-      for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
-        Map<String, dynamic> meetingMap = documentSnapshot.data;
-        Meeting meeting = Meeting.fromMap(documentSnapshot.documentID,meetingMap);
-        // meeting.pin = await getPinByID(meetingMap["pinID"], context);
-        meetings.add(meeting);
-      }
-      meetingsCompleter.complete(meetings);
-      return meetingsCompleter.future;
-    });
-  }
 
   static Stream<List<String>> visitedByUser(
       Account account, BuildContext context) {

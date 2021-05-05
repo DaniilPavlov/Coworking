@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/services/database_meeting.dart';
-import 'package:coworking/widgets/shadowContainer.dart';
+import 'package:coworking/widgets/shadow_container.dart';
 import 'package:flutter/material.dart';
 import 'package:coworking/models/account.dart';
 import 'package:coworking/models/meeting.dart';
@@ -26,20 +26,20 @@ class NewMeetingFormState extends State<NewMeetingForm>
 
   bool isOld = false;
   Meeting meeting;
+  List<String> members = List();
+  List<String> tokens = List();
 
   @override
   bool get wantKeepAlive => true;
 
   initState() {
     if (widget.meeting != null) {
-      print("SLO");
       isOld = true;
       meeting = widget.meeting.copy();
       _meetingDescriptionController.text = meeting.description;
       _meetingPlaceController.text = meeting.place;
     }
     super.initState();
-    print("SLOAAAAAAAAAAAAAAAAA");
   }
 
   Future<void> _selectDate() async {
@@ -182,7 +182,7 @@ class NewMeetingFormState extends State<NewMeetingForm>
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 100),
                       child: Text(
-                        "Создать",
+                        "Назначить",
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -192,7 +192,7 @@ class NewMeetingFormState extends State<NewMeetingForm>
                     ),
                     onPressed: () {
                       Meeting meeting =
-                          Meeting(null, "", "", Account.currentAccount, null);
+                          Meeting(null, "", "", Account.currentAccount,members,tokens, null);
                       if (_meetingPlaceController.text == "") {
                         addMeetingKey.currentState.showSnackBar(SnackBar(
                           content: Text("Требуется добавить место встречи"),
@@ -202,13 +202,13 @@ class NewMeetingFormState extends State<NewMeetingForm>
                           content: Text("Требуется добавить описание встречи"),
                         ));
                       } else {
-                        meeting.id = widget.meeting.id;
                         meeting.place = _meetingPlaceController.text;
                         meeting.description =
                             _meetingDescriptionController.text;
                         meeting.dateCompleted =
                             Timestamp.fromDate(_selectedDate);
                         if (isOld) {
+                          meeting.id = widget.meeting.id;
                           _editMeeting(context, meeting);
                         } else
                           _addMeeting(context, meeting);

@@ -3,6 +3,7 @@ import 'package:coworking/models/account.dart';
 import 'package:coworking/models/meeting.dart';
 import 'package:coworking/screens/meetings/new_meeting_form.dart';
 import 'package:coworking/screens/meetings/meeting_tile.dart';
+import 'package:coworking/screens/meetings/join_meeting.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class UserMeetingsPage extends StatelessWidget {
@@ -11,7 +12,7 @@ class UserMeetingsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: Text('Ваши митинги'),
+        title: Text('Ваши встречи'),
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios,
@@ -29,8 +30,9 @@ class UserMeetingsPage extends StatelessWidget {
             itemBuilder: (BuildContext context) => <PopupMenuEntry>[
               const PopupMenuItem(
                 child: Text(
-                  "\nЗдесь будут отображаться все ваши митинги.\n"
-                  "\nПо нажатию Вы можете переместиться к месту.\n",
+                  "\nЗдесь будут отображаться все ваши встречи.\n"
+                  "\nПо нажатию на кнопку внизу вы можете либо создать встречу, "
+                  "либо присоединиться к действующей.\n",
                   textAlign: TextAlign.justify,
                 ),
               ),
@@ -61,7 +63,10 @@ class _MeetingLayoutState extends State<MeetingLayout> {
         SpeedDialChild(
             child: Icon(Icons.assignment_turned_in),
             backgroundColor: Colors.orange,
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => JoinMeeting()));
+            },
             label: 'Присоединиться ко встрече',
             labelStyle: TextStyle(
                 fontWeight: FontWeight.w500,

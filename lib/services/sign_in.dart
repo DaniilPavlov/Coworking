@@ -33,8 +33,10 @@ class SignIn {
       assert(user.uid == currentUser.uid);
 
       Account.currentAccount = Account.fromFirebaseUser(user);
+      Account.currentAccount.notifyToken = await _fcm.getToken();
+      print("ПРОВЕРКА МЕНЯЕТСЯ ЛИ НОТИФАЙ ТОКЕН");
+      print(Account.currentAccount.notifyToken);
       if (authResult.additionalUserInfo.isNewUser) {
-        Account.currentAccount.notifyToken = await _fcm.getToken();
         DatabaseMap.addUserToDatabase(Account.currentAccount);
       }
       return user;
