@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:coworking/resources/account.dart';
-import 'package:coworking/resources/category.dart';
-import 'package:coworking/resources/database.dart';
-import 'package:coworking/resources/pin.dart';
-import 'package:coworking/resources/review.dart';
-import 'package:coworking/screens/map.dart';
-import 'package:coworking/screens/new_review_form.dart';
+import 'package:coworking/models/account.dart';
+import 'package:coworking/models/category.dart';
+import 'package:coworking/services/database_map.dart';
+import 'package:coworking/models/pin.dart';
+import 'package:coworking/models/review.dart';
+import 'package:coworking/screens/map/map.dart';
+import 'package:coworking/screens/map/new_review_form.dart';
 import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
 
@@ -146,7 +146,7 @@ class _PinFormState extends State<PinForm>
 
     CameraPosition position =
         context.findAncestorStateOfType<MapPageState>().currentMapPosition;
-    return Database.newPin(
+    return DatabaseMap.newPin(
       position.target,
       name,
       review,

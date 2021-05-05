@@ -1,10 +1,12 @@
-import 'package:coworking/resources/account.dart';
-import 'package:coworking/resources/database.dart';
+import 'package:coworking/models/account.dart';
+import 'package:coworking/services/database_map.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class SignIn {
   static final FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseMessaging _fcm = FirebaseMessaging();
   final GoogleSignIn googleSignIn = new GoogleSignIn(
     scopes: [
       'email',
@@ -31,8 +33,10 @@ class SignIn {
       assert(user.uid == currentUser.uid);
 
       Account.currentAccount = Account.fromFirebaseUser(user);
-      if (authResult.additionalUserInfo.isNewUser)
-        Database.addUserToDatabase(Account.currentAccount);
+      if (authResult.additionalUserInfo.isNewUser) {
+        Account.currentAccount.notifyToken = await _fcm.getToken();
+        DatabaseMap.addUserToDatabase(Account.currentAccount);
+      }
       return user;
     }
     return null;

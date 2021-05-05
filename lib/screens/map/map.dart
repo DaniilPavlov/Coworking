@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:coworking/resources/account.dart';
-import 'package:coworking/resources/database.dart';
-import 'package:coworking/resources/pin.dart';
-import 'package:coworking/screens/pin_info.dart';
+import 'package:coworking/models/account.dart';
+import 'package:coworking/services/database_map.dart';
+import 'package:coworking/models/pin.dart';
+import 'package:coworking/screens/map/pin_info.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:coworking/screens/meetings/meetings.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -13,9 +14,9 @@ import 'dart:io';
 
 import 'package:permission_handler/permission_handler.dart';
 
-import '../sign_in.dart';
-import 'menu_drawer.dart';
-import 'map_search.dart';
+import '../../services/sign_in.dart';
+import '../menu/menu_drawer.dart';
+import '../map_search.dart';
 import 'create_pin.dart';
 
 class MapPage extends StatefulWidget {
@@ -50,6 +51,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   FloatingActionButton fabConfirmPin;
   FloatingActionButton currentFab;
 
+  /// ПОПРОБОВАТЬ ИСПОЛЬЗОВАТЬ, ЧТОБЫ НЕ ЗАПРАШИВАТЬ АВТОРСТВО ИЗ БАЗЫ КАЖДЫЙ РАЗ
   // для пользователя
   FirebaseUser _user;
   Account _account;
@@ -96,7 +98,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   StreamSubscription<List<PinChange>> pinsStream;
 
   void queryPins() {
-    pinsStream = Database.getPins(context).listen((pinChangesList) {
+    pinsStream = DatabaseMap.getPins(context).listen((pinChangesList) {
       setState(() {
         for (PinChange pinChange in pinChangesList) {
           if (pinChange.type == DocumentChangeType.added) {
@@ -545,11 +547,15 @@ class BottomBarNav extends StatelessWidget {
             visible: !drawerOpen,
             child: IconButton(
               iconSize: 40,
-              onPressed: () {},
+              onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => UserMeetingsPage()));
+
+              },
               icon: Icon(
-                Icons.chat_rounded,
+                Icons.emoji_people,
                 color: Colors.orange,
-                semanticLabel: "Chats",
+                semanticLabel: "Meetings",
               ),
             )),
 

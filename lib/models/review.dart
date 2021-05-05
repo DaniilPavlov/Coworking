@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:coworking/resources/pin.dart';
+import 'package:coworking/models/pin.dart';
 
 import 'account.dart';
 

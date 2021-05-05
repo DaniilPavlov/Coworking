@@ -1,11 +1,11 @@
-import 'package:coworking/resources/account.dart';
-import 'package:coworking/resources/database.dart';
-import 'package:coworking/screens/starred_reviews.dart';
-import 'package:coworking/screens/user_reviews.dart';
+import 'package:coworking/models/account.dart';
+import 'package:coworking/services/database_map.dart';
+import 'package:coworking/screens/menu/starred_reviews.dart';
+import 'package:coworking/screens/menu/user_reviews.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../sign_in.dart';
+import '../../services/sign_in.dart';
 import 'account.dart';
 import 'flagged_reviews.dart';
 
@@ -87,7 +87,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
             },
           ),
           FutureBuilder(
-              future: Database.isAdmin(),
+              future: DatabaseMap.isAdmin(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return (snapshot.data)

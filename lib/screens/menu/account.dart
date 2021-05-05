@@ -1,12 +1,11 @@
-import 'package:coworking/resources/account.dart';
-import 'package:coworking/resources/database.dart';
-import 'package:coworking/resources/review.dart';
+import 'package:coworking/models/account.dart';
+import 'package:coworking/services/database_map.dart';
+import 'package:coworking/models/review.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:coworking/screens/login.dart';
 
-import '../main.dart';
-import '../sign_in.dart';
+import '../../services/sign_in.dart';
 
 //Максимальная и минимальная длина имени
 const int userNameMin = 1;
@@ -71,7 +70,7 @@ class AccountPage extends StatelessWidget {
                   children: <Widget>[
                     Column(children: [
                       StreamBuilder<List<String>>(
-                        stream: Database.visitedByUser(
+                        stream: DatabaseMap.visitedByUser(
                             Account.currentAccount, context),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
@@ -249,8 +248,13 @@ class DisplayNameFormState extends State<DisplayNameForm> {
 
 void deleteAccount(BuildContext context) {
   ///изменил рут на тру, теперь все нормально закрывается
-  FirebaseAuth.instance.currentUser().then((user) {
-    user.delete();
+  ///не работает удаление
+  ///НАПИСАТЬ МЕТОД ДЛЯ УДАЛЕНИЯ
+  FirebaseAuth.instance.currentUser().then((user) async {
+    print("УДАЛЯЮ");
+    SignIn().signOutGoogle();
+    await user.delete();
+    print(user.displayName);
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => LoginScreen()),
         (Route<dynamic> route) => true);

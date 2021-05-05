@@ -1,11 +1,11 @@
-import 'package:coworking/resources/database.dart';
-import 'package:coworking/resources/review.dart';
+import 'package:coworking/services/database_map.dart';
+import 'package:coworking/models/review.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:coworking/screens/new_review_form.dart';
+import 'package:coworking/screens/map/new_review_form.dart';
 
-import 'map.dart';
+import '../map/map.dart';
 
 ///этот класс отвечает за отображение *моих* обзоров (не пинов, именно обзоры)
 class YourReviewsListItem extends ListTile {
@@ -93,12 +93,12 @@ class _PinListItemState extends State<PinListItem> {
 
   @override
   void initState() {
-    Database.isFlagged(widget.review.id).then((value) {
+    DatabaseMap.isFlagged(widget.review.id).then((value) {
       setState(() {
         isFlagged = value;
       });
     });
-    Database.isFavourite(widget.review.id).then((value) {
+    DatabaseMap.isFavourite(widget.review.id).then((value) {
       setState(() {
         isFavourite = value;
       });
@@ -118,6 +118,8 @@ class _PinListItemState extends State<PinListItem> {
   void _saveReview() async {
     final RegExp shutterSpeedRegEx =
         RegExp("[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)");
+
+    ///можно оставить оценку без отзыва, возможно есть смысл оставить, иначе меняем бади на контроллер
     if (widget.review.body != "" &&
         widget.review.userRate.toString() != "" &&
         shutterSpeedRegEx.hasMatch(widget.review.userRate.toString()) &&
@@ -125,11 +127,15 @@ class _PinListItemState extends State<PinListItem> {
             double.parse(rateController.text) > 0)) {
       widget.review.body = reviewController.text;
       widget.review.userRate = double.parse(rateController.text);
-      widget.review.totalRate = NewReviewFormState().countRate(widget.review.isFood, widget.review.isFree,
-          widget.review.isRazors, widget.review.isWiFi, widget.review.userRate / 2);
+      widget.review.totalRate = NewReviewFormState().countRate(
+          widget.review.isFood,
+          widget.review.isFree,
+          widget.review.isRazors,
+          widget.review.isWiFi,
+          widget.review.userRate / 2);
       print("NEW TOTAL");
       print(widget.review.totalRate);
-      await Database().editReview(widget.review);
+      await DatabaseMap().editReview(widget.review);
       oldComment = widget.review.body;
       oldRazors = widget.review.isRazors;
       oldFood = widget.review.isFood;
@@ -138,12 +144,13 @@ class _PinListItemState extends State<PinListItem> {
       oldRate = widget.review.userRate;
       Navigator.of(context).pop(context);
       widget.review.pin.rating =
-          await Database.updateRateOfPin(widget.review.pin.id);
+          await DatabaseMap.updateRateOfPin(widget.review.pin.id);
       Clipboard.setData(ClipboardData(text: widget.review.body));
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text(widget.review.body),
       ));
     } else {
+      ///есть ли в этом смысл?
       widget.review.body = oldComment;
       widget.review.isRazors = oldRazors;
       widget.review.isFood = oldFood;
@@ -155,8 +162,6 @@ class _PinListItemState extends State<PinListItem> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -165,7 +170,7 @@ class _PinListItemState extends State<PinListItem> {
         onTap: () => showModalBottomSheet(
             context: context,
             builder: (_) => FutureBuilder(
-                future: Database.isReviewOwner(widget.review),
+                future: DatabaseMap.isReviewOwner(widget.review),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return (snapshot.data == true)
@@ -317,10 +322,10 @@ class _PinListItemState extends State<PinListItem> {
                                   height: 50.0,
                                   child: RaisedButton(
                                     onPressed: () async {
-                                      Database.deleteReview(widget.review);
+                                      DatabaseMap.deleteReview(widget.review);
                                       Navigator.pop(context);
                                       widget.review.pin.rating =
-                                          await Database.updateRateOfPin(
+                                          await DatabaseMap.updateRateOfPin(
                                               widget.review.pin.id);
                                     },
                                     child: Text(
@@ -336,6 +341,7 @@ class _PinListItemState extends State<PinListItem> {
                               ])),
                             ),
                           )
+                    ///ЗДЕСЬ УВЕЛИЧИТЬ КОЛВО ДАННЫХ НА НАЖАТИИ ОТЗЫВА
                         : Scaffold(
                             body: SingleChildScrollView(
                               child: Container(
@@ -381,9 +387,9 @@ class _PinListItemState extends State<PinListItem> {
                 ),
                 onPressed: () {
                   if (isFlagged) {
-                    Database.unFlag(widget.review.id);
+                    DatabaseMap.unFlag(widget.review.id);
                   } else {
-                    Database.flag(widget.review.id);
+                    DatabaseMap.flag(widget.review.id);
                   }
                   setState(() {
                     isFlagged = !isFlagged;
@@ -398,9 +404,9 @@ class _PinListItemState extends State<PinListItem> {
                 ),
                 onPressed: () {
                   if (isFavourite) {
-                    Database.removeFavourite(widget.review.id);
+                    DatabaseMap.removeFavourite(widget.review.id);
                   } else {
-                    Database.addFavourite(widget.review.id);
+                    DatabaseMap.addFavourite(widget.review.id);
                   }
                   setState(() {
                     isFavourite = !isFavourite;
@@ -517,7 +523,7 @@ class StarredReviewsListItem extends ListTile {
             ),
             iconSize: 30.0,
             onPressed: () {
-              Database.removeFavourite(review.id);
+              DatabaseMap.removeFavourite(review.id);
             },
           ),
         ],
@@ -559,7 +565,7 @@ class FlaggedReviewsListItem extends ListTile {
             iconSize: 40.0,
             color: Colors.grey[600],
             onPressed: () {
-              Database.ignoreFlags(review.id);
+              DatabaseMap.ignoreFlags(review.id);
             },
           ),
           IconButton(
@@ -570,7 +576,7 @@ class FlaggedReviewsListItem extends ListTile {
             iconSize: 40.0,
             color: Colors.red,
             onPressed: () {
-              Database.deleteReview(review);
+              DatabaseMap.deleteReview(review);
             },
           ),
         ],
@@ -581,6 +587,7 @@ class FlaggedReviewsListItem extends ListTile {
 
 ///Когда мы нажимаем на чей-то отзыв в разделе пина, мы можем
 ///прочитать дополнительную информацию
+///пока не используется
 class ReviewInfoDialog extends StatelessWidget {
   ReviewInfoDialog(this._review);
 

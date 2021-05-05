@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'login.dart';
-import 'map.dart';
-import '../sign_in.dart';
+import '../screens/login.dart';
+import '../screens/map/map.dart';
+import 'sign_in.dart';
 
 class AuthStatusScreen extends StatelessWidget {
   @override

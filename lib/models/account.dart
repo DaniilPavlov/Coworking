@@ -1,26 +1,40 @@
 import 'dart:async';
 
-import 'package:coworking/resources/review.dart';
+import 'package:coworking/models/review.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'database.dart';
+import '../services/database_map.dart';
+import 'meeting.dart';
 
 class Account {
   static Account currentAccount;
-  final String id;
+  String id;
   static Completer hasUpdated;
 
   String _userName;
   String _email;
 
+  ///НОВОЕ
+  String notifyToken;
+
   Account(
     this.id, {
     email,
     userName,
+    String notifToken,
   }) {
     this._email = email;
     this._userName = userName;
+  }
+
+  ///НОВОЕ
+  Account.fromDocumentSnapshot({DocumentSnapshot doc}) {
+    id = doc.documentID;
+    _email = doc.data['email'];
+    _userName = doc.data['userName'];
+    notifyToken = doc.data['notifToken'];
   }
 
   static Account fromFirebaseUser(FirebaseUser user) {
@@ -35,13 +49,13 @@ class Account {
     if (_userName != null)
       return _userName;
     else
-      return Database.getUserNameByID(id);
+      return DatabaseMap.getUserNameByID(id);
   }
 
   static updateUserName(String value) {
     hasUpdated = Completer();
     Account.currentAccount._userName = value;
-    Database.updateUsername(value);
+    DatabaseMap.updateUsername(value);
 
     FirebaseAuth.instance.currentUser().then((user) {
       var newInfo = UserUpdateInfo();
@@ -58,15 +72,20 @@ class Account {
     accountMap["name"] = _userName;
     accountMap["email"] = _email;
     accountMap["isAdmin"] = false;
+    accountMap["notifyToken"] = notifyToken;
     return accountMap;
   }
 
   static Stream<List<Review>> getReviewsForUser(BuildContext context) {
-    return Database.reviewsByUser(currentAccount, context);
+    return DatabaseMap.reviewsByUser(currentAccount, context);
+  }
+
+  static Stream<List<Meeting>> getMeetingsForUser(BuildContext context) {
+    return DatabaseMap.meetingsByUser(currentAccount, context);
   }
 
   static Future<Stream<List<Review>>> getFavouriteReviewsForUser(
       BuildContext context) {
-    return Database.favouriteReviewsForUser(currentAccount, context);
+    return DatabaseMap.favouriteReviewsForUser(currentAccount, context);
   }
 }

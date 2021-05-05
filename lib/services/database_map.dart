@@ -2,16 +2,16 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:coworking/resources/pin.dart';
-import 'package:coworking/resources/review.dart';
-import 'package:coworking/resources/visited.dart';
+import 'package:coworking/models/pin.dart';
+import 'package:coworking/models/review.dart';
+import 'package:coworking/models/visited.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:coworking/screens/pin_info.dart';
+import 'package:coworking/models/meeting.dart';
 
-import 'account.dart';
-import 'category.dart';
+import '../models/account.dart';
+import '../models/category.dart';
 
 class PinChange {
   DocumentChangeType type;
@@ -20,7 +20,7 @@ class PinChange {
   PinChange(this.type, this.pin);
 }
 
-class Database {
+class DatabaseMap {
   static Stream<List<PinChange>> getPins(BuildContext context) {
     return Firestore.instance
         .collection("pins")
@@ -201,6 +201,26 @@ class Database {
     });
   }
 
+  static Stream<List<Meeting>> meetingsByUser(
+      Account account, BuildContext context) {
+    return Firestore.instance
+        .collection("meetings")
+        .where("author", isEqualTo: account.id)
+        .snapshots()
+        .asyncMap((querySnapshot) async {
+      Completer<List<Meeting>> meetingsCompleter = new Completer<List<Meeting>>();
+      List<Meeting> meetings = [];
+      for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
+        Map<String, dynamic> meetingMap = documentSnapshot.data;
+        Meeting meeting = Meeting.fromMap(documentSnapshot.documentID,meetingMap);
+        // meeting.pin = await getPinByID(meetingMap["pinID"], context);
+        meetings.add(meeting);
+      }
+      meetingsCompleter.complete(meetings);
+      return meetingsCompleter.future;
+    });
+  }
+
   static Stream<List<String>> visitedByUser(
       Account account, BuildContext context) {
     return Firestore.instance
@@ -245,9 +265,13 @@ class Database {
         await getFirstReview(pinID), context);
   }
 
-  ///добавляем отзыв в базу
   static void addReview(Review review) {
     Firestore.instance.collection("reviews").add(review.asMap());
+  }
+
+  ///добавляем митинг в базу
+  static void addMeeting(Meeting meeting) {
+    Firestore.instance.collection("meetings").add(meeting.asMap());
   }
 
   static void addUserToDatabase(Account user) {

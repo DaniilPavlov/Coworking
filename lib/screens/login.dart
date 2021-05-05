@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 
-import '../sign_in.dart';
-import 'map.dart';
+import '../services/sign_in.dart';
+import 'map/map.dart';
 
 class LoginScreen extends StatefulWidget {
   @override

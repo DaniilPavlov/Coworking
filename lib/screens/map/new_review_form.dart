@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:coworking/resources/account.dart';
-import 'package:coworking/resources/review.dart';
+import 'package:coworking/models/account.dart';
+import 'package:coworking/models/review.dart';
 
 class NewReviewForm extends StatefulWidget {
   NewReviewForm({Key key}) : super(key: key);
