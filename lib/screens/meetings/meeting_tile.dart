@@ -52,7 +52,7 @@ class _MeetingListItemState extends State<MeetingListItem> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Text(
-                    "Место проведения:  " + widget.meeting.place,
+                    "Место:  " + widget.meeting.place,
                     style: DefaultTextStyle.of(context)
                         .style
                         .apply(fontSizeFactor: 1.2),
@@ -65,7 +65,7 @@ class _MeetingListItemState extends State<MeetingListItem> {
                     builder: (_, snapshot) => Text(
                       (snapshot.hasData)
                           ? "Организатор:  " + snapshot.data
-                          : "Организатор:  " + "Unknown",
+                          : "Организатор:  " + "Anonymous",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),

@@ -19,16 +19,8 @@ class Review {
   double userRate;
   double totalRate;
 
-  Review(this.id,
-      this.author,
-      this.body,
-      this.timestamp,
-      this.isFood,
-      this.isFree,
-      this.isRazors,
-      this.isWiFi,
-      this.userRate,
-      this.totalRate);
+  Review(this.id, this.author, this.body, this.timestamp, this.isFood,
+      this.isFree, this.isRazors, this.isWiFi, this.userRate, this.totalRate);
 
   @override
   int get hashCode => id.hashCode;
@@ -61,16 +53,15 @@ class Review {
 
   static Review fromMap(String id, Map<String, dynamic> data) {
     return Review(
-      id,
-      Account(data["author"]),
-      data["content"],
-      data["dateAdded"].toDate(),
-      data["isFood"],
-      data["isFree"],
-      data["isRazors"],
-      data["isWiFi"],
-      data["userRate"],
-      data["totalRate"]
-    );
+        id,
+        Account(data["author"]),
+        data["content"],
+        data["dateAdded"].toDate(),
+        data["isFood"],
+        data["isFree"],
+        data["isRazors"],
+        data["isWiFi"],
+        data["userRate"],
+        data["totalRate"]);
   }
 }

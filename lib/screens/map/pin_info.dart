@@ -12,6 +12,7 @@ import 'package:coworking/widgets/radio_button_picker.dart';
 import 'map.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
+// TODO: МОЖЕТ НЕ СРАЗУ ЗАГРУЗИТЬСЯ, ТОГДА СЕРЫЙ ЭКРАН ПРИ НАЖАТИИ НА ПИН
 class PinInfo extends StatefulWidget {
   final Pin pin;
   String imgURL;
@@ -216,7 +217,7 @@ class _PinInfoState extends State<PinInfo> {
             decoration: BoxDecoration(
               color: Colors.orange,
               shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              borderRadius: BorderRadius.all(Radius.circular(2.0)),
             ),
             child: Text(
               widget.pin.name,
@@ -229,7 +230,7 @@ class _PinInfoState extends State<PinInfo> {
           children: <Widget>[
             Image.network(
               widget.imgURL,
-              fit: BoxFit.scaleDown,
+              fit: BoxFit.fill,
             ),
           ],
         ),
@@ -316,6 +317,7 @@ class _PinInfoState extends State<PinInfo> {
                         delegate: SliverChildBuilderDelegate(
                           (context, i) => PinListItem(snapshot.data[i]),
                           childCount: snapshot.data.length,
+
                         ),
                       )
                     : SliverFillRemaining(
@@ -324,7 +326,7 @@ class _PinInfoState extends State<PinInfo> {
                       ),
 
                 ///возможно потом верну
-                // SliverFillRemaining(hasScrollBody: true,),
+                SliverFillRemaining(hasScrollBody: true,),
                 // SliverToBoxAdapter(
                 //   child: Padding(padding: EdgeInsets.all(1.0)),
                 // )

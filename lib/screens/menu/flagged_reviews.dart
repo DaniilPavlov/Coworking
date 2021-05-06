@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'review_tile.dart';
 
-
 class FlaggedCommentsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

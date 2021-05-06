@@ -7,6 +7,7 @@ class JoinMeeting extends StatefulWidget {
   final Account account;
 
   JoinMeeting({this.account});
+
   @override
   _JoinMeetingState createState() => _JoinMeetingState();
 }
@@ -58,8 +59,10 @@ class _JoinMeetingState extends State<JoinMeeting> {
                     height: 20.0,
                   ),
                   RaisedButton(
+                    color: Colors.orange,
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 100),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 50, vertical: 20),
                       child: Text(
                         "Присоединиться",
                         style: TextStyle(

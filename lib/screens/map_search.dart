@@ -2,7 +2,7 @@ import 'package:coworking/models/pin.dart';
 import 'package:edit_distance/edit_distance.dart';
 import 'package:flutter/material.dart';
 
-/// НУЖНО ДОБАВИТЬ ФИЛЬТР (ПО КАТЕГОРИЯМ МЕСТ)
+//TODO НУЖНО ДОБАВИТЬ ФИЛЬТР (ПО КАТЕГОРИЯМ МЕСТ)
 class MapSearchDelegate extends SearchDelegate<Pin> {
   final Levenshtein distance = Levenshtein();
   final Set<Pin> pins;
@@ -12,7 +12,7 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
-      ///очистка строки запроса
+      //очистка строки запроса
       IconButton(
         icon: Icon(
           Icons.clear,

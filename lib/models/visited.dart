@@ -1,7 +1,6 @@
-class Visited{
+class Visited {
   String user;
   String pin;
-
 
   Visited(String user, String pin) {
     this.user = user;
@@ -14,5 +13,4 @@ class Visited{
     accountMap["pin"] = pin;
     return accountMap;
   }
-
 }

@@ -6,6 +6,7 @@ import 'package:coworking/widgets/toast.dart';
 import 'package:coworking/utils/time_left.dart';
 import 'package:coworking/services/database_meeting.dart';
 import 'package:flutter/services.dart';
+import 'package:coworking/screens/meetings/meetings.dart';
 
 class MeetingInfo extends StatefulWidget {
   final Meeting meeting;
@@ -35,13 +36,80 @@ class _MeetingInfoState extends State<MeetingInfo> {
                 MaterialPageRoute(
                     builder: (context) =>
                         NewMeetingForm(meeting: widget.meeting)));
-            buildToast('Вы автор!');
           } else
             buildToast('Вы не автор!');
           break;
         case 'Скопировать ключ':
           Clipboard.setData(ClipboardData(text: widget.meeting.id));
-          buildToast('Вы скопировали ключ!'+widget.meeting.id);
+          buildToast('Вы скопировали ключ!' + widget.meeting.id);
+          break;
+        case 'Покинуть':
+          if (widget.meeting.author.id == Account.currentAccount.id) {
+            showDialog(
+                context: context,
+                builder: (context2) => AlertDialog(
+                        title: Text(
+                          "Если вы покинете встречу, она будет удалена. Продолжить?",
+                          style: TextStyle(color: Colors.orange),
+                        ),
+                        actions: <Widget>[
+                          FlatButton(
+                              child: Text(
+                                "Да",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              color: Colors.orange,
+                              onPressed: () {
+                                DatabaseMeeting.deleteMeeting(widget.meeting);
+                                Navigator.pop(context2, true);
+                                Navigator.pop(context, true);
+                                buildToast('Встреча была удалена');
+                              }),
+                          SizedBox(
+                            width: 100,
+                          ),
+                          FlatButton(
+                            child: Text("Нет",
+                                style: TextStyle(color: Colors.white)),
+                            color: Colors.orange,
+                            onPressed: () {
+                              Navigator.pop(context2, false);
+                            },
+                          ),
+                        ]));
+          } else
+            showDialog(
+                context: context,
+                builder: (context1) => AlertDialog(
+                        title: Text(
+                          "Вы действительно хотите покинуть встречу?",
+                          style: TextStyle(color: Colors.orange),
+                        ),
+                        actions: <Widget>[
+                          FlatButton(
+                              child: Text(
+                                "Да",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              color: Colors.orange,
+                              onPressed: () {
+                                DatabaseMeeting.leaveMeeting(widget.meeting.id);
+                                Navigator.pop(context1, true);
+                                Navigator.pop(context, true);
+                                buildToast('Вы покинули встречу');
+                              }),
+                          SizedBox(
+                            width: 100,
+                          ),
+                          FlatButton(
+                            child: Text("Нет",
+                                style: TextStyle(color: Colors.white)),
+                            color: Colors.orange,
+                            onPressed: () {
+                              Navigator.pop(context, false);
+                            },
+                          ),
+                        ]));
           break;
         case 'Удалить':
           if (widget.meeting.author.id == Account.currentAccount.id) {
@@ -60,7 +128,7 @@ class _MeetingInfoState extends State<MeetingInfo> {
             PopupMenuButton<String>(
               onSelected: handleClick,
               itemBuilder: (BuildContext context) {
-                return {'Изменить', 'Скопировать ключ', 'Удалить'}
+                return {'Изменить', 'Скопировать ключ', 'Покинуть', 'Удалить'}
                     .map((String choice) {
                   return PopupMenuItem<String>(
                     value: choice,
@@ -83,7 +151,7 @@ class _MeetingInfoState extends State<MeetingInfo> {
               FutureBuilder(
                 future: widget.meeting.author.userName,
                 builder: (_, snapshot) => Text(
-                  (snapshot.hasData) ? snapshot.data : "Unknown",
+                  (snapshot.hasData) ? snapshot.data : "Anonymous",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),

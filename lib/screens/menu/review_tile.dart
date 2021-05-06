@@ -7,7 +7,7 @@ import 'package:coworking/screens/map/new_review_form.dart';
 
 import '../map/map.dart';
 
-///этот класс отвечает за отображение *моих* обзоров (не пинов, именно обзоры)
+//этот класс отвечает за отображение *моих* обзоров (не пинов, именно обзоры)
 class YourReviewsListItem extends ListTile {
   const YourReviewsListItem({
     this.name,
@@ -46,14 +46,14 @@ class YourReviewsListItem extends ListTile {
           ),
           IconButton(
             icon: Icon(
-              Icons.gps_fixed_outlined,
+              Icons.pin_drop_outlined,
               color: Colors.black,
               semanticLabel: "Go to pin",
             ),
             iconSize: 40.0,
             color: Color.fromRGBO(0, 0, 0, 0.3),
             onPressed: () {
-              ///заменяем страницу в стеке страниц
+              //заменяем страницу в стеке страниц
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -68,8 +68,8 @@ class YourReviewsListItem extends ListTile {
   }
 }
 
-///информация по комментарию пина: флажок\сердечко
-///автор, время, сам коммент
+//информация по комментарию пина: флажок\сердечко
+//автор, время, сам коммент
 class PinListItem extends StatefulWidget {
   const PinListItem(this.review);
 
@@ -119,7 +119,7 @@ class _PinListItemState extends State<PinListItem> {
     final RegExp shutterSpeedRegEx =
         RegExp("[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)");
 
-    ///можно оставить оценку без отзыва, возможно есть смысл оставить, иначе меняем бади на контроллер
+    //можно оставить оценку без отзыва, возможно есть смысл оставить, иначе меняем бади на контроллер
     if (widget.review.body != "" &&
         widget.review.userRate.toString() != "" &&
         shutterSpeedRegEx.hasMatch(widget.review.userRate.toString()) &&
@@ -341,14 +341,82 @@ class _PinListItemState extends State<PinListItem> {
                               ])),
                             ),
                           )
-                    ///ЗДЕСЬ УВЕЛИЧИТЬ КОЛВО ДАННЫХ НА НАЖАТИИ ОТЗЫВА
+
+                        //TODO ЗДЕСЬ УВЕЛИЧИТЬ КОЛВО ДАННЫХ НА НАЖАТИИ ОТЗЫВА
                         : Scaffold(
                             body: SingleChildScrollView(
-                              child: Container(
-                                  padding: EdgeInsets.all(10),
-                                  child: Text(widget.review.body)),
-                            ),
-                          );
+                                child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: <Widget>[
+                                Container(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          children: <Widget>[
+                                            Expanded(
+                                              child: Text(
+                                                "Информация об отзыве:",
+                                                style: TextStyle(
+                                                    fontSize: 30,
+                                                    color: Colors.black),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 8.0, left: 8.0, right: 8.0),
+                                        child: Row(
+                                          children: <Widget>[
+                                            Expanded(
+                                              child: Text(widget.review.body),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          children: <Widget>[
+                                            Expanded(
+                                              child: Text(
+                                                formatDate(
+                                                    widget.review.timestamp),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .caption,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Container(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            "Личная оценка пользователя: " +
+                                                widget.review.userRate
+                                                    .toString(),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .subhead,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ])));
                   } else {
                     return Center(child: CircularProgressIndicator());
                   }
@@ -357,6 +425,7 @@ class _PinListItemState extends State<PinListItem> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            Divider(color: Colors.orange),
             Text(
               widget.review.body,
               textScaleFactor: 1.1,
@@ -368,7 +437,7 @@ class _PinListItemState extends State<PinListItem> {
                   FutureBuilder(
                     future: widget.review.author.userName,
                     builder: (_, snapshot) => Text(
-                      (snapshot.hasData) ? snapshot.data : "Unknown",
+                      (snapshot.hasData) ? snapshot.data : "Anonymous",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -419,18 +488,18 @@ class _PinListItemState extends State<PinListItem> {
       ),
     );
   }
-
-  String formatDate(DateTime timestamp) =>
-      timestamp.day.toString().padLeft(2, '0') +
-      "/" +
-      timestamp.month.toString().padLeft(2, '0') +
-      "/" +
-      timestamp.year.toString() +
-      " " +
-      timestamp.hour.toString().padLeft(2, '0') +
-      ":" +
-      timestamp.minute.toString().padLeft(2, '0');
 }
+
+String formatDate(DateTime timestamp) =>
+    timestamp.day.toString().padLeft(2, '0') +
+    "/" +
+    timestamp.month.toString().padLeft(2, '0') +
+    "/" +
+    timestamp.year.toString() +
+    " " +
+    timestamp.hour.toString().padLeft(2, '0') +
+    ":" +
+    timestamp.minute.toString().padLeft(2, '0');
 
 class CustomListItem extends ListTile {
   const CustomListItem({
@@ -453,21 +522,16 @@ class CustomListItem extends ListTile {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              name,
+              "Место: " + name,
               style:
                   DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.3),
             ),
-            Text(comment),
+            SizedBox(
+              height: 10,
+            ),
+            Container(width: 200, child: Text("Отзыв: " + comment)),
             Text(
-              date.day.toString().padLeft(2, '0') +
-                  "/" +
-                  date.month.toString().padLeft(2, '0') +
-                  "/" +
-                  date.year.toString() +
-                  " " +
-                  date.hour.toString().padLeft(2, '0') +
-                  ":" +
-                  date.minute.toString().padLeft(2, '0'),
+              formatDate(date),
               style: TextStyle(color: Colors.black.withOpacity(0.4)),
             ),
           ]),
@@ -475,7 +539,7 @@ class CustomListItem extends ListTile {
   }
 }
 
-/// Любимые отзывы
+// Любимые отзывы
 class StarredReviewsListItem extends ListTile {
   const StarredReviewsListItem(this.review, this.location);
 
@@ -499,14 +563,14 @@ class StarredReviewsListItem extends ListTile {
           ),
           IconButton(
             icon: Icon(
-              Icons.gps_fixed_outlined,
+              Icons.pin_drop_outlined,
               color: Colors.black,
               semanticLabel: "Go to pin",
             ),
             iconSize: 40.0,
             color: Color.fromRGBO(0, 0, 0, 0.3),
             onPressed: () {
-              ///заменяем страницу в стеке страниц
+              //заменяем страницу в стеке страниц
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -532,9 +596,9 @@ class StarredReviewsListItem extends ListTile {
   }
 }
 
-///жалобы на отзывы. Показываются только админу
-///Админ устанавливается напрямую через firebase. Вкладка появляется
-///в левом меню.
+//жалобы на отзывы. Показываются только админу
+//Админ устанавливается напрямую через firebase. Вкладка появляется
+//в левом меню.
 class FlaggedReviewsListItem extends ListTile {
   const FlaggedReviewsListItem(this.review);
 
@@ -578,115 +642,6 @@ class FlaggedReviewsListItem extends ListTile {
             onPressed: () {
               DatabaseMap.deleteReview(review);
             },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-///Когда мы нажимаем на чей-то отзыв в разделе пина, мы можем
-///прочитать дополнительную информацию
-///пока не используется
-class ReviewInfoDialog extends StatelessWidget {
-  ReviewInfoDialog(this._review);
-
-  final Review _review;
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          "Информация об отзыве:",
-                          style: TextStyle(fontSize: 30, color: Colors.black),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(_review.body),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          _review.timestamp.day.toString().padLeft(2, '0') +
-                              "/" +
-                              _review.timestamp.month
-                                  .toString()
-                                  .padLeft(2, '0') +
-                              "/" +
-                              _review.timestamp.year.toString() +
-                              " " +
-                              _review.timestamp.hour
-                                  .toString()
-                                  .padLeft(2, '0') +
-                              ":" +
-                              _review.timestamp.minute
-                                  .toString()
-                                  .padLeft(2, '0'),
-                          style: Theme.of(context).textTheme.caption,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Рейтинг:",
-                      style: Theme.of(context).textTheme.subhead,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          InkWell(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(16),
-                    bottomRight: Radius.circular(16)),
-                color: Colors.orange,
-              ),
-              padding: EdgeInsets.all(16),
-              child: Text(
-                "Закрыть",
-                style: Theme.of(context).primaryTextTheme.button,
-                textAlign: TextAlign.center,
-              ),
-            ),
           ),
         ],
       ),

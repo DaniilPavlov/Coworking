@@ -126,7 +126,8 @@ class AccountPage extends StatelessWidget {
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
         title: Text("Вы уверены?"),
-        content: Text("Все пины и отзывы связанные с вами будут удалены."),
+        content:
+            Text("Все ваши встречи будут удалены, но пины и отзывы останутся."),
         actions: <Widget>[
           FlatButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -247,14 +248,11 @@ class DisplayNameFormState extends State<DisplayNameForm> {
 }
 
 void deleteAccount(BuildContext context) {
-  ///изменил рут на тру, теперь все нормально закрывается
-  ///не работает удаление
-  ///НАПИСАТЬ МЕТОД ДЛЯ УДАЛЕНИЯ
+  //изменил рут на тру, теперь все нормально закрывается
   FirebaseAuth.instance.currentUser().then((user) async {
-    print("УДАЛЯЮ");
-    SignIn().signOutGoogle();
+    DatabaseMap.deleteUser(Account.currentAccount);
     await user.delete();
-    print(user.displayName);
+    SignIn().signOutGoogle();
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => LoginScreen()),
         (Route<dynamic> route) => true);
@@ -264,8 +262,7 @@ void deleteAccount(BuildContext context) {
 void signOut(BuildContext context) {
   FirebaseAuth.instance.signOut();
   SignIn().signOutGoogle();
-
-  ///изменил рут на тру, теперь при перезаходе пины активны
+  //изменил рут на тру, теперь при перезаходе пины активны
   Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => LoginScreen()),
       (Route<dynamic> route) => true);

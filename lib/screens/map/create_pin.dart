@@ -104,7 +104,6 @@ class _PinFormState extends State<PinForm>
   @override
   bool get wantKeepAlive => true;
 
-
   @override
   Widget build(BuildContext context) {
     super.build(context);

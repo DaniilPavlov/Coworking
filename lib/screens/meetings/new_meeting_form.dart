@@ -179,8 +179,10 @@ class NewMeetingFormState extends State<NewMeetingForm>
                     ],
                   ),
                   RaisedButton(
+                    color: Colors.orange,
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 100),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 50, vertical: 10),
                       child: Text(
                         "Назначить",
                         style: TextStyle(
@@ -191,8 +193,8 @@ class NewMeetingFormState extends State<NewMeetingForm>
                       ),
                     ),
                     onPressed: () {
-                      Meeting meeting =
-                          Meeting(null, "", "", Account.currentAccount,members,tokens, null);
+                      Meeting meeting = Meeting(null, "", "",
+                          Account.currentAccount, members, tokens, null);
                       if (_meetingPlaceController.text == "") {
                         addMeetingKey.currentState.showSnackBar(SnackBar(
                           content: Text("Требуется добавить место встречи"),

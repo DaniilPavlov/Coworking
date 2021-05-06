@@ -14,6 +14,7 @@ class ImagePickerBox extends FormField<File> {
 
 class ImagePickerBoxState extends StatelessWidget {
   final FormFieldState<File> state;
+
   ImagePickerBoxState(this.state);
 
   @override

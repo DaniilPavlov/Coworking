@@ -201,7 +201,6 @@ class DatabaseMap {
     });
   }
 
-
   static Stream<List<String>> visitedByUser(
       Account account, BuildContext context) {
     return Firestore.instance
@@ -310,7 +309,6 @@ class DatabaseMap {
         .then((snapshot) => snapshot.documents.first.data["isAdmin"]);
   }
 
-
   static Future<bool> isReviewOwner(Review review) {
     DocumentReference docRef =
         Firestore.instance.collection("reviews").document(review.id);
@@ -385,12 +383,15 @@ class DatabaseMap {
 
   /// редактируем отзыв
   Future editReview(Review review) async {
-    Firestore.instance
-        .collection("reviews")
-        .document(review.id)
-        .setData({"content": review.body, "isFood": review.isFood,
-      "isFree": review.isFree,"isRazors": review.isRazors,
-      "isWiFi": review.isWiFi,"userRate": review.userRate, "totalRate": review.totalRate}, merge: true);
+    Firestore.instance.collection("reviews").document(review.id).setData({
+      "content": review.body,
+      "isFood": review.isFood,
+      "isFree": review.isFree,
+      "isRazors": review.isRazors,
+      "isWiFi": review.isWiFi,
+      "userRate": review.userRate,
+      "totalRate": review.totalRate
+    }, merge: true);
     // return true;
   }
 
@@ -404,7 +405,7 @@ class DatabaseMap {
     // return true;
   }
 
-  /// если админ считает отзыв плохим - удаляем его
+  // если админ считает отзыв плохим - удаляем его
   static void deleteReview(Review review) {
     ignoreFlags(review.id);
     Firestore.instance.collection("reviews").document(review.id).delete();
@@ -423,6 +424,48 @@ class DatabaseMap {
       });
     });
     Firestore.instance.collection("pins").document(pin.id).delete();
+  }
+
+  static void deleteUser(Account account) {
+    Firestore.instance
+        .collection("meetings")
+        .where("author", isEqualTo: account.id)
+        .getDocuments()
+        .then((query) {
+      query.documents.forEach((document) {
+        document.reference.delete();
+      });
+    });
+    List<String> members = List();
+    List<String> tokens = List();
+    members.add(Account.currentAccount.id);
+    tokens.add(Account.currentAccount.notifyToken);
+    Firestore.instance
+        .collection("meetings")
+        .where("tokens", arrayContains: account.notifyToken)
+        .getDocuments()
+        .then((query) {
+      query.documents.forEach((document) {
+        print(document.documentID);
+        Firestore.instance
+            .collection("meetings")
+            .document(document.documentID)
+            .updateData({
+          'members': FieldValue.arrayRemove(members),
+          'tokens': FieldValue.arrayRemove(tokens)
+        });
+      });
+    });
+    print(account.id);
+    Firestore.instance
+        .collection("users")
+        .where("userID", isEqualTo: account.id)
+        .getDocuments()
+        .then((query) {
+      query.documents.forEach((document) {
+        document.reference.delete();
+      });
+    });
   }
 
   // TODO: решить что делать со страйками на пользователя

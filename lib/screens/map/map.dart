@@ -74,7 +74,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     });
   }
 
-  /// ОТКРЫВАЕМ ИНФОРМАЦИЮ О ПИНЕ
+  // ОТКРЫВАЕМ ИНФОРМАЦИЮ О ПИНЕ
   void updateMapPosition(Pin pin) {
     CameraPosition newPosition =
         CameraPosition(target: pin.location, zoom: MapPage.kDefaultZoom);
@@ -267,8 +267,8 @@ class MapBodyState extends State<MapBody> {
 
   bool locationEnabled;
 
-  /// Обновляем карту и определяем пермишены. Однако, если человек установил
-  /// режим больше не спрашивать - не спросим
+  // Обновляем карту и определяем пермишены. Однако, если человек установил
+  // режим больше не спрашивать - не спросим
   void monitorLocationPerm() async {
     ServiceStatus currentServiceStatus, oldServiceStatus;
 
@@ -277,11 +277,11 @@ class MapBodyState extends State<MapBody> {
       currentServiceStatus = await PermissionHandler()
           .checkServiceStatus(PermissionGroup.location);
 
-      /// проверяем пермишены только если изменился статус сервиса
+      // проверяем пермишены только если изменился статус сервиса
       if (currentServiceStatus == oldServiceStatus) continue;
 
-      /// если джипиэс выключен - локация недоступна
-      /// кнопка *наведись на нас* пропадает
+      // если джипиэс выключен - локация недоступна
+      // кнопка *наведись на нас* пропадает
       if (currentServiceStatus == ServiceStatus.disabled) {
         setState(() {
           locationEnabled = false;
@@ -289,7 +289,7 @@ class MapBodyState extends State<MapBody> {
         continue;
       }
 
-      /// джипиэс включили, проверяем разрешения
+      // джипиэс включили, проверяем разрешения
       PermissionStatus permissionStatus = await PermissionHandler()
           .checkPermissionStatus(PermissionGroup.location);
 
@@ -310,14 +310,14 @@ class MapBodyState extends State<MapBody> {
     }
   }
 
-  ///начальное состояние, проверяем пермишены
+  //начальное состояние, проверяем пермишены
   @override
   void initState() {
     super.initState();
     monitorLocationPerm();
   }
 
-  ///отписываемся от стрима с пинами
+  //отписываемся от стрима с пинами
   @override
   void dispose() {
     widget.pinsStream.cancel();
@@ -362,7 +362,7 @@ class MapBodyState extends State<MapBody> {
     }
   }
 
-  ///добавляем пины на карту
+  //добавляем пины на карту
   @override
   Widget build(BuildContext context) {
     updateMapPins(widget.pins);
@@ -395,7 +395,7 @@ class MapBodyState extends State<MapBody> {
                   2,
             ),
 
-            ///тут наводимся куда поставить наш пин
+            //тут наводимся куда поставить наш пин
             child: ScaleTransition(
               scale: widget.pinAnimation, // масштабирование пина
               child: FractionalTranslation(
@@ -440,13 +440,13 @@ class BottomBar extends StatelessWidget {
       barHeightCallback(context.size.height);
     });
 
-    /// добавляем для того, чтобы клавиатура поднимала виджет,а не закрывала его
+    // добавляем для того, чтобы клавиатура поднимала виджет,а не закрывала его
     final keyboardPadding = MediaQuery.of(context).viewInsets.bottom;
 
     return BottomAppBar(
       shape: CircularNotchedRectangle(),
 
-      ///выпуклость под центральную кнопку
+      //выпуклость под центральную кнопку
       notchMargin: 8.0,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -458,8 +458,8 @@ class BottomBar extends StatelessWidget {
             updateCameraPosition,
           ),
 
-          /// по нажатию центральной кнопки - поднимаем боттем бар и
-          /// связанные с ним элементы, создаем новый пин
+          // по нажатию центральной кнопки - поднимаем боттем бар и
+          // связанные с ним элементы, создаем новый пин
           Visibility(
             visible: drawerOpen,
             child: SizeTransition(
@@ -468,7 +468,7 @@ class BottomBar extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.only(bottom: keyboardPadding),
 
-                ///добавил 15, при изменении drawerHeight ничего не происходило
+                //добавил 15, при изменении drawerHeight ничего не происходило
                 child: CreatePin(drawerHeight + 15, key: pinFormKey),
               ),
             ),
@@ -511,8 +511,8 @@ class BottomBarNav extends StatelessWidget {
             ),
           ),
 
-          ///когда нажимаем центральную кнопку, иконка меню заменяется
-          ///на стрелочку назад
+          //когда нажимаем центральную кнопку, иконка меню заменяется
+          //на стрелочку назад
           replacement: IconButton(
             iconSize: 40,
             onPressed: () {
@@ -541,16 +541,17 @@ class BottomBarNav extends StatelessWidget {
               ),
             )),
 
-        ///раскидываем кнопки по разным концам
+        //раскидываем кнопки по разным концам
         Spacer(),
         Visibility(
             visible: !drawerOpen,
             child: IconButton(
               iconSize: 40,
               onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => UserMeetingsPage()));
-
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => UserMeetingsPage()));
               },
               icon: Icon(
                 Icons.emoji_people,

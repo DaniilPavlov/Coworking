@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 Future<bool> buildToast(String message,
-    {Color backgroundColor = Colors.orange,
-    Color textColor = Colors.white}) {
+    {Color backgroundColor = Colors.orange, Color textColor = Colors.white}) {
   return Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_SHORT,

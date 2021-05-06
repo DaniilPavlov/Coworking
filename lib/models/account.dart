@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:coworking/models/review.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../services/database_meeting.dart';
 import '../services/database_map.dart';
 import 'meeting.dart';
@@ -16,8 +14,6 @@ class Account {
 
   String _userName;
   String _email;
-
-  ///НОВОЕ
   String notifyToken;
 
   Account(
@@ -28,14 +24,6 @@ class Account {
   }) {
     this._email = email;
     this._userName = userName;
-  }
-
-  ///НОВОЕ
-  Account.fromDocumentSnapshot({DocumentSnapshot doc}) {
-    id = doc.documentID;
-    _email = doc.data['email'];
-    _userName = doc.data['userName'];
-    notifyToken = doc.data['notifyToken'];
   }
 
   static Account fromFirebaseUser(FirebaseUser user) {
@@ -84,7 +72,6 @@ class Account {
   static Stream<List<Meeting>> getMeetingsForUser(BuildContext context) {
     return DatabaseMeeting.meetingsOfUser(currentAccount, context);
   }
-
 
   static Future<Stream<List<Review>>> getFavouriteReviewsForUser(
       BuildContext context) {
