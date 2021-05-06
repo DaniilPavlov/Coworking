@@ -25,7 +25,7 @@ class _MeetingListItemState extends State<MeetingListItem> {
         // crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           SizedBox(
-            height: 30,
+            height: 10,
           ),
           Container(
             clipBehavior: Clip.antiAlias,
@@ -83,7 +83,10 @@ class _MeetingListItemState extends State<MeetingListItem> {
                 ],
               )),
             ),
-          )
+          ),
+          SizedBox(
+            height: 20,
+          ),
         ]);
   }
 }

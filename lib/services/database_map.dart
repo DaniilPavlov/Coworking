@@ -310,6 +310,7 @@ class DatabaseMap {
         .then((snapshot) => snapshot.documents.first.data["isAdmin"]);
   }
 
+
   static Future<bool> isReviewOwner(Review review) {
     DocumentReference docRef =
         Firestore.instance.collection("reviews").document(review.id);

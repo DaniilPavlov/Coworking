@@ -50,7 +50,8 @@ class _PinInfoState extends State<PinInfo> {
                 DatabaseMap.deleteVisited(
                     Account.currentAccount.id, widget.pin.id);
               } else {
-                DatabaseMap.addVisited(Account.currentAccount.id, widget.pin.id);
+                DatabaseMap.addVisited(
+                    Account.currentAccount.id, widget.pin.id);
               }
             },
             shape: StadiumBorder(),
@@ -278,7 +279,7 @@ class _PinInfoState extends State<PinInfo> {
             );
 
             return CustomScrollView(
-              physics: BouncingScrollPhysics(),
+              physics: ClampingScrollPhysics(),
               slivers: <Widget>[
                 bar,
                 SliverToBoxAdapter(
@@ -321,10 +322,12 @@ class _PinInfoState extends State<PinInfo> {
                         child: progressIndicator,
                         hasScrollBody: false,
                       ),
-                SliverFillRemaining(hasScrollBody: false),
-                SliverToBoxAdapter(
-                  child: Padding(padding: EdgeInsets.all(1.0)),
-                )
+
+                ///возможно потом верну
+                // SliverFillRemaining(hasScrollBody: true,),
+                // SliverToBoxAdapter(
+                //   child: Padding(padding: EdgeInsets.all(1.0)),
+                // )
               ],
             );
           }),

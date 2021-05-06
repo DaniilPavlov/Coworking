@@ -85,6 +85,7 @@ class Account {
     return DatabaseMeeting.meetingsOfUser(currentAccount, context);
   }
 
+
   static Future<Stream<List<Review>>> getFavouriteReviewsForUser(
       BuildContext context) {
     return DatabaseMap.favouriteReviewsForUser(currentAccount, context);

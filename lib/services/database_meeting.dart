@@ -108,7 +108,7 @@ class DatabaseMeeting {
 
   static Future<bool> isMeetingOwner(Meeting meeting) {
     DocumentReference docRef =
-        Firestore.instance.collection("meetings").document(meeting.id);
+    Firestore.instance.collection("meetings").document(meeting.id);
     return docRef.get().then((datasnapshot) {
       print(datasnapshot.data['author'].toString());
       print(
@@ -125,22 +125,24 @@ class DatabaseMeeting {
     Firestore.instance.collection("meetings").document(meeting.id).delete();
   }
 
+
+
   static Stream<List<Meeting>> meetingsOfUser(
       Account account, BuildContext context) {
     return Firestore.instance
         .collection("meetings")
 
-        ///РАБОТАЕТ!!!
+    ///РАБОТАЕТ!!!
         .where("members", arrayContains: account.id)
         .snapshots()
         .asyncMap((querySnapshot) async {
       Completer<List<Meeting>> meetingsCompleter =
-          new Completer<List<Meeting>>();
+      new Completer<List<Meeting>>();
       List<Meeting> meetings = [];
       for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
         Map<String, dynamic> meetingMap = documentSnapshot.data;
         Meeting meeting =
-            Meeting.fromMap(documentSnapshot.documentID, meetingMap);
+        Meeting.fromMap(documentSnapshot.documentID, meetingMap);
         // meeting.pin = await getPinByID(meetingMap["pinID"], context);
         meetings.add(meeting);
       }
@@ -149,69 +151,68 @@ class DatabaseMeeting {
     });
   }
 
-  /// Сделать проверку состаю ли я в митинге, вроде все ок
-  /// но если поменять аккаунт на устройстве - токен останется такой же
-  Future<String> joinMeeting(String meetingId) async {
-    String retVal = "error";
-    List<String> members = List();
-    List<String> tokens = List();
-    try {
-      members.add(Account.currentAccount.id);
-      tokens.add(Account.currentAccount.notifyToken);
-      await _firestore.collection("meetings").document(meetingId).updateData({
-        'members': FieldValue.arrayUnion(members),
-        'tokens': FieldValue.arrayUnion(tokens),
-      });
+/// Сделать проверку состаю ли я в митинге, вроде все ок
+/// но если поменять аккаунт на устройстве - токен останется такой же
+Future<String> joinMeeting(String meetingId) async {
+  String retVal = "error";
+  List<String> members = List();
+  List<String> tokens = List();
+  try {
+    members.add(Account.currentAccount.id);
+    tokens.add(Account.currentAccount.notifyToken);
+    await _firestore.collection("meetings").document(meetingId).updateData({
+      'members': FieldValue.arrayUnion(members),
+      'tokens': FieldValue.arrayUnion(tokens),
+    });
 
-      retVal = "success";
-    } on PlatformException catch (e) {
-      retVal = "Убедитесь, что вы получили верный id встречи!";
-      print(e);
-    } catch (e) {
-      print(e);
-    }
-
-    return retVal;
+    retVal = "success";
+  } on PlatformException catch (e) {
+    retVal = "Убедитесь, что вы получили верный id встречи!";
+    print(e);
+  } catch (e) {
+    print(e);
   }
 
-  /// Добавить выход из группы
-  Future<String> leaveMeeting(String groupId, Account account) async {
-    String retVal = "error";
-    List<String> members = List();
-    List<String> tokens = List();
-    try {
-      members.add(account.id);
-      tokens.add(account.notifyToken);
-      await _firestore.collection("groups").document(groupId).updateData({
-        'members': FieldValue.arrayRemove(members),
-        'tokens': FieldValue.arrayRemove(tokens),
-      });
-
-      await _firestore.collection("users").document(account.id).updateData({
-        'groupId': null,
-      });
-    } catch (e) {
-      print(e);
-    }
-
-    return retVal;
-  }
-
-  Future<String> createNotifications(
-      List<String> tokens, String meetingName, String author) async {
-    String retVal = "error";
-
-    try {
-      await _firestore.collection("notifications").add({
-        'MeetingName': meetingName.trim(),
-        'author': author.trim(),
-        'tokens': tokens,
-      });
-      retVal = "success";
-    } catch (e) {
-      print(e);
-    }
-
-    return retVal;
-  }
+  return retVal;
 }
+
+/// Добавить выход из группы
+Future<String> leaveMeeting(String groupId, Account account) async {
+  String retVal = "error";
+  List<String> members = List();
+  List<String> tokens = List();
+  try {
+    members.add(account.id);
+    tokens.add(account.notifyToken);
+    await _firestore.collection("groups").document(groupId).updateData({
+      'members': FieldValue.arrayRemove(members),
+      'tokens': FieldValue.arrayRemove(tokens),
+    });
+
+    await _firestore.collection("users").document(account.id).updateData({
+      'groupId': null,
+    });
+  } catch (e) {
+    print(e);
+  }
+
+  return retVal;
+}
+
+Future<String> createNotifications(List<String> tokens, String meetingName,
+    String author) async {
+  String retVal = "error";
+
+  try {
+    await _firestore.collection("notifications").add({
+      'MeetingName': meetingName.trim(),
+      'author': author.trim(),
+      'tokens': tokens,
+    });
+    retVal = "success";
+  } catch (e) {
+    print(e);
+  }
+
+  return retVal;
+}}
