@@ -9,6 +9,7 @@ class Meeting {
   String description;
   Account author;
   Pin pin;
+  bool notify;
 
   List<String> members;
   List<String> tokens;
@@ -22,6 +23,7 @@ class Meeting {
     this.members,
     this.tokens,
     this.dateCompleted,
+    this.notify,
   );
 
   Meeting copy() {
@@ -33,6 +35,7 @@ class Meeting {
       this.members,
       this.tokens,
       this.dateCompleted,
+      this.notify,
     );
   }
 
@@ -45,6 +48,7 @@ class Meeting {
     meeting["tokens"] = tokens;
     // meeting["pinID"] = pin?.id;
     meeting["dateCompleted"] = dateCompleted;
+    meeting["notify"] = notify;
     return meeting;
   }
 
@@ -63,6 +67,7 @@ class Meeting {
       List<String>.from(data["members"]),
       List<String>.from(data["tokens"]),
       data["dateCompleted"],
+      data["notify"],
     );
   }
 }

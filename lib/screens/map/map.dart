@@ -7,6 +7,7 @@ import 'package:coworking/models/pin.dart';
 import 'package:coworking/screens/map/pin_info.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:coworking/screens/meetings/meetings.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -112,6 +113,8 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     });
   }
 
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
   ///INIT STATE
   @override
   void initState() {
@@ -162,6 +165,27 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     });
 
     queryPins();
+
+    if (Platform.isIOS) {
+      _firebaseMessaging
+          .requestNotificationPermissions(IosNotificationSettings());
+      _firebaseMessaging.onIosSettingsRegistered.listen((event) {
+        print("IOS Registered");
+      });
+    }
+    ///Добавил для уведомлений, нужно добавить алерт диалоги, если мы находимся
+    ///в приложении (уведомления приходят только в бэкграунде)
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+      },
+    );
   }
 
   ///WIDGET BUILD
@@ -315,6 +339,7 @@ class MapBodyState extends State<MapBody> {
   void initState() {
     super.initState();
     monitorLocationPerm();
+
   }
 
   //отписываемся от стрима с пинами

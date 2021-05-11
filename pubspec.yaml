@@ -33,7 +33,7 @@ dependencies:
   cloud_firestore: ^0.13.3
   provider:
   numberpicker:
-  firebase_messaging:
+  firebase_messaging: 4.0.0+1
   firebase_auth: 0.15.4
   google_maps_flutter: ^0.5.22
   google_sign_in: ^4.1.1
@@ -49,9 +49,14 @@ dependencies:
   flutter_speed_dial: ^2.0.5
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.8.0
   flutter_test:
     sdk: flutter
 
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/ws_ic.webp"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -66,6 +71,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
+    - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -54,6 +54,7 @@ class MeetingLayout extends StatefulWidget {
 class _MeetingLayoutState extends State<MeetingLayout> {
   Widget _getFAB() {
     return SpeedDial(
+      ///поэксперементировать
       animatedIcon: AnimatedIcons.menu_close,
       animatedIconTheme: IconThemeData(size: 22),
       backgroundColor: Colors.orange,
@@ -62,7 +63,7 @@ class _MeetingLayoutState extends State<MeetingLayout> {
       children: [
         // FAB 1
         SpeedDialChild(
-            child: Icon(Icons.assignment_turned_in),
+            child: Icon(Icons.assignment_return),
             backgroundColor: Colors.orange,
             onTap: () {
               Navigator.push(context,
@@ -76,7 +77,7 @@ class _MeetingLayoutState extends State<MeetingLayout> {
             labelBackgroundColor: Colors.orange),
         // FAB 2
         SpeedDialChild(
-            child: Icon(Icons.assignment_turned_in),
+            child: Icon(Icons.assignment_ind),
             backgroundColor: Colors.orange,
             onTap: () {
               Navigator.push(context,

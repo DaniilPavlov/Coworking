@@ -194,7 +194,7 @@ class NewMeetingFormState extends State<NewMeetingForm>
                     ),
                     onPressed: () {
                       Meeting meeting = Meeting(null, "", "",
-                          Account.currentAccount, members, tokens, null);
+                          Account.currentAccount, members, tokens, null, false);
                       if (_meetingPlaceController.text == "") {
                         addMeetingKey.currentState.showSnackBar(SnackBar(
                           content: Text("Требуется добавить место встречи"),

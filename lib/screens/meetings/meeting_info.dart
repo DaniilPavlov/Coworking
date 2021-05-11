@@ -7,6 +7,7 @@ import 'package:coworking/utils/time_left.dart';
 import 'package:coworking/services/database_meeting.dart';
 import 'package:flutter/services.dart';
 import 'package:coworking/screens/meetings/meetings.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class MeetingInfo extends StatefulWidget {
   final Meeting meeting;
@@ -122,6 +123,44 @@ class _MeetingInfoState extends State<MeetingInfo> {
       }
     }
 
+    Widget notifyFAB() {
+      return SpeedDial(
+        animatedIcon: AnimatedIcons.menu_close,
+        animatedIconTheme: IconThemeData(size: 22),
+        backgroundColor: Colors.orange,
+        visible: true,
+        curve: Curves.bounceIn,
+        children: [
+          // FAB 1
+          SpeedDialChild(
+              child: Icon(Icons.timer),
+              backgroundColor: Colors.orange,
+              onTap: () async{
+                await DatabaseMeeting().timeNotify(widget.meeting);
+              },
+              label: 'Напомнить о встрече',
+              labelStyle: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                  fontSize: 16.0),
+              labelBackgroundColor: Colors.orange),
+          // FAB 2
+          SpeedDialChild(
+              child: Icon(Icons.fiber_new_outlined),
+              backgroundColor: Colors.orange,
+              onTap: () async{
+                await DatabaseMeeting().changeInfoNotify(widget.meeting);
+              },
+              label: 'Информация о встрече изменилась',
+              labelStyle: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                  fontSize: 16.0),
+              labelBackgroundColor: Colors.orange)
+        ],
+      );
+    }
+
     return Scaffold(
         appBar: AppBar(
           actions: <Widget>[
@@ -139,6 +178,8 @@ class _MeetingInfoState extends State<MeetingInfo> {
             ),
           ],
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButton: notifyFAB(),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,

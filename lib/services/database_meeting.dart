@@ -22,6 +22,7 @@ class DatabaseMeeting {
         'members': members,
         'tokens': tokens,
         'dateCompleted': meeting.dateCompleted,
+        'notify': false,
         // 'pinId': meeting.pin
       });
 
@@ -48,6 +49,41 @@ class DatabaseMeeting {
           "description": meeting.description,
           "dateCompleted": meeting.dateCompleted
         },
+      );
+      retVal = "success";
+    } catch (e) {
+      print(e);
+    }
+
+    return retVal;
+  }
+
+  Future changeInfoNotify(Meeting meeting) async {
+    String retVal = "error";
+    try {
+      Firestore.instance.collection("meetings").document(meeting.id).updateData(
+        {
+          "author": meeting.author.userName,
+        },
+      );
+      retVal = "success";
+    } catch (e) {
+      print(e);
+    }
+
+    return retVal;
+  }
+
+  Future timeNotify(Meeting meeting) async {
+    String retVal = "error";
+    if (meeting.notify)
+      meeting.notify = false;
+    else
+      meeting.notify = true;
+    print(meeting.notify);
+    try {
+      Firestore.instance.collection("meetings").document(meeting.id).updateData(
+        {"notify": meeting.notify},
       );
       retVal = "success";
     } catch (e) {
@@ -122,38 +158,21 @@ class DatabaseMeeting {
     return retVal;
   }
 
-  /// Добавить выход из группы
   static void leaveMeeting(String meetingId) async {
     List<String> members = List();
     List<String> tokens = List();
     try {
       members.add(Account.currentAccount.id);
       tokens.add(Account.currentAccount.notifyToken);
-      await Firestore.instance.collection("meetings").document(meetingId).updateData({
+      await Firestore.instance
+          .collection("meetings")
+          .document(meetingId)
+          .updateData({
         'members': FieldValue.arrayRemove(members),
         'tokens': FieldValue.arrayRemove(tokens),
       });
     } catch (e) {
       print(e);
     }
-
-  }
-
-  Future<String> createNotifications(
-      List<String> tokens, String meetingName, String author) async {
-    String retVal = "error";
-
-    try {
-      await _firestore.collection("notifications").add({
-        'MeetingName': meetingName.trim(),
-        'author': author.trim(),
-        'tokens': tokens,
-      });
-      retVal = "success";
-    } catch (e) {
-      print(e);
-    }
-
-    return retVal;
   }
 }

@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Work Space',
+      title: 'WorkSpace',
       theme: ThemeData(
         cursorColor: Colors.orange,
         primaryColor: Colors.orange,
