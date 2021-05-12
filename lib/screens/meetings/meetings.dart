@@ -6,6 +6,7 @@ import 'package:coworking/screens/meetings/meeting_tile.dart';
 import 'package:coworking/screens/meetings/join_meeting.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:coworking/services/database_map.dart';
+import 'package:coworking/widgets/meetings_background.dart';
 
 class UserMeetingsPage extends StatelessWidget {
   @override
@@ -54,7 +55,6 @@ class MeetingLayout extends StatefulWidget {
 class _MeetingLayoutState extends State<MeetingLayout> {
   Widget _getFAB() {
     return SpeedDial(
-      ///поэксперементировать
       animatedIcon: AnimatedIcons.menu_close,
       animatedIconTheme: IconThemeData(size: 22),
       backgroundColor: Colors.orange,
@@ -100,42 +100,45 @@ class _MeetingLayoutState extends State<MeetingLayout> {
     return Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         floatingActionButton: _getFAB(),
-        body: FutureBuilder(
-          future: DatabaseMap.isAdmin(),
-          builder: (context, snapshot) => (snapshot.hasData)
-              ? StreamBuilder<List<Meeting>>(
-                  stream: Account.getMeetingsForUser(context),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else {
-                      if (snapshot.hasData && snapshot.data.length > 0) {
-                        return ListView.builder(
-                          itemCount: snapshot.data.length,
-                          itemBuilder: (context, index) {
-                            return MeetingListItem(snapshot.data[index]);
-                          },
-                        );
-                      } else {
-                        return Center(
-                          child: Text("Пока здесь пусто :( \n",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 20)),
-                        );
-                      }
-                    }
-                  },
-                )
-              : Center(
-                  child: Column(
-                    children: <Widget>[
-                      Text("Загружаем данные"),
-                      CircularProgressIndicator(),
-                    ],
-                  ),
-                ),
-        ));
+        body: CustomPaint(
+            painter: BackgroundMeetings(),
+            child: FutureBuilder(
+              future: DatabaseMap.isAdmin(),
+              builder: (context, snapshot) => (snapshot.hasData)
+                  ? StreamBuilder<List<Meeting>>(
+                      stream: Account.getMeetingsForUser(context),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else {
+                          if (snapshot.hasData && snapshot.data.length > 0) {
+                            return ListView.builder(
+                              itemCount: snapshot.data.length,
+                              itemBuilder: (context, index) {
+                                return MeetingListItem(snapshot.data[index]);
+                              },
+                            );
+                          } else {
+                            return Center(
+                              child: Text("Пока здесь пусто :( \n",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 20)),
+                            );
+                          }
+                        }
+                      },
+                    )
+                  : Center(
+                      child: Column(
+                        children: <Widget>[
+                          Text("Загружаем данные"),
+                          CircularProgressIndicator(),
+                        ],
+                      ),
+                    ),
+            )));
   }
 }

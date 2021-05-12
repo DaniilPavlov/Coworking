@@ -6,13 +6,15 @@ import 'package:coworking/widgets/toast.dart';
 import 'package:coworking/utils/time_left.dart';
 import 'package:coworking/services/database_meeting.dart';
 import 'package:flutter/services.dart';
-import 'package:coworking/screens/meetings/meetings.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:coworking/widgets/meetings_background.dart';
+import 'package:coworking/widgets/shadow_container.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MeetingInfo extends StatefulWidget {
   final Meeting meeting;
 
-  MeetingInfo(this.meeting);
+  MeetingInfo({this.meeting});
 
   @override
   _MeetingInfoState createState() => _MeetingInfoState();
@@ -36,7 +38,17 @@ class _MeetingInfoState extends State<MeetingInfo> {
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        NewMeetingForm(meeting: widget.meeting)));
+                        NewMeetingForm(meeting: widget.meeting))).then((value) {
+              if (value != null) {
+                setState(() {
+                  widget.meeting.place = value.place;
+                  widget.meeting.description = value.description;
+                  widget.meeting.dateCompleted = value.dateCompleted;
+                });
+              } else {
+                print('Do nothing');
+              }
+            });
           } else
             buildToast('Вы не автор!');
           break;
@@ -99,9 +111,6 @@ class _MeetingInfoState extends State<MeetingInfo> {
                                 Navigator.pop(context, true);
                                 buildToast('Вы покинули встречу');
                               }),
-                          SizedBox(
-                            width: 100,
-                          ),
                           FlatButton(
                             child: Text("Нет",
                                 style: TextStyle(color: Colors.white)),
@@ -114,9 +123,38 @@ class _MeetingInfoState extends State<MeetingInfo> {
           break;
         case 'Удалить':
           if (widget.meeting.author.id == Account.currentAccount.id) {
-            DatabaseMeeting.deleteMeeting(widget.meeting);
-            Navigator.pop(context, true);
-            buildToast('Встреча была удалена');
+            showDialog(
+                context: context,
+                builder: (context2) => AlertDialog(
+                        title: Text(
+                          "Встреча будет удалена. Продолжить?",
+                          style: TextStyle(color: Colors.orange),
+                        ),
+                        actions: <Widget>[
+                          FlatButton(
+                              child: Text(
+                                "Да",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              color: Colors.orange,
+                              onPressed: () {
+                                DatabaseMeeting.deleteMeeting(widget.meeting);
+                                Navigator.pop(context2, true);
+                                Navigator.pop(context, true);
+                                buildToast('Встреча была удалена');
+                              }),
+                          SizedBox(
+                            width: 100,
+                          ),
+                          FlatButton(
+                            child: Text("Нет",
+                                style: TextStyle(color: Colors.white)),
+                            color: Colors.orange,
+                            onPressed: () {
+                              Navigator.pop(context2, false);
+                            },
+                          ),
+                        ]));
           } else
             buildToast('Вы не автор!');
           break;
@@ -125,8 +163,7 @@ class _MeetingInfoState extends State<MeetingInfo> {
 
     Widget notifyFAB() {
       return SpeedDial(
-        animatedIcon: AnimatedIcons.menu_close,
-        animatedIconTheme: IconThemeData(size: 22),
+        icon: Icons.notifications,
         backgroundColor: Colors.orange,
         visible: true,
         curve: Curves.bounceIn,
@@ -135,7 +172,7 @@ class _MeetingInfoState extends State<MeetingInfo> {
           SpeedDialChild(
               child: Icon(Icons.timer),
               backgroundColor: Colors.orange,
-              onTap: () async{
+              onTap: () async {
                 await DatabaseMeeting().timeNotify(widget.meeting);
               },
               label: 'Напомнить о встрече',
@@ -148,7 +185,19 @@ class _MeetingInfoState extends State<MeetingInfo> {
           SpeedDialChild(
               child: Icon(Icons.fiber_new_outlined),
               backgroundColor: Colors.orange,
-              onTap: () async{
+              onTap: () async {
+                DateTime updateDate = widget.meeting.dateCompleted.toDate();
+                updateDate = DateTime(
+                    updateDate.year,
+                    updateDate.month,
+                    updateDate.day,
+                    updateDate.hour,
+                    updateDate.minute,
+                    updateDate.second,
+                    updateDate.millisecond,
+                    updateDate.microsecond + 1);
+                widget.meeting.dateCompleted = Timestamp.fromDate(updateDate);
+
                 await DatabaseMeeting().changeInfoNotify(widget.meeting);
               },
               label: 'Информация о встрече изменилась',
@@ -163,6 +212,7 @@ class _MeetingInfoState extends State<MeetingInfo> {
 
     return Scaffold(
         appBar: AppBar(
+          title: Text("О встрече"),
           actions: <Widget>[
             PopupMenuButton<String>(
               onSelected: handleClick,
@@ -180,28 +230,83 @@ class _MeetingInfoState extends State<MeetingInfo> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         floatingActionButton: notifyFAB(),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                widget.meeting.description,
-                textScaleFactor: 1.1,
-              ),
-              FutureBuilder(
-                future: widget.meeting.author.userName,
-                builder: (_, snapshot) => Text(
-                  (snapshot.hasData) ? snapshot.data : "Anonymous",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+        body: CustomPaint(
+            painter: BackgroundMeetings(),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    left: 20.0, right: 20, bottom: 80, top: 20),
+                child: ShadowContainer(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(
+                        "Место проведения:",
+                        textScaleFactor: 2,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        widget.meeting.place,
+                        textScaleFactor: 2,
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                      Divider(
+                        thickness: 2,
+                        color: Colors.orange,
+                      ),
+                      Text(
+                        "Описание:",
+                        textScaleFactor: 2,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Expanded(
+                          child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              child: Text(
+                                widget.meeting.description,
+                                textScaleFactor: 1.5,
+                              ))),
+                      Divider(
+                        thickness: 2,
+                        color: Colors.orange,
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      FutureBuilder(
+                        future: widget.meeting.author.userName,
+                        builder: (_, snapshot) => Text(
+                          (snapshot.hasData)
+                              ? "Организатор:  " + snapshot.data
+                              : "Организатор:  " + "Anonymous",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "До встречи осталось:",
+                        style: TextStyle(color: Colors.black.withOpacity(0.4)),
+                      ),
+                      Text(
+                        TimeLeft()
+                            .timeLeft(widget.meeting.dateCompleted.toDate()),
+                        style: TextStyle(color: Colors.black.withOpacity(0.4)),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              Text(
-                TimeLeft().timeLeft(widget.meeting.dateCompleted.toDate()),
-                style: TextStyle(color: Colors.black.withOpacity(0.4)),
-              ),
-            ],
-          ),
-        ));
+            )));
   }
 }

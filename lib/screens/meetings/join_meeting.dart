@@ -2,6 +2,7 @@ import 'package:coworking/models/account.dart';
 import 'package:flutter/material.dart';
 import 'package:coworking/services/database_meeting.dart';
 import 'package:coworking/widgets/shadow_container.dart';
+import 'package:coworking/widgets/meetings_background.dart';
 
 class JoinMeeting extends StatefulWidget {
   final Account account;
@@ -34,55 +35,57 @@ class _JoinMeetingState extends State<JoinMeeting> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              children: <Widget>[BackButton()],
-            ),
-          ),
-          Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: ShadowContainer(
-              child: Column(
-                children: <Widget>[
-                  TextFormField(
-                    controller: _meetingIdController,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.group),
-                      hintText: "id встречи",
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  RaisedButton(
-                    color: Colors.orange,
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-                      child: Text(
-                        "Присоединиться",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20.0,
+      body: CustomPaint(
+          painter: BackgroundMeetings(),
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  children: <Widget>[BackButton()],
+                ),
+              ),
+              Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: ShadowContainer(
+                  child: Column(
+                    children: <Widget>[
+                      TextFormField(
+                        controller: _meetingIdController,
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.group),
+                          hintText: "id встречи",
                         ),
                       ),
-                    ),
-                    onPressed: () {
-                      _joinMeeting(context, _meetingIdController.text);
-                    },
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      RaisedButton(
+                        color: Colors.orange,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 50, vertical: 20),
+                          child: Text(
+                            "Присоединиться",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20.0,
+                            ),
+                          ),
+                        ),
+                        onPressed: () {
+                          _joinMeeting(context, _meetingIdController.text);
+                        },
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-          Spacer(),
-        ],
-      ),
+              Spacer(),
+            ],
+          )),
     );
   }
 }

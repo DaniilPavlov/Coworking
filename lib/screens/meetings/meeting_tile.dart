@@ -31,7 +31,7 @@ class _MeetingListItemState extends State<MeetingListItem> {
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(40)),
-                color: Colors.orangeAccent,
+                color: Colors.orange,
                 boxShadow: [
                   BoxShadow(
                       color: Colors.black45,
@@ -45,7 +45,8 @@ class _MeetingListItemState extends State<MeetingListItem> {
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => MeetingInfo(widget.meeting))),
+                      builder: (context) =>
+                          MeetingInfo(meeting: widget.meeting))),
               child: Center(
                   child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -73,7 +74,7 @@ class _MeetingListItemState extends State<MeetingListItem> {
                     height: 10,
                   ),
                   Text(
-                    "До встречи осталось:  ",
+                    "До встречи осталось:",
                     style: TextStyle(color: Colors.black.withOpacity(0.4)),
                   ),
                   Text(

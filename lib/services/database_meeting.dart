@@ -63,7 +63,7 @@ class DatabaseMeeting {
     try {
       Firestore.instance.collection("meetings").document(meeting.id).updateData(
         {
-          "author": meeting.author.userName,
+          "dateCompleted": meeting.dateCompleted,
         },
       );
       retVal = "success";
@@ -129,13 +129,15 @@ class DatabaseMeeting {
         // meeting.pin = await getPinByID(meetingMap["pinID"], context);
         meetings.add(meeting);
       }
+      //сортировка по дота встречи
+      meetings.sort((a, b) {
+        return a.dateCompleted.compareTo(b.dateCompleted);
+      });
       meetingsCompleter.complete(meetings);
       return meetingsCompleter.future;
     });
   }
 
-  /// Сделать проверку состаю ли я в митинге, вроде все ок
-  /// но если поменять аккаунт на устройстве - токен останется такой же
   Future<String> joinMeeting(String meetingId) async {
     String retVal = "error";
     List<String> members = List();

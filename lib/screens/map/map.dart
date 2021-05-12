@@ -173,6 +173,8 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
         print("IOS Registered");
       });
     }
+
+
     ///Добавил для уведомлений, нужно добавить алерт диалоги, если мы находимся
     ///в приложении (уведомления приходят только в бэкграунде)
     _firebaseMessaging.configure(
@@ -181,9 +183,17 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       },
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => UserMeetingsPage()));
       },
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => UserMeetingsPage()));
       },
     );
   }

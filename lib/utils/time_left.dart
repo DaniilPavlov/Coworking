@@ -23,7 +23,7 @@ class TimeLeft {
     } else if (_minUntil == 0) {
       retVal = "До встречи осталось менее минуты";
     } else {
-      retVal = "Ошибка";
+      retVal = "Встреча уже началась!";
     }
     return retVal;
   }
