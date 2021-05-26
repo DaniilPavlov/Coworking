@@ -25,18 +25,10 @@ class DatabaseMeeting {
         'notify': false,
         // 'pinId': meeting.pin
       });
-
-      // //adding a notification document
-      // DocumentSnapshot doc =
-      // await _firestore.collection("meetings").document(meeting.id).get();
-      // createNotifications(List<String>.from(doc.data["tokens"]) ?? [],
-      //     meeting.place, meeting.author.id);
-
       retVal = "success";
     } catch (e) {
       print(e);
     }
-
     return retVal;
   }
 
@@ -89,7 +81,6 @@ class DatabaseMeeting {
     } catch (e) {
       print(e);
     }
-
     return retVal;
   }
 
@@ -156,7 +147,6 @@ class DatabaseMeeting {
     } catch (e) {
       print(e);
     }
-
     return retVal;
   }
 

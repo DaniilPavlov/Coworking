@@ -12,29 +12,19 @@ import '../services/database_map.dart';
 class Pin {
   String id;
   LatLng location;
-
   final Account author;
   String name;
   String imageUrl;
   Marker marker;
-
   Category _category;
   Set<Review> _reviews = Set<Review>();
   int _visitorCount = 0;
   double rating;
 
   Pin(
-    this.id,
-    this.location,
-    this.author,
-    this.name,
-    this.imageUrl,
-    this._category,
-    this.rating,
-    BuildContext context, {
-    tags,
-    Review review,
-  }) {
+    this.id, this.location, this.author, this.name, this.imageUrl,
+      this._category, this.rating,
+    BuildContext context, {tags, Review review,}) {
     marker = _createMarker(context);
     if (review != null) {
       _reviews.add(review);
@@ -76,18 +66,6 @@ class Pin {
       position: location,
       onTap: () => showPinInfo(context),
     );
-  }
-
-  Map<String, dynamic> asMap() {
-    Map<String, dynamic> pin = Map();
-    pin["name"] = name;
-    pin["location"] = GeoPoint(location.latitude, location.longitude);
-    pin["visitorCount"] = _visitorCount;
-    pin["author"] = author.id;
-    pin["imageUrl"] = imageUrl;
-    pin["category"] = category.text;
-    pin["rating"] = rating;
-    return pin;
   }
 
   static Map<String, dynamic> newPinMap(

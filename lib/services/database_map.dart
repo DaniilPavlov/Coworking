@@ -94,6 +94,7 @@ class DatabaseMap {
     });
   }
 
+  //TODO нужно вывести отзывы сначала новые и переделать рейтинг
   static Future<Review> getFirstReview(String pinID) async {
     return await Firestore.instance
         .collection("reviews")
@@ -364,9 +365,7 @@ class DatabaseMap {
     });
   }
 
-  /// Ignores any flags for this review.
-  ///
-  /// Deletes all flags that users have made for the review specified by [id].
+
   /// если админ считает отзыв нормальным - убираем с него флаг
   /// (для конкретного пользователя)
   static void ignoreFlags(String id) {

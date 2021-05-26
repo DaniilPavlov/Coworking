@@ -6,7 +6,6 @@ import 'sign_in.dart';
 class AuthStatusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    ///нужно проверить на удалении
     doAuth() async {
       await SignIn().signInWithGoogle();
     }

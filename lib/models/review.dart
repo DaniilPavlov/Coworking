@@ -5,20 +5,16 @@ import 'account.dart';
 
 class Review {
   String id;
-
   final Account author;
   final DateTime timestamp;
-
   Pin pin;
   String body;
-
   bool isFood;
   bool isFree;
   bool isRazors;
   bool isWiFi;
   double userRate;
   double totalRate;
-
   Review(this.id, this.author, this.body, this.timestamp, this.isFood,
       this.isFree, this.isRazors, this.isWiFi, this.userRate, this.totalRate);
 

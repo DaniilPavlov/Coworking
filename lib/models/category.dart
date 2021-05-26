@@ -5,7 +5,6 @@ import 'option.dart';
 class Category extends Option {
   Category(String name, Color colour) : super(text: name, colour: colour);
 
-// TODO: добавить больше ячеек
   static List<Category> all() => [
         Category("Парк", Colors.green),
         Category("Кафе", Colors.grey),

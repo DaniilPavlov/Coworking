@@ -98,6 +98,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
 
   StreamSubscription<List<PinChange>> pinsStream;
 
+  ///кажется что стрим работает стабильно
   void queryPins() {
     pinsStream = DatabaseMap.getPins(context).listen((pinChangesList) {
       setState(() {
@@ -105,8 +106,23 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
           if (pinChange.type == DocumentChangeType.added) {
             pins.add(pinChange.pin);
             print(pinChange.pin.name);
+            print("БЫЛ ДОБАВЛЕН МАРКЕР");
           } else if (pinChange.type == DocumentChangeType.removed) {
+            print("1 ИЗ МАРКЕРОВ БЫЛ УДАЛЕН");
+            MapBodyState.markers.remove(pinChange.pin.marker);
             pins.remove(pinChange.pin);
+          } else if (pinChange.type == DocumentChangeType.modified) {
+            print("1 ИЗ МАРКЕРОВ БЫЛ ИЗМЕНЕН");
+            pins.removeWhere((element) =>
+                element.author.toString() == pinChange.pin.author.toString() &&
+                element.name.toString() == pinChange.pin.name.toString() &&
+                element.imageUrl.toString() ==
+                    pinChange.pin.imageUrl.toString() &&
+                element.category.toString() ==
+                    pinChange.pin.category.toString());
+            // MapBodyState.markers.remove(pinChange.pin.marker);
+            pins.add(pinChange.pin);
+            // MapBodyState.markers.add(pinChange.pin.marker);
           }
         }
       });
@@ -174,7 +190,6 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       });
     }
 
-
     ///Добавил для уведомлений, нужно добавить алерт диалоги, если мы находимся
     ///в приложении (уведомления приходят только в бэкграунде)
     _firebaseMessaging.configure(
@@ -183,17 +198,13 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       },
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => UserMeetingsPage()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => UserMeetingsPage()));
       },
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => UserMeetingsPage()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => UserMeetingsPage()));
       },
     );
   }
@@ -349,13 +360,15 @@ class MapBodyState extends State<MapBody> {
   void initState() {
     super.initState();
     monitorLocationPerm();
-
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
   }
 
   //отписываемся от стрима с пинами
   @override
   void dispose() {
+    ///проверить это место
     widget.pinsStream.cancel();
+    print("BBBBBBBBBBBBBBBBBBBBBBB");
     super.dispose();
   }
 
@@ -376,25 +389,32 @@ class MapBodyState extends State<MapBody> {
       widget.pins.remove(pinToDelete);
       pinToDelete = null;
     }
+    markers.clear();
+    print("ОЧИСТКА МАРКЕРОВ");
+    print(widget.pins.length);
     for (Pin pin in widget.pins) {
       curPin = pin;
       if (previousPin == null) {
         a++;
         print(a);
         print(pin.name);
+        widget.pins.add(pin);
         markers.add(pin.marker);
         previousPin = pin;
       } else if (curPin.name != previousPin.name) {
         a++;
         print(a);
         print(pin.name);
+        widget.pins.add(pin);
         markers.add(pin.marker);
         previousPin = pin;
       } else {
+        markers.remove(curPin.marker);
         widget.pins.remove(curPin);
         previousPin = null;
       }
     }
+    print(markers.length);
   }
 
   //добавляем пины на карту

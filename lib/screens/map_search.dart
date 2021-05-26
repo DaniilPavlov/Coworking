@@ -33,21 +33,16 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
   @override
   Widget buildResults(BuildContext context) {
     List<Pin> results = List<Pin>();
-
     for (Pin pin in pins) {
-      // если в названии пина есть заданный набор букв - выводим
       if (pin.name.contains(RegExp(query, caseSensitive: false))) {
         results.add(pin);
       }
-
-      //найти пин по id
       try {
         if (pin.id.hashCode == int.parse(query)) {
           results.add(pin);
         }
       } catch (e) {}
     }
-
     return ListView.separated(
       padding: EdgeInsets.all(8),
       itemCount: results.length,

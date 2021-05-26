@@ -10,20 +10,13 @@ class Meeting {
   Account author;
   Pin pin;
   bool notify;
-
   List<String> members;
   List<String> tokens;
   Timestamp dateCompleted;
 
   Meeting(
-    this.id,
-    this.place,
-    this.description,
-    this.author,
-    this.members,
-    this.tokens,
-    this.dateCompleted,
-    this.notify,
+    this.id, this.place, this.description, this.author, this.members,
+    this.tokens, this.dateCompleted, this.notify,
   );
 
   Meeting copy() {

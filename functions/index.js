@@ -70,5 +70,4 @@ exports.onUpdateMeeting = functions.firestore.document('meetings/{documentId}').
             return console.log("Error NEW INFO: " + error);
         });
     });
-
 });

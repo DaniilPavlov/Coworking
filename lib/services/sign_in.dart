@@ -34,7 +34,6 @@ class SignIn {
 
       Account.currentAccount = Account.fromFirebaseUser(user);
       Account.currentAccount.notifyToken = await _fcm.getToken();
-      print("ПРОВЕРКА МЕНЯЕТСЯ ЛИ НОТИФАЙ ТОКЕН");
       print(Account.currentAccount.notifyToken);
       if (authResult.additionalUserInfo.isNewUser) {
         DatabaseMap.addUserToDatabase(Account.currentAccount);
