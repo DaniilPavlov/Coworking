@@ -32,11 +32,15 @@ class SignIn {
       final FirebaseUser currentUser = await auth.currentUser();
       assert(user.uid == currentUser.uid);
 
+      ///периодически токен меняется, нужно обновлять
       Account.currentAccount = Account.fromFirebaseUser(user);
       Account.currentAccount.notifyToken = await _fcm.getToken();
       print(Account.currentAccount.notifyToken);
+      print("NOTIFY");
       if (authResult.additionalUserInfo.isNewUser) {
         DatabaseMap.addUserToDatabase(Account.currentAccount);
+      } else {
+        DatabaseMap.updateUserToken(Account.currentAccount.notifyToken);
       }
       return user;
     }

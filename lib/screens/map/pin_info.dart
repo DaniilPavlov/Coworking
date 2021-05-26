@@ -32,6 +32,9 @@ class _PinInfoState extends State<PinInfo> {
     super.initState();
   }
 
+  var visitedText = "Не посещено";
+  var visitedColor = Colors.red;
+
   @override
   Widget build(BuildContext context) {
     // достаем информацию посещали ли место
@@ -45,20 +48,26 @@ class _PinInfoState extends State<PinInfo> {
         return Padding(
           padding: EdgeInsets.all(8.0),
           child: RaisedButton(
-            child: Text("Посещено"),
+            child: Text(visitedText),
             onPressed: () {
               if (snapshot.data.contains(widget.pin.id)) {
+                setState(() {
+                  visitedText = "Не посещено";
+                  visitedColor = Colors.red;
+                });
                 DatabaseMap.deleteVisited(
                     Account.currentAccount.id, widget.pin.id);
               } else {
+                setState(() {
+                  visitedText = "Посещено";
+                  visitedColor = Colors.green;
+                });
                 DatabaseMap.addVisited(
                     Account.currentAccount.id, widget.pin.id);
               }
             },
             shape: StadiumBorder(),
-            color: snapshot.data.contains(widget.pin.id)
-                ? Colors.green
-                : Colors.red,
+            color: visitedColor,
             textColor: Theme.of(context).primaryTextTheme.button.color,
           ),
         );
@@ -170,14 +179,19 @@ class _PinInfoState extends State<PinInfo> {
                                               child: RaisedButton(
                                                 onPressed: () {
                                                   // удаление
+                                                  Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              MapPage(
+                                                                currentMapPosition:
+                                                                    widget.pin
+                                                                        .location,
+                                                              )));
                                                   setState(() {
-                                                    MapBodyState.doPinToDelete(
-                                                        widget.pin);
                                                     DatabaseMap.deletePin(
                                                         widget.pin);
                                                   });
-                                                  Navigator.of(context)
-                                                      .pop(context);
                                                 },
                                                 child: Text(
                                                   'Удалить',
@@ -317,7 +331,6 @@ class _PinInfoState extends State<PinInfo> {
                         delegate: SliverChildBuilderDelegate(
                           (context, i) => PinListItem(snapshot.data[i]),
                           childCount: snapshot.data.length,
-
                         ),
                       )
                     : SliverFillRemaining(
@@ -326,7 +339,9 @@ class _PinInfoState extends State<PinInfo> {
                       ),
 
                 ///возможно потом верну
-                SliverFillRemaining(hasScrollBody: true,),
+                SliverFillRemaining(
+                  hasScrollBody: true,
+                ),
                 // SliverToBoxAdapter(
                 //   child: Padding(padding: EdgeInsets.all(1.0)),
                 // )

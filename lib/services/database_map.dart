@@ -58,6 +58,8 @@ class DatabaseMap {
     return Firestore.instance
         .collection("reviews")
         .where("pinID", isEqualTo: pinID)
+        //сначала выведем последние комментарии
+        .orderBy("dateAdded", descending: true)
         .snapshots()
         .map((snapshot) {
       List<Review> reviews = [];
@@ -65,8 +67,6 @@ class DatabaseMap {
         Review review = Review.fromMap(document.documentID, document.data);
         reviews.add(review);
       }
-      reviews.sort((firstReview, secondReview) =>
-          firstReview.timestamp.compareTo((secondReview.timestamp)));
       return reviews;
     });
   }
@@ -99,7 +99,6 @@ class DatabaseMap {
     return await Firestore.instance
         .collection("reviews")
         .where("pinID", isEqualTo: pinID)
-        //.orderBy("dateAdded", descending: true)
         .limit(1)
         .snapshots()
         .first
@@ -257,6 +256,18 @@ class DatabaseMap {
 
   static void addUserToDatabase(Account user) {
     Firestore.instance.collection("users").add(user.asMap());
+  }
+
+  static void updateUserToken(String notifyToken) {
+    Firestore.instance
+        .collection("users")
+        .where("userID", isEqualTo: Account.currentAccount.id)
+        .getDocuments()
+        .then((query) {
+      query.documents.first.reference.updateData({
+        "notifyToken": notifyToken,
+      });
+    });
   }
 
   static Future<String> getUserNameByID(String id) {

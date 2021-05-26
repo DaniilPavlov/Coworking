@@ -12,7 +12,8 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:io';
-
+import 'package:flutter/gestures.dart';
+import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../services/sign_in.dart';
@@ -21,7 +22,7 @@ import '../map_search.dart';
 import 'create_pin.dart';
 
 class MapPage extends StatefulWidget {
-  static const kDefaultZoom = 14.5;
+  static const kDefaultZoom = 10.0;
   final CameraPosition currentMapPosition;
 
   MapPage({LatLng currentMapPosition})
@@ -47,7 +48,6 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
 
   GlobalKey<CreatePinState> pinFormKey;
 
-  // круглые кнопки для добавление и подтверждения пинов
   FloatingActionButton fabAddPin;
   FloatingActionButton fabConfirmPin;
   FloatingActionButton currentFab;
@@ -104,13 +104,14 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       setState(() {
         for (PinChange pinChange in pinChangesList) {
           if (pinChange.type == DocumentChangeType.added) {
-            pins.add(pinChange.pin);
-            print(pinChange.pin.name);
             print("БЫЛ ДОБАВЛЕН МАРКЕР");
+            pins.add(pinChange.pin);
+            MapBodyState.markers.add(pinChange.pin.marker);
           } else if (pinChange.type == DocumentChangeType.removed) {
             print("1 ИЗ МАРКЕРОВ БЫЛ УДАЛЕН");
             MapBodyState.markers.remove(pinChange.pin.marker);
             pins.remove(pinChange.pin);
+            print(pinChange.pin.name);
           } else if (pinChange.type == DocumentChangeType.modified) {
             print("1 ИЗ МАРКЕРОВ БЫЛ ИЗМЕНЕН");
             pins.removeWhere((element) =>
@@ -122,7 +123,8 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
                     pinChange.pin.category.toString());
             // MapBodyState.markers.remove(pinChange.pin.marker);
             pins.add(pinChange.pin);
-            // MapBodyState.markers.add(pinChange.pin.marker);
+            MapBodyState.markers.add(pinChange.pin.marker);
+            print(pinChange.pin.name);
           }
         }
       });
@@ -135,14 +137,13 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-
     drawerAnimator = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 250),
     );
     showDrawer = false;
-
     mapOverlap = EdgeInsets.zero;
+
     currentMapPosition = (widget.currentMapPosition == null)
         ? CameraPosition(
             target: LatLng(59.933895, 30.359357), zoom: MapPage.kDefaultZoom)
@@ -162,6 +163,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
         if (pinFormKey.currentState.validate()) {
           pinFormKey.currentState.createPin().then((pin) {
             pins.add(pin);
+            DatabaseMap.addVisited(Account.currentAccount.id, pin.id);
           });
           closeDrawer();
         }
@@ -307,7 +309,7 @@ class MapBody extends StatefulWidget {
 }
 
 class MapBodyState extends State<MapBody> {
-  static const CameraPosition uobPosition = CameraPosition(
+  static const CameraPosition startPosition = CameraPosition(
       target: LatLng(59.933895, 30.359357), zoom: MapPage.kDefaultZoom);
 
   bool locationEnabled;
@@ -360,93 +362,64 @@ class MapBodyState extends State<MapBody> {
   void initState() {
     super.initState();
     monitorLocationPerm();
-    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
   }
 
   //отписываемся от стрима с пинами
   @override
   void dispose() {
-    ///проверить это место
+    print("DISPOSE PINS STREAM");
     widget.pinsStream.cancel();
-    print("BBBBBBBBBBBBBBBBBBBBBBB");
     super.dispose();
   }
 
   static Set<Marker> markers = Set<Marker>();
-  static Set<Pin> currentPins = Set<Pin>();
-  static Pin pinToDelete;
-
-  static void doPinToDelete(Pin pin) {
-    pinToDelete = pin;
-  }
-
-  void updateMapPins(Set<Pin> pins) {
-    int a = 0;
-    Pin curPin;
-    Pin previousPin;
-    if (pinToDelete != null) {
-      markers.remove(pinToDelete.marker);
-      widget.pins.remove(pinToDelete);
-      pinToDelete = null;
-    }
-    markers.clear();
-    print("ОЧИСТКА МАРКЕРОВ");
-    print(widget.pins.length);
-    for (Pin pin in widget.pins) {
-      curPin = pin;
-      if (previousPin == null) {
-        a++;
-        print(a);
-        print(pin.name);
-        widget.pins.add(pin);
-        markers.add(pin.marker);
-        previousPin = pin;
-      } else if (curPin.name != previousPin.name) {
-        a++;
-        print(a);
-        print(pin.name);
-        widget.pins.add(pin);
-        markers.add(pin.marker);
-        previousPin = pin;
-      } else {
-        markers.remove(curPin.marker);
-        widget.pins.remove(curPin);
-        previousPin = null;
-      }
-    }
-    print(markers.length);
-  }
 
   //добавляем пины на карту
   @override
   Widget build(BuildContext context) {
-    updateMapPins(widget.pins);
-    print("CHECK");
-
     return Stack(
       children: <Widget>[
         AnimatedBuilder(
           animation: widget.pinAnimation,
-          builder: (context, _) => GoogleMap(
-            initialCameraPosition: widget.initialPosition,
-            padding: widget.mapOverlap +
-                EdgeInsets.only(
-                    bottom: widget.drawerHeight * widget.pinAnimation.value),
-            // поднимаем +- и надпись гугл
-            markers: markers,
-            myLocationEnabled: locationEnabled,
-            myLocationButtonEnabled: locationEnabled,
-            onCameraMove: widget.mapMoveCallback,
-          ),
+
+          ///Была ошибка с жестом 3 пальцев, добавил ListView с itemExtent
+          builder: (context, _) => ListView(
+              itemExtent: MediaQuery.of(context).size.height -
+                  widget.mapOverlap.bottom +
+                  20,
+              children: <Widget>[
+                GoogleMap(
+                  initialCameraPosition: widget.initialPosition,
+                  padding: widget.mapOverlap +
+                      EdgeInsets.only(
+                          bottom:
+                              widget.drawerHeight * widget.pinAnimation.value),
+                  // поднимаем +- и надпись гугл
+                  markers: markers,
+                  myLocationEnabled: locationEnabled,
+                  myLocationButtonEnabled: locationEnabled,
+                  onCameraMove: widget.mapMoveCallback,
+                  gestureRecognizers: Set()
+                    ..add(Factory<PanGestureRecognizer>(
+                        () => PanGestureRecognizer()))
+                    ..add(Factory<ScaleGestureRecognizer>(
+                        () => ScaleGestureRecognizer()))
+                    ..add(Factory<TapGestureRecognizer>(
+                        () => TapGestureRecognizer()))
+                    ..add(Factory<VerticalDragGestureRecognizer>(
+                        () => VerticalDragGestureRecognizer())),
+                )
+              ]),
         ),
         Align(
           child: Transform.translate(
-            // ставим пин ниже, иначе будет высоко
+            // настройка положения пина
             offset: Offset(
               0.0,
               (widget.mapOverlap.top -
                       widget.drawerHeight -
-                      widget.mapOverlap.bottom) /
+                      widget.mapOverlap.bottom +
+                      20) /
                   2,
             ),
 
@@ -522,7 +495,6 @@ class BottomBar extends StatelessWidget {
               axisAlignment: -1.0,
               child: Padding(
                 padding: EdgeInsets.only(bottom: keyboardPadding),
-
                 //добавил 15, при изменении drawerHeight ничего не происходило
                 child: CreatePin(drawerHeight + 15, key: pinFormKey),
               ),

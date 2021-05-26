@@ -15,7 +15,7 @@ class DatabaseMeeting {
     try {
       members.add(Account.currentAccount.id);
       tokens.add(Account.currentAccount.notifyToken);
-      DocumentReference _docRef = await _firestore.collection("meetings").add({
+      await _firestore.collection("meetings").add({
         'place': meeting.place.trim(),
         'description': meeting.description,
         'author': meeting.author.id,
@@ -108,6 +108,8 @@ class DatabaseMeeting {
     return Firestore.instance
         .collection("meetings")
         .where("members", arrayContains: account.id)
+        //сначала выводим ближайшие встречи
+        .orderBy("dateCompleted", descending: false)
         .snapshots()
         .asyncMap((querySnapshot) async {
       Completer<List<Meeting>> meetingsCompleter =
@@ -120,10 +122,6 @@ class DatabaseMeeting {
         // meeting.pin = await getPinByID(meetingMap["pinID"], context);
         meetings.add(meeting);
       }
-      //сортировка по дота встречи
-      meetings.sort((a, b) {
-        return a.dateCompleted.compareTo(b.dateCompleted);
-      });
       meetingsCompleter.complete(meetings);
       return meetingsCompleter.future;
     });
