@@ -425,7 +425,10 @@ class _PinListItemState extends State<PinListItem> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Divider(color: Colors.orange),
+            Divider(
+              color: Colors.orange,
+              thickness: 2,
+            ),
             Text(
               widget.review.body,
               textScaleFactor: 1.1,

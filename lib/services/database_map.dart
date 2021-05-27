@@ -59,7 +59,8 @@ class DatabaseMap {
         .collection("reviews")
         .where("pinID", isEqualTo: pinID)
         //сначала выведем последние комментарии
-        .orderBy("dateAdded", descending: true)
+        //TODO разобраться как сменить на true, для этого посмотреть review_tile
+        .orderBy("dateAdded", descending: false)
         .snapshots()
         .map((snapshot) {
       List<Review> reviews = [];
@@ -94,7 +95,50 @@ class DatabaseMap {
     });
   }
 
-  //TODO нужно вывести отзывы сначала новые и переделать рейтинг
+  static Future threeMonthRate(String pinID) async {
+    var threeMonth = [];
+    double rating = 0.0;
+    double isFood = 0.0;
+    double isFree = 0.0;
+    double isRazors = 0.0;
+    double isWiFi = 0.0;
+    return await Firestore.instance
+        .collection("reviews")
+        .where("pinID", isEqualTo: pinID)
+        .where('dateAdded',
+            isGreaterThanOrEqualTo:
+                DateTime.now().subtract(new Duration(days: 90)))
+        .getDocuments()
+        .then((query) {
+      for (DocumentSnapshot documentSnapshot in query.documents) {
+        Map<String, dynamic> reviewMap = documentSnapshot.data;
+        Review review = Review.fromMap(documentSnapshot.documentID, reviewMap);
+        rating = rating + review.totalRate;
+        if (review.isFood) isFood++;
+        if (review.isFree) isFree++;
+        if (review.isRazors) isRazors++;
+        if (review.isWiFi) isWiFi++;
+      }
+      rating = rating / query.documents.length;
+      isFood = 100 * isFood / query.documents.length;
+      isFree = 100 * isFree / query.documents.length;
+      isRazors = 100 * isRazors / query.documents.length;
+      isWiFi = 100 * isWiFi / query.documents.length;
+      rating = double.parse(rating.toStringAsFixed(2));
+      isFood = double.parse(isFood.toStringAsFixed(2));
+      isFree = double.parse(isFree.toStringAsFixed(2));
+      isRazors = double.parse(isRazors.toStringAsFixed(2));
+      isWiFi = double.parse(isWiFi.toStringAsFixed(2));
+      threeMonth.add(rating);
+      threeMonth.add(isFood);
+      threeMonth.add(isFree);
+      threeMonth.add(isRazors);
+      threeMonth.add(isWiFi);
+      print(threeMonth.length);
+      return threeMonth;
+    });
+  }
+
   static Future<Review> getFirstReview(String pinID) async {
     return await Firestore.instance
         .collection("reviews")
@@ -229,9 +273,7 @@ class DatabaseMap {
         .where("userID", isEqualTo: user)
         .snapshots()
         .first;
-
     String id = snapshot.documents.first.documentID;
-
     Firestore.instance.collection("visited").document(id).delete();
   }
 
@@ -376,7 +418,6 @@ class DatabaseMap {
     });
   }
 
-
   /// если админ считает отзыв нормальным - убираем с него флаг
   /// (для конкретного пользователя)
   static void ignoreFlags(String id) {
@@ -430,6 +471,7 @@ class DatabaseMap {
         .getDocuments()
         .then((query) {
       query.documents.forEach((document) {
+        print("DOCUMENT DELETE");
         document.reference.delete();
       });
     });

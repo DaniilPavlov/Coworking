@@ -114,16 +114,18 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
             print(pinChange.pin.name);
           } else if (pinChange.type == DocumentChangeType.modified) {
             print("1 ИЗ МАРКЕРОВ БЫЛ ИЗМЕНЕН");
-            pins.removeWhere((element) =>
-                element.author.toString() == pinChange.pin.author.toString() &&
-                element.name.toString() == pinChange.pin.name.toString() &&
-                element.imageUrl.toString() ==
-                    pinChange.pin.imageUrl.toString() &&
-                element.category.toString() ==
-                    pinChange.pin.category.toString());
-            // MapBodyState.markers.remove(pinChange.pin.marker);
-            pins.add(pinChange.pin);
-            MapBodyState.markers.add(pinChange.pin.marker);
+            pins.forEach((element) {
+              if (element.author.toString() ==
+                      pinChange.pin.author.toString() &&
+                  element.name.toString() == pinChange.pin.name.toString() &&
+                  element.imageUrl.toString() ==
+                      pinChange.pin.imageUrl.toString() &&
+                  element.category.toString() ==
+                      pinChange.pin.category.toString() &&
+                  element.marker != pinChange.pin.marker) {
+                element.marker = pinChange.pin.marker;
+              }
+            });
             print(pinChange.pin.name);
           }
         }

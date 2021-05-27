@@ -12,7 +12,6 @@ import 'package:coworking/widgets/radio_button_picker.dart';
 import 'map.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-// TODO: МОЖЕТ НЕ СРАЗУ ЗАГРУЗИТЬСЯ, ТОГДА СЕРЫЙ ЭКРАН ПРИ НАЖАТИИ НА ПИН
 class PinInfo extends StatefulWidget {
   final Pin pin;
   String imgURL;
@@ -25,15 +24,16 @@ class PinInfo extends StatefulWidget {
 
 class _PinInfoState extends State<PinInfo> {
   GlobalKey<NewReviewFormState> reviewFormKey;
+  var visitedText = "";
+  var visitedColor = Colors.orange;
+  var threeMonthSet = [];
 
   @override
   void initState() {
     reviewFormKey = GlobalKey<NewReviewFormState>();
     super.initState();
+    threeMonthSet = [0, 0, 0, 0, 0];
   }
-
-  var visitedText = "Не посещено";
-  var visitedColor = Colors.red;
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +43,13 @@ class _PinInfoState extends State<PinInfo> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Container();
+        } else if (!snapshot.data.contains(widget.pin.id)) {
+          visitedText = "Не посещено";
+          visitedColor = Colors.red;
+        } else {
+          visitedText = "Посещено";
+          visitedColor = Colors.green;
         }
-
         return Padding(
           padding: EdgeInsets.all(8.0),
           child: RaisedButton(
@@ -221,7 +226,7 @@ class _PinInfoState extends State<PinInfo> {
         Navigator.maybePop(context);
       },
       backgroundColor: Colors.grey,
-      expandedHeight: 450,
+      expandedHeight: 400,
       actions: <Widget>[
         visitedButton,
         editPinButton(context),
@@ -298,34 +303,128 @@ class _PinInfoState extends State<PinInfo> {
               slivers: <Widget>[
                 bar,
                 SliverToBoxAdapter(
-                  child: Row(children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text("Категория:"),
+                    child: Column(
+                  children: <Widget>[
+                    Row(children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text("Категория:"),
+                      ),
+                      categoryChip,
+                      FutureBuilder(
+                          future: DatabaseMap.updateRateOfPin(widget.pin.id),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              widget.pin.rating = snapshot.data;
+                              return (snapshot.hasData)
+                                  ? Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 16.0),
+                                      child: Text(
+                                        "Рейтинг: " +
+                                            widget.pin.rating.toString() +
+                                            " / 10",
+                                      ),
+                                    )
+                                  : Container();
+                            } else {
+                              return Center(child: CircularProgressIndicator());
+                            }
+                          })
+                    ]),
+                    Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Статистика за последние 3 месяца",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
-                    categoryChip,
                     FutureBuilder(
-                        future: DatabaseMap.updateRateOfPin(widget.pin.id),
+                        future: DatabaseMap.threeMonthRate(widget.pin.id),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
-                            widget.pin.rating = snapshot.data;
+                            threeMonthSet = snapshot.data;
                             return (snapshot.hasData)
-                                ? Padding(
+                                ? GridView.count(
+                                    childAspectRatio: 6,
+                                    crossAxisCount: 2,
+                                    shrinkWrap: true,
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 16.0),
-                                    child: Text(
-                                      "Рейтинг: " +
-                                          widget.pin.rating.toString() +
-                                          " / 10",
-                                    ),
+                                        EdgeInsets.only(left: 16, right: 16),
+                                    children: <Widget>[
+                                      Container(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text("Можно приобрести еду"),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.center,
+                                        child: Text(threeMonthSet
+                                                .elementAt(1)
+                                                .toString() +
+                                            "% ответили да"),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.centerLeft,
+                                        child:
+                                            Text("Можно находиться бесплатно"),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.center,
+                                        child: Text(threeMonthSet
+                                                .elementAt(2)
+                                                .toString() +
+                                            "% ответили да"),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text("Есть розетки"),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.center,
+                                        child: Text(threeMonthSet
+                                                .elementAt(2)
+                                                .toString() +
+                                            "% ответили да"),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text("Есть WiFi"),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.center,
+                                        child: Text(threeMonthSet
+                                                .elementAt(2)
+                                                .toString() +
+                                            "% ответили да"),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text("Оценка"),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.center,
+                                        child: Text(threeMonthSet
+                                                .elementAt(0)
+                                                .toString() +
+                                            "/10"),
+                                      ),
+                                    ],
                                   )
                                 : Container();
                           } else {
                             return Center(child: CircularProgressIndicator());
                           }
-                        })
-                  ]),
-                ),
+                        }),
+                    Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Отзывы",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                )),
+
                 snapshot.hasData
                     ? SliverList(
                         delegate: SliverChildBuilderDelegate(
