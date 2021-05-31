@@ -7,7 +7,7 @@ import 'package:coworking/screens/map/new_review_form.dart';
 
 import '../map/map.dart';
 
-//этот класс отвечает за отображение *моих* обзоров (не пинов, именно обзоры)
+//этот класс отвечает за отображение *моих* отзывов
 class YourReviewsListItem extends ListTile {
   const YourReviewsListItem({
     this.name,

@@ -382,7 +382,7 @@ class _PinInfoState extends State<PinInfo> {
                                       Container(
                                         alignment: Alignment.center,
                                         child: Text(threeMonthSet
-                                                .elementAt(2)
+                                                .elementAt(3)
                                                 .toString() +
                                             "% ответили да"),
                                       ),
@@ -393,7 +393,7 @@ class _PinInfoState extends State<PinInfo> {
                                       Container(
                                         alignment: Alignment.center,
                                         child: Text(threeMonthSet
-                                                .elementAt(2)
+                                                .elementAt(4)
                                                 .toString() +
                                             "% ответили да"),
                                       ),

@@ -59,7 +59,8 @@ class LoginScreenState extends State<LoginScreen> {
                       context,
                       MaterialPageRoute(builder: (_) => MapPage()),
                     );
-                  }
+                  } else
+                    Scaffold.of(context).showBodyScrim(false, 0.5);
                 },
               ),
             ),

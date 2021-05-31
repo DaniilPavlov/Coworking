@@ -383,7 +383,6 @@ class MapBodyState extends State<MapBody> {
       children: <Widget>[
         AnimatedBuilder(
           animation: widget.pinAnimation,
-
           ///Была ошибка с жестом 3 пальцев, добавил ListView с itemExtent
           builder: (context, _) => ListView(
               itemExtent: MediaQuery.of(context).size.height -
@@ -588,7 +587,6 @@ class BottomBarNav extends StatelessWidget {
                 semanticLabel: "Meetings",
               ),
             )),
-
         PopupMenuButton(
           tooltip: "Help",
           icon: Icon(

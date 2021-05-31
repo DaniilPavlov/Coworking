@@ -108,26 +108,19 @@ class _MeetingLayoutState extends State<MeetingLayout> {
                   ? StreamBuilder<List<Meeting>>(
                       stream: Account.getMeetingsForUser(context),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(
-                            child: CircularProgressIndicator(),
+                        if (snapshot.hasData && snapshot.data.length > 0) {
+                          return ListView.builder(
+                            itemCount: snapshot.data.length,
+                            itemBuilder: (context, index) {
+                              return MeetingListItem(snapshot.data[index]);
+                            },
                           );
                         } else {
-                          if (snapshot.hasData && snapshot.data.length > 0) {
-                            return ListView.builder(
-                              itemCount: snapshot.data.length,
-                              itemBuilder: (context, index) {
-                                return MeetingListItem(snapshot.data[index]);
-                              },
-                            );
-                          } else {
-                            return Center(
-                              child: Text("Пока здесь пусто :( \n",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 20)),
-                            );
-                          }
+                          return Center(
+                            child: Text("Пока здесь пусто :( \n",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 20)),
+                          );
                         }
                       },
                     )
