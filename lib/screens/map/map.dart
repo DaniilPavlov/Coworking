@@ -21,6 +21,8 @@ import '../menu/menu_drawer.dart';
 import '../map_search.dart';
 import 'create_pin.dart';
 
+import 'package:flutter/services.dart';
+
 class MapPage extends StatefulWidget {
   static const kDefaultZoom = 10.0;
   final CameraPosition currentMapPosition;
@@ -310,7 +312,7 @@ class MapBody extends StatefulWidget {
   State<MapBody> createState() => MapBodyState();
 }
 
-class MapBodyState extends State<MapBody> {
+class MapBodyState extends State<MapBody> with WidgetsBindingObserver{
   static const CameraPosition startPosition = CameraPosition(
       target: LatLng(59.933895, 30.359357), zoom: MapPage.kDefaultZoom);
 
@@ -364,6 +366,7 @@ class MapBodyState extends State<MapBody> {
   void initState() {
     super.initState();
     monitorLocationPerm();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   //отписываемся от стрима с пинами
@@ -371,10 +374,13 @@ class MapBodyState extends State<MapBody> {
   void dispose() {
     print("DISPOSE PINS STREAM");
     widget.pinsStream.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   static Set<Marker> markers = Set<Marker>();
+
+
 
   //добавляем пины на карту
   @override
