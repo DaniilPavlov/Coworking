@@ -1,48 +1,44 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:coworking/services/database_meeting.dart';
-import 'package:coworking/widgets/shadow_container.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/models/account.dart';
-import 'package:coworking/models/meeting.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:coworking/widgets/shadow_container.dart';
 import 'package:intl/intl.dart';
-import 'package:coworking/widgets/meetings_background.dart';
 
-class NewMeetingForm extends StatefulWidget {
-  final Meeting meeting;
+class MeetingWidget extends StatefulWidget {
+  String name;
+  String description;
+  String hour;
+  String minute;
 
-  NewMeetingForm({Key key, this.meeting}) : super(key: key);
+  MeetingWidget({
+    Key key,
+    @required this.name,
+    @required this.description,
+    @required this.hour,
+    @required this.minute,
+  }) : super(key: key);
 
-  State<NewMeetingForm> createState() => NewMeetingFormState();
+  State<MeetingWidget> createState() => MeetingWidgetState();
 }
 
-class NewMeetingFormState extends State<NewMeetingForm>
-    with AutomaticKeepAliveClientMixin<NewMeetingForm> {
-  final addMeetingKey = GlobalKey<ScaffoldState>();
+GlobalKey<FormFieldState> timeKey = GlobalKey();
+GlobalKey<FormFieldState> textKey = GlobalKey();
 
-  TextEditingController _meetingPlaceController = TextEditingController();
-  TextEditingController _meetingDescriptionController = TextEditingController();
+class MeetingWidgetState extends State<MeetingWidget> {
+  var addMeetingKey = GlobalKey<ScaffoldState>();
+
+  TextEditingController _meetingPlaceController =
+      TextEditingController(text: "Your initial value");
+  TextEditingController _meetingDescriptionController =
+      TextEditingController(text: "Your initial value");
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
-
-  bool isOld = false;
-  Meeting meeting;
-  List<String> members = List();
-  List<String> tokens = List();
+  var save = "Invalid";
 
   @override
-  bool get wantKeepAlive => true;
-
-  initState() {
-    if (widget.meeting != null) {
-      isOld = true;
-      meeting = widget.meeting.copy();
-      _meetingDescriptionController.text = meeting.description;
-      _meetingPlaceController.text = meeting.place;
-      _selectedDate = widget.meeting.dateCompleted.toDate();
-      _selectedTime =
-          TimeOfDay(hour: _selectedDate.hour, minute: _selectedDate.minute);
-    }
+  void initState() {
     super.initState();
+    _meetingPlaceController.text = widget.name;
+    _meetingDescriptionController.text = widget.description;
   }
 
   Future _selectDate() async {
@@ -88,53 +84,13 @@ class NewMeetingFormState extends State<NewMeetingForm>
     }
   }
 
-  void _editMeeting(BuildContext context, Meeting meeting) async {
-    String _returnString;
-    if (_selectedDate.isAfter(DateTime.now().add(Duration(hours: 2)))) {
-      _returnString = await DatabaseMeeting().editMeeting(meeting);
-      if (_returnString == "success") {
-        setState(() {
-          widget.meeting.place = meeting.place;
-          widget.meeting.description = meeting.description;
-          widget.meeting.dateCompleted = meeting.dateCompleted;
-        });
-        Navigator.of(context).pop(widget.meeting);
-      }
-    } else {
-      addMeetingKey.currentState.showSnackBar(
-        SnackBar(
-          content: Text("До начала всего 2 часа, это слишком мало!"),
-        ),
-      );
-    }
-  }
-
-  void _addMeeting(BuildContext context, Meeting meeting) async {
-    String _returnString;
-
-    ///возможно изменить время для начала
-    if (_selectedDate.isAfter(DateTime.now().add(Duration(hours: 2)))) {
-      _returnString = await DatabaseMeeting().addMeeting(meeting);
-
-      if (_returnString == "success") {
-        Navigator.pop(context);
-      }
-    } else {
-      addMeetingKey.currentState.showSnackBar(
-        SnackBar(
-          content: Text("До начала всего 2 часа, это слишком мало!"),
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: addMeetingKey,
-      body: CustomPaint(
-          painter: BackgroundMeetings(),
-          child: ListView(
+    return MaterialApp(
+      title: 'Review Widget',
+      home: Scaffold(
+          key: addMeetingKey,
+          body: ListView(
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -151,6 +107,7 @@ class NewMeetingFormState extends State<NewMeetingForm>
                   child: Column(
                     children: <Widget>[
                       TextFormField(
+                        key: textKey,
                         controller: _meetingPlaceController,
                         decoration: InputDecoration(
                           prefixIcon: Icon(Icons.place),
@@ -174,7 +131,7 @@ class NewMeetingFormState extends State<NewMeetingForm>
                         height: 20,
                       ),
                       Text(DateFormat.yMMMMd("en_US").format(_selectedDate)),
-                      Text("${_selectedTime.hour} : ${_selectedTime.minute}"),
+                      Text("${widget.hour} : ${widget.minute}"),
                       Row(
                         children: [
                           Expanded(
@@ -197,7 +154,7 @@ class NewMeetingFormState extends State<NewMeetingForm>
                           padding: EdgeInsets.symmetric(
                               horizontal: 50, vertical: 10),
                           child: Text(
-                            "Назначить",
+                            save,
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -205,16 +162,7 @@ class NewMeetingFormState extends State<NewMeetingForm>
                             ),
                           ),
                         ),
-                        onPressed: () {
-                          Meeting meeting = Meeting(
-                              null,
-                              "",
-                              "",
-                              Account.currentAccount,
-                              members,
-                              tokens,
-                              null,
-                              false);
+                        onPressed: () async {
                           if (_meetingPlaceController.text == "") {
                             addMeetingKey.currentState.showSnackBar(SnackBar(
                               content: Text("Требуется добавить место встречи"),
@@ -224,17 +172,13 @@ class NewMeetingFormState extends State<NewMeetingForm>
                               content:
                                   Text("Требуется добавить описание встречи"),
                             ));
-                          } else {
-                            meeting.place = _meetingPlaceController.text;
-                            meeting.description =
-                                _meetingDescriptionController.text;
-                            meeting.dateCompleted =
-                                Timestamp.fromDate(_selectedDate);
-                            if (isOld) {
-                              meeting.id = widget.meeting.id;
-                              _editMeeting(context, meeting);
-                            } else
-                              _addMeeting(context, meeting);
+                          }
+                          if (_meetingPlaceController.text != "" &&
+                              _meetingPlaceController.text != null &&
+                              widget.description != null) {
+                            setState(() {
+                              save = "Valid";
+                            });
                           }
                         },
                       ),
@@ -246,4 +190,93 @@ class NewMeetingFormState extends State<NewMeetingForm>
           )),
     );
   }
+}
+
+void main() {
+  testWidgets('Test name', (WidgetTester tester) async {
+    await tester.pumpWidget(MeetingWidget(
+      name: "Магистратура Политеха",
+      description: "Разберем плюсы и минусы",
+      hour: "20",
+      minute: "21",
+    ));
+    final reviewFinder = find.text("Магистратура Политеха");
+    expect(reviewFinder, findsOneWidget);
+    await tester.enterText(reviewFinder, 'Хижина');
+    expect(find.text("Магистратура Политеха"), findsNothing);
+    expect(find.text('Хижина'), findsOneWidget);
+  });
+
+  testWidgets('Test description', (WidgetTester tester) async {
+    await tester.pumpWidget(MeetingWidget(
+      name: "Магистратура Политеха",
+      description: "Разберем плюсы и минусы",
+      hour: "20",
+      minute: "21",
+    ));
+    final reviewFinder = find.text("Разберем плюсы и минусы");
+    expect(reviewFinder, findsOneWidget);
+    await tester.enterText(reviewFinder, 'Докажем, что минусов нет!');
+    expect(find.text("Разберем плюсы и минусы"), findsNothing);
+    expect(find.text('Докажем, что минусов нет!'), findsOneWidget);
+  });
+
+  testWidgets('Test time', (WidgetTester tester) async {
+    await tester.pumpWidget(MeetingWidget(
+      name: "Магистратура Политеха",
+      description: "Разберем плюсы и минусы",
+      hour: "20",
+      minute: "21",
+    ));
+    var timeFinder = find.text("20 : 21");
+    expect(timeFinder, findsOneWidget);
+  });
+
+  testWidgets('Form validate true', (WidgetTester tester) async {
+    await tester.pumpWidget(MeetingWidget(
+      name: "Магистратура Политеха",
+      description: "Разберем плюсы и минусы",
+      hour: "20",
+      minute: "21",
+    ));
+    var currentButton = find.text("Invalid");
+    expect(currentButton, findsOneWidget);
+    final placeFinder = find.text("Магистратура Политеха");
+    expect(placeFinder, findsOneWidget);
+
+    ///для button tap, not press
+    await tester.tap(currentButton);
+
+    ///чтобы подтвердить действие
+    await tester.pump();
+    expect(find.text("Valid"), findsOneWidget);
+  });
+
+  testWidgets('Form validate false', (WidgetTester tester) async {
+    await tester.pumpWidget(MeetingWidget(
+      name: "",
+      description: "Разберем плюсы и минусы",
+      hour: "20",
+      minute: "21",
+    ));
+    var currentButton = find.text("Invalid");
+    expect(currentButton, findsOneWidget);
+
+    ///для button tap, not press
+    await tester.tap(currentButton);
+
+    ///чтобы подтвердить действие
+    await tester.pump();
+    expect(find.text("Valid"), findsNothing);
+    var placeFinder = find.byKey(textKey);
+    await tester.enterText(placeFinder, "Магистратура Политеха");
+    expect(find.text("Магистратура Политеха"), findsOneWidget);
+
+    ///для button tap, not press
+    await tester.tap(currentButton);
+
+    ///чтобы подтвердить действие
+    await tester.pump();
+    expect(find.text("Valid"), findsOneWidget);
+  });
 }
