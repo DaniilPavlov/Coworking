@@ -15,7 +15,6 @@ class RadioButtonPicker extends FormField<Option> {
               children: List.generate(options.length, (i) {
                 Option option = options[i];
                 bool selected = state.value == option;
-
                 return ChoiceChip(
                   label: Text(option.text),
                   labelStyle: TextStyle(

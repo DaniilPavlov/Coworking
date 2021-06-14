@@ -113,7 +113,6 @@ void main() {
     expect(categoryFinder, findsOneWidget);
     await tester.tap(categoryFinder);
     expect(categoryFinder.description.contains("Парк"), true);
-
     categoryFinder = find.widgetWithText(RadioButtonPicker, "Коворкинг");
     expect(categoryFinder, findsOneWidget);
     await tester.tap(categoryFinder);
@@ -139,11 +138,7 @@ void main() {
     ));
     var currentIcon = find.byIcon(Icons.crop_square_sharp);
     expect(currentIcon, findsOneWidget);
-
-    ///для button tap, not press
     await tester.tap(find.byKey(iconButton));
-
-    ///чтобы подтвердить действие
     await tester.pump();
     expect(find.byIcon(Icons.check), findsOneWidget);
   });
@@ -156,23 +151,17 @@ void main() {
     ));
     var currentIcon = find.byIcon(Icons.crop_square_sharp);
     expect(currentIcon, findsOneWidget);
-
-    ///для button tap, not press
     await tester.tap(find.byKey(iconButton));
-
-    ///чтобы подтвердить действие
     await tester.pump();
     expect(find.byIcon(Icons.check), findsNothing);
 
     final reviewFinder = find.byKey(textKey);
     expect(reviewFinder, findsOneWidget);
+
     await tester.enterText(reviewFinder, 'Хижина');
     expect(find.text('Хижина'), findsOneWidget);
 
-    ///для button tap, not press
     await tester.tap(find.byKey(iconButton));
-
-    ///чтобы подтвердить действие
     await tester.pump();
     expect(find.byIcon(Icons.check), findsOneWidget);
   });

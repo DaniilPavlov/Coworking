@@ -15,7 +15,7 @@ class SignIn {
 
   Future<FirebaseUser> signInWithGoogle() async {
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-    if(googleSignInAccount == null) return null;
+    if (googleSignInAccount == null) return null;
     final GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
     final AuthCredential credential = GoogleAuthProvider.getCredential(

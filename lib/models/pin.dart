@@ -22,9 +22,17 @@ class Pin {
   double rating;
 
   Pin(
-    this.id, this.location, this.author, this.name, this.imageUrl,
-      this._category, this.rating,
-    BuildContext context, {tags, Review review,}) {
+    this.id,
+    this.location,
+    this.author,
+    this.name,
+    this.imageUrl,
+    this._category,
+    this.rating,
+    BuildContext context, {
+    tags,
+    Review review,
+  }) {
     marker = _createMarker(context);
     if (review != null) {
       _reviews.add(review);

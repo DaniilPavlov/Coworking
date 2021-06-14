@@ -3,7 +3,6 @@ import 'package:coworking/utils/time_left.dart';
 import 'package:flutter/material.dart';
 import 'package:coworking/screens/meetings/meeting_info.dart';
 
-///этот класс отвечает за отображение *моих* митингов
 class MeetingListItem extends StatefulWidget {
   const MeetingListItem(this.meeting);
 

@@ -15,6 +15,7 @@ class Review {
   bool isWiFi;
   double userRate;
   double totalRate;
+
   Review(this.id, this.author, this.body, this.timestamp, this.isFood,
       this.isFree, this.isRazors, this.isWiFi, this.userRate, this.totalRate);
 

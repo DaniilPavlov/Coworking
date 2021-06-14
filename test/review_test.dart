@@ -237,8 +237,6 @@ void main() {
       review: "Место класс!",
     ));
     await tester.tap(find.byKey(isFreeKey));
-
-    ///чтобы подтвердить действие
     await tester.pump();
     Checkbox widgetFree = tester.widget(find.byKey(isFreeKey));
     expect(widgetFree.value, equals(true));
@@ -255,11 +253,7 @@ void main() {
     ));
     var currentIcon = find.byIcon(Icons.crop_square_sharp);
     expect(currentIcon, findsOneWidget);
-
-    ///для button tap, not press
     await tester.tap(find.byKey(iconButton));
-
-    ///чтобы подтвердить действие
     await tester.pump();
     expect(find.byIcon(Icons.check), findsOneWidget);
   });
@@ -275,23 +269,14 @@ void main() {
     ));
     var currentIcon = find.byIcon(Icons.crop_square_sharp);
     expect(currentIcon, findsOneWidget);
-
-    ///для button tap, not press
     await tester.tap(find.byKey(iconButton));
-
-    ///чтобы подтвердить действие
     await tester.pump();
     expect(find.byIcon(Icons.check), findsNothing);
-
     final rateFinder = find.text('hahahhahah');
     expect(rateFinder, findsOneWidget);
     await tester.enterText(rateFinder, '10.0');
     expect(find.text('10.0'), findsOneWidget);
-
-    ///для button tap, not press
     await tester.tap(find.byKey(iconButton));
-
-    ///чтобы подтвердить действие
     await tester.pump();
     expect(find.byIcon(Icons.check), findsOneWidget);
   });

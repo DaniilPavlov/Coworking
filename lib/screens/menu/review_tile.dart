@@ -150,7 +150,6 @@ class _PinListItemState extends State<PinListItem> {
         content: Text(widget.review.body),
       ));
     } else {
-      ///есть ли в этом смысл?
       widget.review.body = oldComment;
       widget.review.isRazors = oldRazors;
       widget.review.isFood = oldFood;

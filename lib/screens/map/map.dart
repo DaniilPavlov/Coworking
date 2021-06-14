@@ -312,7 +312,7 @@ class MapBody extends StatefulWidget {
   State<MapBody> createState() => MapBodyState();
 }
 
-class MapBodyState extends State<MapBody> with WidgetsBindingObserver{
+class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
   static const CameraPosition startPosition = CameraPosition(
       target: LatLng(59.933895, 30.359357), zoom: MapPage.kDefaultZoom);
 
@@ -380,8 +380,6 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver{
 
   static Set<Marker> markers = Set<Marker>();
 
-
-
   //добавляем пины на карту
   @override
   Widget build(BuildContext context) {
@@ -389,6 +387,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver{
       children: <Widget>[
         AnimatedBuilder(
           animation: widget.pinAnimation,
+
           ///Была ошибка с жестом 3 пальцев, добавил ListView с itemExtent
           builder: (context, _) => ListView(
               itemExtent: MediaQuery.of(context).size.height -

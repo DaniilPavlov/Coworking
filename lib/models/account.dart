@@ -17,8 +17,13 @@ class Account {
   String notifyToken;
 
   Account(
-    this.id, {email, userName, String notifyToken,
-  }) {this._email = email; this._userName = userName;
+    this.id, {
+    email,
+    userName,
+    String notifyToken,
+  }) {
+    this._email = email;
+    this._userName = userName;
   }
 
   static Account fromFirebaseUser(FirebaseUser user) {

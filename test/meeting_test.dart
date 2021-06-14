@@ -243,11 +243,7 @@ void main() {
     expect(currentButton, findsOneWidget);
     final placeFinder = find.text("Магистратура Политеха");
     expect(placeFinder, findsOneWidget);
-
-    ///для button tap, not press
     await tester.tap(currentButton);
-
-    ///чтобы подтвердить действие
     await tester.pump();
     expect(find.text("Valid"), findsOneWidget);
   });
@@ -261,21 +257,13 @@ void main() {
     ));
     var currentButton = find.text("Invalid");
     expect(currentButton, findsOneWidget);
-
-    ///для button tap, not press
     await tester.tap(currentButton);
-
-    ///чтобы подтвердить действие
     await tester.pump();
     expect(find.text("Valid"), findsNothing);
     var placeFinder = find.byKey(textKey);
     await tester.enterText(placeFinder, "Магистратура Политеха");
     expect(find.text("Магистратура Политеха"), findsOneWidget);
-
-    ///для button tap, not press
     await tester.tap(currentButton);
-
-    ///чтобы подтвердить действие
     await tester.pump();
     expect(find.text("Valid"), findsOneWidget);
   });

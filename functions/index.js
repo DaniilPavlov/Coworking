@@ -17,32 +17,28 @@ exports.checkMeetingEnd = functions.pubsub.schedule('every 60 minutes').onRun(as
     })
 });
 
-
-//TypeError: Cannot read property 'forEach' of undefined
-//exports.checkMeetingSoon= functions.pubsub.schedule('every 2 minutes').onRun(async (context) => {
-//    var title = `До встречи осталось мение часа`;
-//    var body = `Нажмите для подробной информации`;
-//    const query = await database.collection("meetings")
-//        .where("dateCompleted", '<=', new Date(Date.now() + 60 * 60 * 1000))
-//        .get();
-//    query.forEach(document => {
-//                var tokens = document.tokens;
-//                tokens.forEach(async eachToken => {
-//                                                       const message = {
-//                                                           notification: { title: title, body: body},
-//                                                           token: eachToken,
-//                                                           data: { click_action: 'FLUTTER_NOTIFICATION_CLICK' },
-//                                                       }
-//
-//                                                       admin.messaging().send(message).then(response => {
-//                                                           return console.log("Notification 1 HOUR TO MEETING successful");
-//                                                       }).catch(error => {
-//                                                           return console.log("Error 1 HOUR: " + error);
-//                                                       });
-//                                                   });
-//              });
-//
-//});
+exports.checkMeetingSoon= functions.pubsub.schedule('every 60 minutes').onRun(async (context) => {
+    var title = `До встречи осталось мение часа`;
+    var body = `Нажмите для подробной информации`;
+    const query = await database.collection("meetings")
+        .where("dateCompleted", '<=', new Date(Date.now() + 60 * 60 * 1000))
+        .get();
+    query.forEach(document => {
+                var tokens = document.tokens;
+                tokens.forEach(async eachToken => {
+                  const message = {
+                      notification: { title: title, body: body},
+                      token: eachToken,
+                      data: { click_action: 'FLUTTER_NOTIFICATION_CLICK' },
+                  }
+                  admin.messaging().send(message).then(response => {
+                      return console.log("Notification 1 HOUR TO MEETING successful");
+                  }).catch(error => {
+                      return console.log("Error 1 HOUR: " + error);
+                  });
+              });
+              });
+});
 
 exports.onUpdateMeeting = functions.firestore.document('meetings/{documentId}').onUpdate(async (snapshot, context)  => {
     var meetingInfoAfter = snapshot.after.data();
@@ -63,7 +59,6 @@ exports.onUpdateMeeting = functions.firestore.document('meetings/{documentId}').
             token: eachToken,
             data: { click_action: 'FLUTTER_NOTIFICATION_CLICK' },
         }
-
         admin.messaging().send(message).then(response => {
             return console.log("Notification NEW INFO successful");
         }).catch(error => {
