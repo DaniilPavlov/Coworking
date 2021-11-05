@@ -3,17 +3,18 @@ import 'package:coworking/models/account.dart';
 import 'package:coworking/models/review.dart';
 
 class NewReviewForm extends StatefulWidget {
-  NewReviewForm({Key key}) : super(key: key);
+  const NewReviewForm({Key? key}) : super(key: key);
 
+  @override
   State<NewReviewForm> createState() => NewReviewFormState();
 }
 
 class NewReviewFormState extends State<NewReviewForm>
     with AutomaticKeepAliveClientMixin<NewReviewForm> {
-  GlobalKey<FormState> formKey;
+  late GlobalKey<FormState> formKey;
 
-  TextEditingController reviewController;
-  TextEditingController rateController;
+  late TextEditingController reviewController;
+  late TextEditingController rateController;
   bool isFood = false;
   bool isFree = false;
   bool isRazors = false;
@@ -40,9 +41,9 @@ class NewReviewFormState extends State<NewReviewForm>
           child: Column(children: <Widget>[
             TextFormField(
               controller: reviewController,
-              validator: (text) => text.isEmpty ? "Отзыв обязателен" : null,
+              validator: (text) => text!.isEmpty ? "Отзыв обязателен" : null,
               maxLines: 3,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: "Отзыв",
                 contentPadding: EdgeInsets.all(10.0),
               ),
@@ -52,7 +53,7 @@ class NewReviewFormState extends State<NewReviewForm>
                 child: Column(children: <Widget>[
                   Text(
                     "Раздел оценки места",
-                    style: Theme.of(context).textTheme.subhead,
+                    style: Theme.of(context).textTheme.subtitle1,
                     textAlign: TextAlign.left,
                   ),
                   GridView.count(
@@ -62,7 +63,7 @@ class NewReviewFormState extends State<NewReviewForm>
                     children: <Widget>[
                       Container(
                         alignment: Alignment.centerLeft,
-                        child: Text("Можно приобрести еду"),
+                        child: const Text("Можно приобрести еду"),
                       ),
                       Container(
                         alignment: Alignment.center,
@@ -70,7 +71,7 @@ class NewReviewFormState extends State<NewReviewForm>
                           value: isFood,
                           onChanged: (value) {
                             setState(() {
-                              isFood = value;
+                              isFood = value!;
                             });
                           },
                           tristate: false,
@@ -78,7 +79,7 @@ class NewReviewFormState extends State<NewReviewForm>
                       ),
                       Container(
                         alignment: Alignment.centerLeft,
-                        child: Text("Можно находиться бесплатно"),
+                        child: const Text("Можно находиться бесплатно"),
                       ),
                       Container(
                         alignment: Alignment.center,
@@ -86,7 +87,7 @@ class NewReviewFormState extends State<NewReviewForm>
                           value: isFree,
                           onChanged: (value) {
                             setState(() {
-                              isFree = value;
+                              isFree = value!;
                             });
                           },
                           tristate: false,
@@ -94,7 +95,7 @@ class NewReviewFormState extends State<NewReviewForm>
                       ),
                       Container(
                         alignment: Alignment.centerLeft,
-                        child: Text("Есть розетки"),
+                        child: const Text("Есть розетки"),
                       ),
                       Container(
                         alignment: Alignment.center,
@@ -102,7 +103,7 @@ class NewReviewFormState extends State<NewReviewForm>
                           value: isRazors,
                           onChanged: (value) {
                             setState(() {
-                              isRazors = value;
+                              isRazors = value!;
                             });
                           },
                           tristate: false,
@@ -110,7 +111,7 @@ class NewReviewFormState extends State<NewReviewForm>
                       ),
                       Container(
                         alignment: Alignment.centerLeft,
-                        child: Text("Есть WiFi"),
+                        child: const Text("Есть WiFi"),
                       ),
                       Container(
                         alignment: Alignment.center,
@@ -118,7 +119,7 @@ class NewReviewFormState extends State<NewReviewForm>
                           value: isWiFi,
                           onChanged: (value) {
                             setState(() {
-                              isWiFi = value;
+                              isWiFi = value!;
                             });
                           },
                           tristate: false,
@@ -126,7 +127,7 @@ class NewReviewFormState extends State<NewReviewForm>
                       ),
                       Container(
                         alignment: Alignment.centerLeft,
-                        child: Text(
+                        child: const Text(
                             "Ваша личная оценка места (введите число от 0 до 10)"),
                       ),
                       Container(
@@ -137,15 +138,16 @@ class NewReviewFormState extends State<NewReviewForm>
                           validator: (input) {
                             final RegExp shutterSpeedRegEx =
                                 RegExp("[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)");
-                            if (input.length == 0)
+                            if (input!.isEmpty) {
                               return "Вы не ввели оценку";
-                            else if (!shutterSpeedRegEx.hasMatch(input))
+                            } else if (!shutterSpeedRegEx.hasMatch(input)) {
                               return "Введите число";
-                            else if (double.parse(rateController.text) > 10 ||
-                                double.parse(rateController.text) < 0)
+                            } else if (double.parse(rateController.text) > 10 ||
+                                double.parse(rateController.text) < 0) {
                               return "От 0 до 10";
-                            else
+                            } else {
                               return null;
+                            }
                           },
                         ),
                       ),
@@ -156,7 +158,7 @@ class NewReviewFormState extends State<NewReviewForm>
         ));
   }
 
-  bool get isValid => formKey.currentState.validate();
+  bool get isValid => formKey.currentState!.validate();
 
   double countRate(
       bool isFood, bool isFree, bool isRazors, bool isWiFi, double userRate) {
@@ -172,18 +174,19 @@ class NewReviewFormState extends State<NewReviewForm>
   }
 
   Review getReview() {
-    formKey.currentState.save();
+    formKey.currentState!.save();
     return Review(
-        null,
-        Account.currentAccount,
-        this.reviewController.text,
+      //tODO проверить
+        "null",
+        Account.currentAccount!,
+        reviewController.text,
         DateTime.now(),
         isFood,
         isFree,
         isRazors,
         isWiFi,
-        double.parse(this.rateController.text),
+        double.parse(rateController.text),
         countRate(isFood, isFree, isRazors, isWiFi,
-            (double.parse(this.rateController.text) / 2)));
+            (double.parse(rateController.text) / 2)));
   }
 }

@@ -1,18 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'account.dart';
-import 'pin.dart';
+import 'package:coworking/models/account.dart';
+import 'package:coworking/models/pin.dart';
 
 class Meeting {
-  String id;
+  String? id;
   String place;
   String description;
   Account author;
-  Pin pin;
+  Pin? pin;
   bool notify;
   List<String> members;
   List<String> tokens;
-  Timestamp dateCompleted;
+  Timestamp? dateCompleted;
 
   Meeting(
     this.id,
@@ -27,19 +27,19 @@ class Meeting {
 
   Meeting copy() {
     return Meeting(
-      this.id,
-      this.place,
-      this.description,
-      this.author,
-      this.members,
-      this.tokens,
-      this.dateCompleted,
-      this.notify,
+      id,
+      place,
+      description,
+      author,
+      members,
+      tokens,
+      dateCompleted,
+      notify,
     );
   }
 
   Map<String, dynamic> asMap() {
-    Map<String, dynamic> meeting = Map();
+    Map<String, dynamic> meeting = {};
     meeting["place"] = place;
     meeting["description"] = description;
     meeting["author"] = author.id;
@@ -60,13 +60,13 @@ class Meeting {
   static Meeting fromMap(String id, Map<String, dynamic> data) {
     return Meeting(
       id,
-      data["place"],
-      data["description"],
-      Account(data["author"]),
-      List<String>.from(data["members"]),
-      List<String>.from(data["tokens"]),
-      data["dateCompleted"],
-      data["notify"],
+      data["place"] ,
+      data["description"] ,
+      Account(data["author"]  ),
+      List<String>.from(data["members"]  ),
+      List<String>.from(data["tokens"]  ),
+      data["dateCompleted"]  ,
+      data["notify"]  ,
     );
   }
 }

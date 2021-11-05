@@ -2,52 +2,56 @@ import 'package:coworking/services/database_map.dart';
 import 'package:coworking/models/review.dart';
 import 'package:flutter/material.dart';
 
-import 'review_tile.dart';
+import 'package:coworking/screens/menu/review_tile.dart';
 
 class FlaggedCommentsPage extends StatelessWidget {
+  const FlaggedCommentsPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
           automaticallyImplyLeading: true,
-          title: Text('Жалобы на отзывы'),
+          title: const Text('Жалобы на отзывы'),
           leading: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back,
               semanticLabel: "Back",
             ),
             onPressed: () => Navigator.pop(context, false),
           )),
-      body: BodyLayout(),
+      body: const BodyLayout(),
     );
   }
 }
 
 class BodyLayout extends StatelessWidget {
+  const BodyLayout({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Review>>(
+    return StreamBuilder<List<Review?>>(
       stream: DatabaseMap.flaggedReviews(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(),
           );
         } else {
-          if (snapshot.hasData && snapshot.data.length > 0) {
+          if (snapshot.hasData) {
             return ListView.separated(
-              separatorBuilder: (context, index) => Divider(
+              separatorBuilder: (context, index) => const Divider(
                 thickness: 2,
                 color: Colors.orange,
               ),
-              itemCount: snapshot.data.length,
+              itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                Review review = snapshot.data[index];
+                Review review = snapshot.data![index]!;
                 return FlaggedReviewsListItem(review);
               },
             );
           } else {
-            return Center(
+            return const Center(
               child: Text("Жалоб на отзывы нет!"),
             );
           }

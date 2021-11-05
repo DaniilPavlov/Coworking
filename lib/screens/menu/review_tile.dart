@@ -5,23 +5,24 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:coworking/screens/map/new_review_form.dart';
 
-import '../map/map.dart';
+import 'package:coworking/screens/map/map.dart';
 
 //этот класс отвечает за отображение *моих* отзывов
 class YourReviewsListItem extends ListTile {
-  const YourReviewsListItem({
-    this.name,
-    this.date,
-    this.comment,
-    this.location,
-    this.photoUrl,
-  });
-
   final String name;
   final DateTime date;
   final String comment;
   final LatLng location;
   final String photoUrl;
+
+  const YourReviewsListItem({
+    Key? key,
+    required this.name,
+    required this.date,
+    required this.comment,
+    required this.location,
+    required this.photoUrl,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -45,13 +46,13 @@ class YourReviewsListItem extends ListTile {
             ),
           ),
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.pin_drop_outlined,
               color: Colors.black,
               semanticLabel: "Go to pin",
             ),
             iconSize: 40.0,
-            color: Color.fromRGBO(0, 0, 0, 0.3),
+            color: const Color.fromRGBO(0, 0, 0, 0.3),
             onPressed: () {
               //заменяем страницу в стеке страниц
               Navigator.pushReplacement(
@@ -71,9 +72,9 @@ class YourReviewsListItem extends ListTile {
 //информация по комментарию пина: флажок\сердечко
 //автор, время, сам коммент
 class PinListItem extends StatefulWidget {
-  const PinListItem(this.review);
-
   final Review review;
+
+  const PinListItem(this.review, {Key? key}) : super(key: key);
 
   @override
   _PinListItemState createState() => _PinListItemState();
@@ -98,7 +99,7 @@ class _PinListItemState extends State<PinListItem> {
         isFlagged = value;
       });
     });
-    DatabaseMap.isFavourite(widget.review.id).then((value) {
+    DatabaseMap.isFavourite(widget.review.id!).then((value) {
       setState(() {
         isFavourite = value;
       });
@@ -143,10 +144,10 @@ class _PinListItemState extends State<PinListItem> {
       oldWiFi = widget.review.isWiFi;
       oldRate = widget.review.userRate;
       Navigator.of(context).pop(context);
-      widget.review.pin.rating =
-          await DatabaseMap.updateRateOfPin(widget.review.pin.id);
+      widget.review.pin!.rating =
+          await DatabaseMap.updateRateOfPin(widget.review.pin!.id) ;
       Clipboard.setData(ClipboardData(text: widget.review.body));
-      Scaffold.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(widget.review.body),
       ));
     } else {
@@ -189,11 +190,11 @@ class _PinListItemState extends State<PinListItem> {
                             },
                             child: Scaffold(
                               appBar: AppBar(
-                                  title: new Text("Изменение отзыва",
+                                  title: const Text("Изменение отзыва",
                                       textAlign: TextAlign.center),
                                   actions: <Widget>[
                                     IconButton(
-                                      icon: Icon(Icons.save),
+                                      icon: const Icon(Icons.save),
                                       onPressed: () {
                                         _saveReview();
                                       },
@@ -204,9 +205,9 @@ class _PinListItemState extends State<PinListItem> {
                                 TextFormField(
                                   controller: reviewController,
                                   validator: (text) =>
-                                      text.isEmpty ? "Отзыв обязателен" : null,
+                                      text!.isEmpty ? "Отзыв обязателен" : null,
                                   maxLines: 3,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     hintText: "Отзыв",
                                     contentPadding: EdgeInsets.all(8.0),
                                   ),
@@ -216,8 +217,9 @@ class _PinListItemState extends State<PinListItem> {
                                     child: Column(children: <Widget>[
                                       Text(
                                         "Раздел оценки места",
-                                        style:
-                                            Theme.of(context).textTheme.subhead,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle1,
                                         textAlign: TextAlign.left,
                                       ),
 
@@ -232,8 +234,8 @@ class _PinListItemState extends State<PinListItem> {
                                           children: <Widget>[
                                             Container(
                                               alignment: Alignment.centerLeft,
-                                              child:
-                                                  Text("Можно приобрести еду"),
+                                              child: const Text(
+                                                  "Можно приобрести еду"),
                                             ),
                                             Container(
                                               alignment: Alignment.center,
@@ -242,14 +244,14 @@ class _PinListItemState extends State<PinListItem> {
                                                 onChanged: (value) {
                                                   setState(() {
                                                     widget.review.isFood =
-                                                        value;
+                                                        value!;
                                                   });
                                                 },
                                               ),
                                             ),
                                             Container(
                                               alignment: Alignment.centerLeft,
-                                              child: Text(
+                                              child: const Text(
                                                   "Можно находиться бесплатно"),
                                             ),
                                             Container(
@@ -259,14 +261,14 @@ class _PinListItemState extends State<PinListItem> {
                                                 onChanged: (value) {
                                                   setState(() {
                                                     widget.review.isFree =
-                                                        value;
+                                                        value!;
                                                   });
                                                 },
                                               ),
                                             ),
                                             Container(
                                               alignment: Alignment.centerLeft,
-                                              child: Text("Есть розетки"),
+                                              child: const Text("Есть розетки"),
                                             ),
                                             Container(
                                               alignment: Alignment.center,
@@ -275,14 +277,14 @@ class _PinListItemState extends State<PinListItem> {
                                                 onChanged: (value) {
                                                   setState(() {
                                                     widget.review.isRazors =
-                                                        value;
+                                                        value!;
                                                   });
                                                 },
                                               ),
                                             ),
                                             Container(
                                               alignment: Alignment.centerLeft,
-                                              child: Text("Есть WiFi"),
+                                              child: const Text("Есть WiFi"),
                                             ),
                                             Container(
                                               alignment: Alignment.center,
@@ -291,14 +293,14 @@ class _PinListItemState extends State<PinListItem> {
                                                 onChanged: (value) {
                                                   setState(() {
                                                     widget.review.isWiFi =
-                                                        value;
+                                                        value!;
                                                   });
                                                 },
                                               ),
                                             ),
                                             Container(
                                               alignment: Alignment.centerLeft,
-                                              child: Text(
+                                              child: const Text(
                                                   "Ваша личная оценка места (введите число от 0 до 10)"),
                                             ),
                                             Container(
@@ -307,7 +309,7 @@ class _PinListItemState extends State<PinListItem> {
                                                 textAlign: TextAlign.center,
                                                 controller: rateController,
                                                 validator: (input) =>
-                                                    input.isEmpty
+                                                    input!.isEmpty
                                                         ? "Оценка обязательна"
                                                         : null,
                                               ),
@@ -319,22 +321,26 @@ class _PinListItemState extends State<PinListItem> {
                                 ButtonTheme(
                                   minWidth: 120.0,
                                   height: 50.0,
-                                  child: RaisedButton(
+                                  child: ElevatedButton(
                                     onPressed: () async {
                                       DatabaseMap.deleteReview(widget.review);
                                       Navigator.pop(context);
-                                      widget.review.pin.rating =
+                                      widget.review.pin?.rating =
                                           await DatabaseMap.updateRateOfPin(
-                                              widget.review.pin.id);
+                                              widget.review.pin?.id) ;
                                     },
-                                    child: Text(
+                                    child: const Text(
                                       'Удалить',
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 26.0,
                                       ),
                                     ),
-                                    color: Colors.red,
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Theme.of(context).errorColor),
+                                    ),
                                   ),
                                 ),
                               ])),
@@ -350,7 +356,7 @@ class _PinListItemState extends State<PinListItem> {
                                         CrossAxisAlignment.stretch,
                                     children: <Widget>[
                                 Container(
-                                  padding: EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.all(8.0),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -359,7 +365,7 @@ class _PinListItemState extends State<PinListItem> {
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Row(
-                                          children: <Widget>[
+                                          children: const <Widget>[
                                             Expanded(
                                               child: Text(
                                                 "Информация об отзыве:",
@@ -408,7 +414,7 @@ class _PinListItemState extends State<PinListItem> {
                                                     .toString(),
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .subhead,
+                                                .subtitle1,
                                           ),
                                         ),
                                       ),
@@ -417,14 +423,14 @@ class _PinListItemState extends State<PinListItem> {
                                 ),
                               ])));
                   } else {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
                 })),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Divider(
+            const Divider(
               color: Colors.orange,
               thickness: 2,
             ),
@@ -439,8 +445,10 @@ class _PinListItemState extends State<PinListItem> {
                   FutureBuilder(
                     future: widget.review.author.userName,
                     builder: (_, snapshot) => Text(
-                      (snapshot.hasData) ? snapshot.data : "Anonymous",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      (snapshot.hasData)
+                          ? snapshot.data.toString()  
+                          : "Anonymous",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                   Text(
@@ -449,7 +457,7 @@ class _PinListItemState extends State<PinListItem> {
                   ),
                 ],
               ),
-              Spacer(),
+              const Spacer(),
               IconButton(
                 padding: EdgeInsets.zero,
                 icon: Icon(
@@ -458,9 +466,9 @@ class _PinListItemState extends State<PinListItem> {
                 ),
                 onPressed: () {
                   if (isFlagged) {
-                    DatabaseMap.unFlag(widget.review.id);
+                    DatabaseMap.unFlag(widget.review.id!);
                   } else {
-                    DatabaseMap.flag(widget.review.id);
+                    DatabaseMap.flag(widget.review.id!);
                   }
                   setState(() {
                     isFlagged = !isFlagged;
@@ -475,9 +483,9 @@ class _PinListItemState extends State<PinListItem> {
                 ),
                 onPressed: () {
                   if (isFavourite) {
-                    DatabaseMap.removeFavourite(widget.review.id);
+                    DatabaseMap.removeFavourite(widget.review.id!);
                   } else {
-                    DatabaseMap.addFavourite(widget.review.id);
+                    DatabaseMap.addFavourite(widget.review.id!);
                   }
                   setState(() {
                     isFavourite = !isFavourite;
@@ -504,16 +512,18 @@ String formatDate(DateTime timestamp) =>
     timestamp.minute.toString().padLeft(2, '0');
 
 class CustomListItem extends ListTile {
-  const CustomListItem({
-    this.name,
-    this.date,
-    this.comment,
-  });
-
+  // ignore: annotate_overrides, overridden_fields
   final bool enabled = true;
   final String name;
   final DateTime date;
   final String comment;
+
+  const CustomListItem({
+    Key? key,
+    required this.name,
+    required this.date,
+    required this.comment,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -528,10 +538,10 @@ class CustomListItem extends ListTile {
               style:
                   DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.3),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
-            Container(width: 200, child: Text("Отзыв: " + comment)),
+            SizedBox(width: 200, child: Text("Отзыв: " + comment)),
             Text(
               formatDate(date),
               style: TextStyle(color: Colors.black.withOpacity(0.4)),
@@ -543,10 +553,11 @@ class CustomListItem extends ListTile {
 
 // Любимые отзывы
 class StarredReviewsListItem extends ListTile {
-  const StarredReviewsListItem(this.review, this.location);
-
   final LatLng location;
   final Review review;
+
+  const StarredReviewsListItem(this.review, this.location, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -556,21 +567,19 @@ class StarredReviewsListItem extends ListTile {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Container(
-            child: CustomListItem(
-              name: review.pin.name,
-              date: review.timestamp,
-              comment: review.body,
-            ),
+          CustomListItem(
+            name: review.pin!.name,
+            date: review.timestamp,
+            comment: review.body,
           ),
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.pin_drop_outlined,
               color: Colors.black,
               semanticLabel: "Go to pin",
             ),
             iconSize: 40.0,
-            color: Color.fromRGBO(0, 0, 0, 0.3),
+            color: const Color.fromRGBO(0, 0, 0, 0.3),
             onPressed: () {
               //заменяем страницу в стеке страниц
               Navigator.pushReplacement(
@@ -581,15 +590,15 @@ class StarredReviewsListItem extends ListTile {
                           )));
             },
           ),
-          Spacer(),
+          const Spacer(),
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.star,
               semanticLabel: "Remove",
             ),
             iconSize: 30.0,
             onPressed: () {
-              DatabaseMap.removeFavourite(review.id);
+              DatabaseMap.removeFavourite(review.id!);
             },
           ),
         ],
@@ -602,7 +611,7 @@ class StarredReviewsListItem extends ListTile {
 //Админ устанавливается напрямую через firebase. Вкладка появляется
 //в левом меню.
 class FlaggedReviewsListItem extends ListTile {
-  const FlaggedReviewsListItem(this.review);
+  const FlaggedReviewsListItem(this.review, {Key? key}) : super(key: key);
 
   final Review review;
 
@@ -617,13 +626,13 @@ class FlaggedReviewsListItem extends ListTile {
           Expanded(
             flex: 3,
             child: CustomListItem(
-              name: review.pin.name,
+              name: review.pin!.name,
               date: review.timestamp,
               comment: review.body,
             ),
           ),
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.check_circle,
               color: Colors.green,
               semanticLabel: "Allow",
@@ -631,11 +640,11 @@ class FlaggedReviewsListItem extends ListTile {
             iconSize: 40.0,
             color: Colors.grey[600],
             onPressed: () {
-              DatabaseMap.ignoreFlags(review.id);
+              DatabaseMap.ignoreFlags(review.id!);
             },
           ),
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.delete,
               semanticLabel: "Delete",
             ),

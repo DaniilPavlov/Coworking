@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:coworking/screens/meetings/meeting_info.dart';
 
 class MeetingListItem extends StatefulWidget {
-  const MeetingListItem(this.meeting);
+  const MeetingListItem(this.meeting, {Key? key}) : super(key: key);
 
   final Meeting meeting;
 
@@ -23,12 +23,12 @@ class _MeetingListItemState extends State<MeetingListItem> {
     return Column(mainAxisSize: MainAxisSize.min,
         // crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           Container(
             clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(40)),
                 color: Colors.orange,
                 boxShadow: [
@@ -57,19 +57,19 @@ class _MeetingListItemState extends State<MeetingListItem> {
                         .style
                         .apply(fontSizeFactor: 1.2),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   FutureBuilder(
                     future: widget.meeting.author.userName,
                     builder: (_, snapshot) => Text(
                       (snapshot.hasData)
-                          ? "Организатор:  " + snapshot.data
-                          : "Организатор:  " + "Anonymous",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                          ? "Организатор:  " + (snapshot.data.toString())
+                          : "Организатор:  Anonymous",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   Text(
@@ -77,14 +77,14 @@ class _MeetingListItemState extends State<MeetingListItem> {
                     style: TextStyle(color: Colors.black.withOpacity(0.4)),
                   ),
                   Text(
-                    TimeLeft().timeLeft(widget.meeting.dateCompleted.toDate()),
+                    TimeLeft().timeLeft(widget.meeting.dateCompleted!.toDate()),
                     style: TextStyle(color: Colors.black.withOpacity(0.4)),
                   ),
                 ],
               )),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
         ]);

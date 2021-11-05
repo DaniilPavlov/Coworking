@@ -52,7 +52,6 @@ exports.onUpdateMeeting = functions.firestore.document('meetings/{documentId}').
         var title = `Изменение одной из ваших встреч`;
         var body = `Нажмите для подробной информации`;
     }
-
     tokens.forEach(async eachToken => {
         const message = {
             notification: { title: title, body: body },

@@ -4,14 +4,16 @@ import 'package:coworking/models/review.dart';
 import 'package:coworking/screens/menu/review_tile.dart';
 
 class UserCommentsPage extends StatelessWidget {
+  const UserCommentsPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: Text('Ваши отзывы'),
+        title: const Text('Ваши отзывы'),
         leading: IconButton(
-          icon: Icon(
+          icon:const  Icon(
             Icons.arrow_back_ios,
             semanticLabel: "Back",
           ),
@@ -20,7 +22,7 @@ class UserCommentsPage extends StatelessWidget {
         actions: <Widget>[
           PopupMenuButton(
             tooltip: "Help",
-            icon: Icon(
+            icon: const Icon(
               Icons.help,
               color: Colors.black,
             ),
@@ -36,12 +38,14 @@ class UserCommentsPage extends StatelessWidget {
           )
         ],
       ),
-      body: BodyLayout(),
+      body: const BodyLayout(),
     );
   }
 }
 
 class BodyLayout extends StatefulWidget {
+  const BodyLayout({Key? key}) : super(key: key);
+
   @override
   _BodyLayoutState createState() => _BodyLayoutState();
 }
@@ -54,29 +58,29 @@ class _BodyLayoutState extends State<BodyLayout> {
       builder: (context, snapshot) {
         if (!snapshot.hasData ||
             snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(),
           );
         } else {
-          return (snapshot.data.length > 0)
+          return (snapshot.data!.isNotEmpty)
               ? ListView.separated(
-                  separatorBuilder: (context, index) => Divider(
+                  separatorBuilder: (context, index) => const Divider(
                     thickness: 2,
                     color: Colors.orange,
                   ),
-                  itemCount: snapshot.data.length,
+                  itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
-                    Review review = snapshot.data.elementAt(index);
+                    Review review = snapshot.data!.elementAt(index);
                     return YourReviewsListItem(
-                      name: review.pin.name,
+                      name: review.pin!.name,
                       date: review.timestamp,
                       comment: review.body,
-                      location: review.pin.location,
-                      photoUrl: review.pin.imageUrl,
+                      location: review.pin!.location,
+                      photoUrl: review.pin!.imageUrl,
                     );
                   },
                 )
-              : Center(
+              : const Center(
                   child: Text("Самое время оставить свой первый отзыв!"),
                 );
         }

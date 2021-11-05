@@ -2,31 +2,31 @@ import 'dart:async';
 
 import 'package:coworking/models/review.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import '../services/database_meeting.dart';
-import '../services/database_map.dart';
-import 'meeting.dart';
+import 'package:flutter/material.dart';
+import 'package:coworking/services/database_meeting.dart';
+import 'package:coworking/services/database_map.dart';
+import 'package:coworking/models/meeting.dart';
 
 class Account {
-  static Account currentAccount;
-  String id;
-  static Completer hasUpdated;
+  static Account? currentAccount;
+  String? id;
 
-  String _userName;
-  String _email;
-  String notifyToken;
+  String? _userName;
+  String? _email;
+  String? notifyToken;
+  static Completer? hasUpdated;
 
   Account(
     this.id, {
     email,
     userName,
-    String notifyToken,
+    notifyToken,
   }) {
-    this._email = email;
-    this._userName = userName;
+    _email = email;
+    _userName = userName;
   }
 
-  static Account fromFirebaseUser(FirebaseUser user) {
+  static Account fromFirebaseUser(User user) {
     return Account(
       user.uid,
       email: user.email,
@@ -34,29 +34,14 @@ class Account {
     );
   }
 
-  Future<String> get userName async {
-    if (_userName != null)
-      return _userName;
-    else
-      return DatabaseMap.getUserNameByID(id);
-  }
+  Future<String?> get userName async => await DatabaseMap.getUserNameByID(id!);
 
   static updateUserName(String value) {
-    hasUpdated = Completer();
-    Account.currentAccount._userName = value;
-    DatabaseMap.updateUsername(value);
-
-    FirebaseAuth.instance.currentUser().then((user) {
-      var newInfo = UserUpdateInfo();
-      newInfo.displayName = value;
-      user.updateProfile(newInfo).then((_) {
-        hasUpdated.complete();
-      });
-    });
+    FirebaseAuth.instance.currentUser!.updateDisplayName(value);
   }
 
   Map<String, dynamic> asMap() {
-    Map<String, dynamic> accountMap = Map();
+    Map<String, dynamic> accountMap = {};
     accountMap["userID"] = id;
     accountMap["name"] = _userName;
     accountMap["email"] = _email;
@@ -66,15 +51,15 @@ class Account {
   }
 
   static Stream<List<Review>> getReviewsForUser(BuildContext context) {
-    return DatabaseMap.reviewsByUser(currentAccount, context);
+    return DatabaseMap.reviewsByUser(currentAccount!, context);
   }
 
   static Stream<List<Meeting>> getMeetingsForUser(BuildContext context) {
-    return DatabaseMeeting.meetingsOfUser(currentAccount, context);
+    return DatabaseMeeting.meetingsOfUser(currentAccount!, context);
   }
 
   static Future<Stream<List<Review>>> getFavouriteReviewsForUser(
       BuildContext context) {
-    return DatabaseMap.favouriteReviewsForUser(currentAccount, context);
+    return DatabaseMap.favouriteReviewsForUser(currentAccount!, context);
   }
 }

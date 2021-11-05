@@ -4,14 +4,16 @@ import 'package:coworking/models/review.dart';
 import 'package:coworking/screens/menu/review_tile.dart';
 
 class StarredCommentsPage extends StatelessWidget {
+  const StarredCommentsPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: Text('Понравившиеся отзывы'),
+        title: const Text('Понравившиеся отзывы'),
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back_ios,
             semanticLabel: "Back",
           ),
@@ -20,7 +22,7 @@ class StarredCommentsPage extends StatelessWidget {
         actions: <Widget>[
           PopupMenuButton(
             tooltip: "Help",
-            icon: Icon(
+            icon: const Icon(
               Icons.help,
               color: Colors.black,
             ),
@@ -36,41 +38,43 @@ class StarredCommentsPage extends StatelessWidget {
           )
         ],
       ),
-      body: BodyLayout(),
+      body: const BodyLayout(),
     );
   }
 }
 
 class BodyLayout extends StatelessWidget {
+  const BodyLayout({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: Account.getFavouriteReviewsForUser(context),
       builder: (context, snapshot) => (snapshot.hasData)
           ? StreamBuilder<List<Review>>(
-              stream: snapshot.data,
+              stream: snapshot.data as  Stream<List<Review>>?,
               builder: (context, snapshot) {
                 //пока ждем прогрузы отзывов крутим спин загрузки
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(),
                   );
                 } else {
-                  if (snapshot.hasData && snapshot.data.length > 0) {
+                  if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                     return ListView.separated(
-                      separatorBuilder: (context, index) => Divider(
+                      separatorBuilder: (context, index) => const Divider(
                         color: Colors.orange,
                         thickness: 2,
                       ),
-                      itemCount: snapshot.data.length,
+                      itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
-                        Review review = snapshot.data[index];
+                        Review review = snapshot.data![index];
                         return StarredReviewsListItem(
-                            review, review.pin.location);
+                            review, review.pin!.location);
                       },
                     );
                   } else {
-                    return Center(
+                    return const Center(
                       child: Text("Пока здесь пусто :( \n",
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 20)),
@@ -81,7 +85,7 @@ class BodyLayout extends StatelessWidget {
             )
           : Center(
               child: Column(
-                children: <Widget>[
+                children: const <Widget>[
                   Text("Загружаем данные"),
                   CircularProgressIndicator(),
                 ],

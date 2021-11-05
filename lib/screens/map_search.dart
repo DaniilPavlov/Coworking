@@ -13,7 +13,7 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
     return [
       //очистка строки запроса
       IconButton(
-        icon: Icon(
+        icon: const Icon(
           Icons.clear,
           semanticLabel: "Clear",
         ),
@@ -26,12 +26,12 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
 
   @override
   Widget buildLeading(BuildContext context) {
-    return BackButton();
+    return const BackButton();
   }
 
   @override
   Widget buildResults(BuildContext context) {
-    List<Pin> results = List<Pin>();
+    List<Pin> results = <Pin>[];
     for (Pin pin in pins) {
       if (pin.name.contains(RegExp(query, caseSensitive: false))) {
         results.add(pin);
@@ -43,14 +43,14 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
       } catch (e) {}
     }
     return ListView.separated(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       itemCount: results.length,
       itemBuilder: (context, i) {
         return GestureDetector(
           onTap: () {
-            this.close(context, results[i]);
+            close(context, results[i]);
           },
-          child: Container(
+          child: SizedBox(
             height: 50,
             child: Align(
               child: Text(
@@ -63,14 +63,14 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
         );
       },
       separatorBuilder: (context, i) {
-        return Divider();
+        return const Divider();
       },
     );
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    List<Pin> suggestions = List<Pin>();
+    List<Pin> suggestions = <Pin>[];
 
     for (Pin pin in pins) {
       // если в названии пина есть заданный набор букв - выводим

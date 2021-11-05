@@ -1,13 +1,10 @@
-import 'package:coworking/models/account.dart';
 import 'package:flutter/material.dart';
 import 'package:coworking/services/database_meeting.dart';
 import 'package:coworking/widgets/shadow_container.dart';
 import 'package:coworking/widgets/meetings_background.dart';
 
 class JoinMeeting extends StatefulWidget {
-  final Account account;
-
-  JoinMeeting({this.account});
+  const JoinMeeting({Key? key}) : super(key: key);
 
   @override
   _JoinMeetingState createState() => _JoinMeetingState();
@@ -19,16 +16,16 @@ class _JoinMeetingState extends State<JoinMeeting> {
     if (_returnString == "success") {
       Navigator.pop(context);
     } else {
-      _scaffoldKey.currentState.showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(_returnString),
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
   }
 
-  TextEditingController _meetingIdController = TextEditingController();
+  final TextEditingController _meetingIdController = TextEditingController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -42,10 +39,10 @@ class _JoinMeetingState extends State<JoinMeeting> {
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Row(
-                  children: <Widget>[BackButton()],
+                  children: const <Widget>[BackButton()],
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: ShadowContainer(
@@ -53,17 +50,20 @@ class _JoinMeetingState extends State<JoinMeeting> {
                     children: <Widget>[
                       TextFormField(
                         controller: _meetingIdController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.group),
                           hintText: "id встречи",
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20.0,
                       ),
-                      RaisedButton(
-                        color: Colors.orange,
-                        child: Padding(
+                      ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.orange),
+                        ),
+                        child: const Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: 50, vertical: 20),
                           child: Text(
@@ -83,7 +83,7 @@ class _JoinMeetingState extends State<JoinMeeting> {
                   ),
                 ),
               ),
-              Spacer(),
+              const Spacer(),
             ],
           )),
     );

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImagePickerBox extends FormField<File> {
-  ImagePickerBox({Key key, validator})
+  ImagePickerBox({Key? key, String? Function(File?)? validator})
       : super(
           key: key,
           builder: (state) => ImagePickerBoxState(state),
@@ -15,7 +15,8 @@ class ImagePickerBox extends FormField<File> {
 class ImagePickerBoxState extends StatelessWidget {
   final FormFieldState<File> state;
 
-  ImagePickerBoxState(this.state);
+  ImagePickerBoxState(this.state, {Key? key}) : super(key: key);
+  final ImagePicker _picker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
@@ -25,27 +26,26 @@ class ImagePickerBoxState extends StatelessWidget {
         Container(
           width: 100.0,
           height: 100.0,
-          padding: EdgeInsets.all(4.0),
-          child: OutlineButton(
+          padding: const EdgeInsets.all(4.0),
+          child: OutlinedButton(
             clipBehavior: Clip.antiAlias,
-            padding: EdgeInsets.zero,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4.0),
-            ),
-            onPressed: () {
-              ImagePicker.pickImage(
-                source: ImageSource.gallery,
-              ).then((value) {
-                state.didChange(value);
-              });
+            // padding: EdgeInsets.zero,
+            // shape: RoundedRectangleBorder(
+            //   borderRadius: BorderRadius.circular(4.0),
+            // ),
+            onPressed: () async {
+              var pickedFile =
+                  await _picker.pickImage(source: ImageSource.gallery);
+
+              state.didChange(File(pickedFile!.path));
             },
             child: state.value == null
-                ? Icon(
+                ? const Icon(
                     Icons.add_photo_alternate,
                     semanticLabel: "Add image",
                   )
                 : Image.file(
-                    state.value,
+                    state.value!,
                     width: 100.0,
                     height: 100.0,
                     semanticLabel: "Uploaded image",
@@ -55,12 +55,12 @@ class ImagePickerBoxState extends StatelessWidget {
         ),
         state.hasError
             ? Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  state.errorText,
+                  state.errorText!,
                   style: TextStyle(
                     color: Theme.of(context).errorColor,
-                    fontSize: Theme.of(context).textTheme.caption.fontSize,
+                    fontSize: Theme.of(context).textTheme.caption!.fontSize,
                   ),
                 ),
               )

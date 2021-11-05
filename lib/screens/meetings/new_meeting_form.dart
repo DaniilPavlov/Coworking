@@ -8,10 +8,11 @@ import 'package:intl/intl.dart';
 import 'package:coworking/widgets/meetings_background.dart';
 
 class NewMeetingForm extends StatefulWidget {
-  final Meeting meeting;
+  final Meeting? meeting;
 
-  NewMeetingForm({Key key, this.meeting}) : super(key: key);
+  const NewMeetingForm({Key? key, this.meeting}) : super(key: key);
 
+  @override
   State<NewMeetingForm> createState() => NewMeetingFormState();
 }
 
@@ -19,26 +20,28 @@ class NewMeetingFormState extends State<NewMeetingForm>
     with AutomaticKeepAliveClientMixin<NewMeetingForm> {
   final addMeetingKey = GlobalKey<ScaffoldState>();
 
-  TextEditingController _meetingPlaceController = TextEditingController();
-  TextEditingController _meetingDescriptionController = TextEditingController();
+  final TextEditingController _meetingPlaceController = TextEditingController();
+  final TextEditingController _meetingDescriptionController =
+      TextEditingController();
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
 
   bool isOld = false;
-  Meeting meeting;
-  List<String> members = List();
-  List<String> tokens = List();
+  late Meeting meeting;
+  List<String> members = [];
+  List<String> tokens = [];
 
   @override
   bool get wantKeepAlive => true;
 
+  @override
   initState() {
     if (widget.meeting != null) {
       isOld = true;
-      meeting = widget.meeting.copy();
+      meeting = widget.meeting!.copy();
       _meetingDescriptionController.text = meeting.description;
       _meetingPlaceController.text = meeting.place;
-      _selectedDate = widget.meeting.dateCompleted.toDate();
+      _selectedDate = widget.meeting!.dateCompleted!.toDate();
       _selectedTime =
           TimeOfDay(hour: _selectedDate.hour, minute: _selectedDate.minute);
     }
@@ -46,7 +49,7 @@ class NewMeetingFormState extends State<NewMeetingForm>
   }
 
   Future _selectDate() async {
-    final DateTime picked = await showDatePicker(
+    final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime.now(),
@@ -62,15 +65,14 @@ class NewMeetingFormState extends State<NewMeetingForm>
   }
 
   Future _selectTime() async {
-    TimeOfDay pickedTime = await showTimePicker(
+    TimeOfDay? pickedTime = await showTimePicker(
         context: context,
         initialTime: _selectedTime,
-        builder: (BuildContext context, Widget child) {
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-            child: child,
-          );
-        });
+        builder: (BuildContext context, Widget? child) => MediaQuery(
+              data:
+                  MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+              child: child!,
+            ));
 
     if (pickedTime != null && pickedTime != _selectedTime) {
       setState(() {
@@ -90,19 +92,19 @@ class NewMeetingFormState extends State<NewMeetingForm>
 
   void _editMeeting(BuildContext context, Meeting meeting) async {
     String _returnString;
-    if (_selectedDate.isAfter(DateTime.now().add(Duration(hours: 2)))) {
+    if (_selectedDate.isAfter(DateTime.now().add(const Duration(hours: 2)))) {
       _returnString = await DatabaseMeeting().editMeeting(meeting);
       if (_returnString == "success") {
         setState(() {
-          widget.meeting.place = meeting.place;
-          widget.meeting.description = meeting.description;
-          widget.meeting.dateCompleted = meeting.dateCompleted;
+          widget.meeting!.place = meeting.place;
+          widget.meeting!.description = meeting.description;
+          widget.meeting!.dateCompleted = meeting.dateCompleted;
         });
         Navigator.of(context).pop(widget.meeting);
       }
     } else {
-      addMeetingKey.currentState.showSnackBar(
-        SnackBar(
+      addMeetingKey.currentState!.showSnackBar(
+        const SnackBar(
           content: Text("До начала всего 2 часа, это слишком мало!"),
         ),
       );
@@ -113,15 +115,15 @@ class NewMeetingFormState extends State<NewMeetingForm>
     String _returnString;
 
     ///возможно изменить время для начала
-    if (_selectedDate.isAfter(DateTime.now().add(Duration(hours: 2)))) {
+    if (_selectedDate.isAfter(DateTime.now().add(const Duration(hours: 2)))) {
       _returnString = await DatabaseMeeting().addMeeting(meeting);
 
       if (_returnString == "success") {
         Navigator.pop(context);
       }
     } else {
-      addMeetingKey.currentState.showSnackBar(
-        SnackBar(
+      addMeetingKey.currentState!.showSnackBar(
+        const SnackBar(
           content: Text("До начала всего 2 часа, это слишком мало!"),
         ),
       );
@@ -130,6 +132,8 @@ class NewMeetingFormState extends State<NewMeetingForm>
 
   @override
   Widget build(BuildContext context) {
+    //TODO этого не было
+    super.build(context);
     return Scaffold(
       key: addMeetingKey,
       body: CustomPaint(
@@ -139,10 +143,10 @@ class NewMeetingFormState extends State<NewMeetingForm>
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Row(
-                  children: <Widget>[BackButton()],
+                  children: const <Widget>[BackButton()],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 60,
               ),
               Padding(
@@ -152,25 +156,25 @@ class NewMeetingFormState extends State<NewMeetingForm>
                     children: <Widget>[
                       TextFormField(
                         controller: _meetingPlaceController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.place),
                           hintText: "Место встречи",
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20.0,
                       ),
                       TextFormField(
                         controller: _meetingDescriptionController,
                         validator: (text) =>
-                            text.isEmpty ? "Описание обязательно" : null,
+                            text!.isEmpty ? "Описание обязательно" : null,
                         maxLines: 3,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: "Описание",
                           contentPadding: EdgeInsets.all(8.0),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Text(DateFormat.yMMMMd("en_US").format(_selectedDate)),
@@ -178,22 +182,24 @@ class NewMeetingFormState extends State<NewMeetingForm>
                       Row(
                         children: [
                           Expanded(
-                            child: FlatButton(
-                              child: Text("Изменить дату"),
+                            child: TextButton(
+                              child: const Text("Изменить дату"),
                               onPressed: () => _selectDate(),
                             ),
                           ),
                           Expanded(
-                            child: FlatButton(
-                              child: Text("Изменить время"),
+                            child: TextButton(
+                              child: const Text("Изменить время"),
                               onPressed: () => _selectTime(),
                             ),
                           ),
                         ],
                       ),
-                      RaisedButton(
-                        color: Colors.orange,
-                        child: Padding(
+                      ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.red)),
+                        child: const Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: 50, vertical: 10),
                           child: Text(
@@ -206,21 +212,23 @@ class NewMeetingFormState extends State<NewMeetingForm>
                           ),
                         ),
                         onPressed: () {
-                          Meeting meeting = Meeting(
+                          Meeting? meeting = Meeting(
                               null,
                               "",
                               "",
-                              Account.currentAccount,
+                              Account.currentAccount!,
                               members,
                               tokens,
                               null,
                               false);
                           if (_meetingPlaceController.text == "") {
-                            addMeetingKey.currentState.showSnackBar(SnackBar(
+                            addMeetingKey.currentState!
+                                .showSnackBar(const SnackBar(
                               content: Text("Требуется добавить место встречи"),
                             ));
                           } else if (_meetingDescriptionController.text == "") {
-                            addMeetingKey.currentState.showSnackBar(SnackBar(
+                            addMeetingKey.currentState!
+                                .showSnackBar(const SnackBar(
                               content:
                                   Text("Требуется добавить описание встречи"),
                             ));
@@ -231,10 +239,11 @@ class NewMeetingFormState extends State<NewMeetingForm>
                             meeting.dateCompleted =
                                 Timestamp.fromDate(_selectedDate);
                             if (isOld) {
-                              meeting.id = widget.meeting.id;
+                              meeting.id = widget.meeting!.id;
                               _editMeeting(context, meeting);
-                            } else
+                            } else {
                               _addMeeting(context, meeting);
+                            }
                           }
                         },
                       ),

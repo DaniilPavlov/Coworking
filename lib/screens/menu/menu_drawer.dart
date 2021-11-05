@@ -5,26 +5,26 @@ import 'package:coworking/screens/menu/user_reviews.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../services/sign_in.dart';
-import 'account.dart';
-import 'flagged_reviews.dart';
+import 'package:coworking/services/sign_in.dart';
+import 'package:coworking/screens/menu/account.dart';
+import 'package:coworking/screens/menu/flagged_reviews.dart';
 
 class MenuDrawer extends StatefulWidget {
+  const MenuDrawer({Key? key}) : super(key: key);
+
   @override
   _MenuDrawerState createState() => _MenuDrawerState();
 }
 
 class _MenuDrawerState extends State<MenuDrawer> {
-  FirebaseUser _user;
+  late User? _user;
 
   @override
   void initState() {
-    SignIn.auth.currentUser().then((user) {
-      setState(() {
-        _user = user;
-      });
-    });
     super.initState();
+    setState(() {
+      _user = SignIn.auth.currentUser;
+    });
   }
 
   ///Кнопка меню
@@ -35,52 +35,54 @@ class _MenuDrawerState extends State<MenuDrawer> {
         padding: EdgeInsets.zero,
         children: <Widget>[
           UserAccountsDrawerHeader(
-            currentAccountPicture: (_user == null || _user.photoUrl == null)
+            currentAccountPicture: (_user == null || _user!.photoURL == null)
                 ? CircleAvatar(
                     child: Text(
-                      (_user == null) ? "X" : _user.displayName.substring(0, 1),
+                      (_user == null)
+                          ? "X"
+                          : _user!.displayName!.substring(0, 1),
                     ),
                   )
                 : CircleAvatar(
-                    backgroundImage: NetworkImage(_user.photoUrl),
+                    backgroundImage: NetworkImage(_user!.photoURL!),
                   ),
             accountName: Text(
-              (_user == null) ? "Username" : _user.displayName,
+              (_user == null) ? "Username" : _user!.displayName!,
             ),
             accountEmail: Text(
-              (_user == null) ? "Email" : _user.email,
+              (_user == null) ? "Email" : _user!.email! ,
             ),
           ),
           ListTile(
-            title: Text("Понравившиеся отзывы"),
+            title: const Text("Понравившиеся отзывы"),
             onTap: () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => StarredCommentsPage()));
+                      builder: (context) => const StarredCommentsPage()));
             },
           ),
           ListTile(
-            title: Text("Ваши отзывы"),
+            title: const Text("Ваши отзывы"),
             onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => UserCommentsPage()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const UserCommentsPage()));
             },
           ),
           ListTile(
-            title: Text("Профиль"),
+            title: const Text("Профиль"),
             onTap: () {
               Navigator.push(context,
                       MaterialPageRoute(builder: (context) => AccountPage()))
                   .then((value) {
                 if (Account.hasUpdated != null) {
-                  Account.hasUpdated.future.then((_) {
-                    FirebaseAuth.instance.currentUser().then((user) {
-                      setState(() {
-                        _user = user;
-                      });
-                      print(user.displayName);
+                  Account.hasUpdated!.future.then((_) {
+                    setState(() {
+                      _user = SignIn.auth.currentUser;
                     });
+                    print(_user!.displayName);
                   });
                 }
               });
@@ -90,20 +92,17 @@ class _MenuDrawerState extends State<MenuDrawer> {
               future: DatabaseMap.isAdmin(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  return (snapshot.data)
-                      ? ListTile(
-                          title: Text("Жалобы на отзывы"),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        FlaggedCommentsPage()));
-                          },
-                        )
-                      : Container();
+                  return ListTile(
+                    title: const Text("Жалобы на отзывы"),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const FlaggedCommentsPage()));
+                    },
+                  );
                 } else {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
               }),
         ],

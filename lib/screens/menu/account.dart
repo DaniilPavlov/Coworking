@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:coworking/screens/login.dart';
 
-import '../../services/sign_in.dart';
+import 'package:coworking/services/sign_in.dart';
 
 //Максимальная и минимальная длина имени
 const int userNameMin = 1;
@@ -14,16 +14,18 @@ const int userNameMax = 100;
 class AccountPage extends StatelessWidget {
   final GlobalKey<DisplayNameFormState> formKey = GlobalKey();
 
+  AccountPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text("Настройки аккаунта"),
+        title: const Text("Настройки аккаунта"),
         actions: <Widget>[
           PopupMenuButton(
             tooltip: "Help",
-            icon: Icon(
+            icon: const Icon(
               Icons.help,
               color: Colors.black,
             ),
@@ -40,48 +42,49 @@ class AccountPage extends StatelessWidget {
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => formKey.currentState?.formFocus?.unfocus(),
+        onTap: () => formKey.currentState?.formFocus.unfocus(),
         child: Container(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Container(
                 alignment: Alignment.center,
-                margin: EdgeInsets.all(16.0),
+                margin: const EdgeInsets.all(16.0),
                 child: FutureBuilder(
-                  future: SignIn.auth.currentUser(),
-                  builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
+                  future: Future.value(SignIn.auth.currentUser),
+                  builder: (context, AsyncSnapshot<User?> snapshot) {
                     if (snapshot.hasData) {
                       return CircleAvatar(
-                        backgroundImage: NetworkImage(snapshot.data.photoUrl),
+                        backgroundImage:
+                            NetworkImage(snapshot.data!.photoURL!),
                         radius: 64,
                       );
                     } else {
-                      return CircularProgressIndicator();
+                      return const CircularProgressIndicator();
                     }
                   },
                 ),
               ),
               DisplayNameForm(key: formKey),
-              SizedBox(height: 32.0),
+              const SizedBox(height: 32.0),
               Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     Column(children: [
                       StreamBuilder<List<String>>(
                         stream: DatabaseMap.visitedByUser(
-                            Account.currentAccount, context),
+                            Account.currentAccount as Account, context),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
-                            return Text(snapshot.data.length.toString(),
+                            return Text(snapshot.data!.length.toString(),
                                 textScaleFactor: 2.0);
                           } else {
-                            return CircularProgressIndicator();
+                            return const CircularProgressIndicator();
                           }
                         },
                       ),
-                      Text("Посещенные места"),
+                      const Text("Посещенные места"),
                     ]),
                     Column(children: [
                       StreamBuilder(
@@ -90,28 +93,29 @@ class AccountPage extends StatelessWidget {
                             (context, AsyncSnapshot<List<Review>> snapshot) {
                           if (snapshot.hasData) {
                             return Text(
-                              snapshot.data.length.toString(),
+                              snapshot.data!.length.toString(),
                               textScaleFactor: 2.0,
                             );
                           } else {
-                            return CircularProgressIndicator();
+                            return const CircularProgressIndicator();
                           }
                         },
                       ),
-                      Text("Отзывов написано"),
+                      const Text("Отзывов написано"),
                     ]),
                   ]),
-              Spacer(),
-              OutlineButton(
+              const Spacer(),
+              OutlinedButton(
                 onPressed: () => signOut(context),
-                borderSide: BorderSide(color: Colors.grey),
-                child: Text("Выйти из профиля"),
+                child: const Text("Выйти из профиля"),
               ),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: () => handleDeleteButton(context),
-                textColor: Theme.of(context).colorScheme.onError,
-                color: Theme.of(context).errorColor,
-                child: Text("Удалить профиль"),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      Theme.of(context).errorColor),
+                ),
+                child: const Text("Удалить профиль"),
               ),
             ],
           ),
@@ -121,35 +125,34 @@ class AccountPage extends StatelessWidget {
   }
 
   void handleDeleteButton(BuildContext context) async {
-    bool confirmed = await showDialog(
+    bool? confirmed = await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
-        title: Text("Вы уверены?"),
-        content:
-            Text("Все ваши встречи будут удалены, но пины и отзывы останутся."),
+        title: const Text("Вы уверены?"),
+        content: const Text(
+            "Все ваши встречи будут удалены, но пины и отзывы останутся."),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text("Отмена"),
+            child: const Text("Отмена"),
           ),
-          FlatButton(
+          TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            textColor: Theme.of(context).errorColor,
-            child: Text("Удалить"),
+            child: const Text("Удалить", style: TextStyle(color: Colors.red)),
           )
         ],
       ),
     );
 
-    if (confirmed) {
+    if (confirmed != null) {
       deleteAccount(context);
     }
   }
 }
 
 class DisplayNameForm extends StatefulWidget {
-  DisplayNameForm({Key key}) : super(key: key);
+  const DisplayNameForm({Key? key}) : super(key: key);
 
   @override
   State<DisplayNameForm> createState() => DisplayNameFormState();
@@ -159,44 +162,39 @@ class DisplayNameFormState extends State<DisplayNameForm> {
   FocusNode formFocus = FocusNode();
 
   GlobalKey<FormFieldState> key = GlobalKey();
-  TextEditingController controller;
+  late TextEditingController controller;
 
   bool pending = false;
 
   @override
   void initState() {
-    FirebaseAuth.instance.currentUser().then((user) {
-      setState(() {
-        controller = TextEditingController(text: user.displayName);
-      });
-    });
+    controller = TextEditingController(
+        text: FirebaseAuth.instance.currentUser!.displayName);
 
     super.initState();
   }
 
   void submitValue(value) {
-    FirebaseAuth.instance.currentUser().then((user) {
-      String oldDisplayName = user.displayName;
-      Account.updateUserName(value);
+    String? oldDisplayName = FirebaseAuth.instance.currentUser!.displayName;
+    Account.updateUserName(value);
 
-      setState(() => pending = false);
+    setState(() => pending = false);
 
-      SnackBar snackBar = SnackBar(
-        content: Text("Ваше имя было изменено"),
-        action: SnackBarAction(
-          label: "Отменить",
-          onPressed: () {
-            Account.updateUserName(oldDisplayName);
-            setState(() {
-              controller.text = oldDisplayName;
-            });
-          },
-        ),
-      );
-      Scaffold.of(context).showSnackBar(snackBar);
+    SnackBar snackBar = SnackBar(
+      content: const Text("Ваше имя было изменено"),
+      action: SnackBarAction(
+        label: "Отменить",
+        onPressed: () {
+          Account.updateUserName(oldDisplayName!);
+          setState(() {
+            controller.text = oldDisplayName;
+          });
+        },
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-      formFocus.unfocus();
-    });
+    formFocus.unfocus();
   }
 
   @override
@@ -206,15 +204,15 @@ class DisplayNameFormState extends State<DisplayNameForm> {
       controller: controller,
       focusNode: formFocus,
       decoration: InputDecoration(
-        icon: Icon(Icons.person),
+        icon: const Icon(Icons.person),
         labelText: "Ваше имя",
         hintText: "Напишите свое имя",
         suffixIcon: Visibility(
           child: IconButton(
-            icon: Icon(Icons.save),
+            icon: const Icon(Icons.save),
             onPressed: () {
               formFocus.unfocus();
-              key.currentState.save();
+              key.currentState!.save();
             },
           ),
           visible: pending,
@@ -229,10 +227,10 @@ class DisplayNameFormState extends State<DisplayNameForm> {
     );
   }
 
-  String validateDisplayName(String value) {
+  String? validateDisplayName(String? value) {
     RegExp alphaNumRegEx = RegExp(r'^[a-zA-Z0-9]+$');
 
-    if (!alphaNumRegEx.hasMatch(value) && value.length > 0) {
+    if (!alphaNumRegEx.hasMatch(value!) && value.isNotEmpty) {
       return "Ваше имя может состоять только из букв";
     }
     if (value.length > userNameMax) {
@@ -247,16 +245,15 @@ class DisplayNameFormState extends State<DisplayNameForm> {
   }
 }
 
-void deleteAccount(BuildContext context) {
+void deleteAccount(BuildContext context) async {
   //изменил рут на тру, теперь все нормально закрывается
-  FirebaseAuth.instance.currentUser().then((user) async {
-    DatabaseMap.deleteUser(Account.currentAccount);
-    await user.delete();
-    SignIn().signOutGoogle();
-    Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-        (Route<dynamic> route) => true);
-  });
+  var currentUser = FirebaseAuth.instance.currentUser;
+  DatabaseMap.deleteUser(Account.currentAccount!);
+  await currentUser!.delete();
+  SignIn().signOutGoogle();
+  Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (Route<dynamic> route) => true);
 }
 
 void signOut(BuildContext context) {
@@ -264,6 +261,6 @@ void signOut(BuildContext context) {
   SignIn().signOutGoogle();
   //изменил рут на тру, теперь при перезаходе пины активны
   Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => LoginScreen()),
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
       (Route<dynamic> route) => true);
 }

@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/models/pin.dart';
 
-import 'account.dart';
+import 'package:coworking/models/account.dart';
 
 class Review {
-  String id;
+  String? id;
   final Account author;
   final DateTime timestamp;
-  Pin pin;
+  Pin? pin;
   String body;
   bool isFood;
   bool isFree;
@@ -19,16 +19,16 @@ class Review {
   Review(this.id, this.author, this.body, this.timestamp, this.isFood,
       this.isFree, this.isRazors, this.isWiFi, this.userRate, this.totalRate);
 
-  @override
-  int get hashCode => id.hashCode;
+  // @override
+  // int get hashCode => id.hashCode;
 
-  @override
-  bool operator ==(other) {
-    return id == other.id;
-  }
+  // @override
+  // bool operator ==(other) {
+  //   return id == other.id;
+  // }
 
   Map<String, dynamic> asMap() {
-    Map<String, dynamic> review = Map();
+    Map<String, dynamic> review = {};
     review["author"] = author.id;
     review["dateAdded"] = Timestamp.fromDate(timestamp);
     review["content"] = body;
@@ -51,14 +51,14 @@ class Review {
   static Review fromMap(String id, Map<String, dynamic> data) {
     return Review(
         id,
-        Account(data["author"]),
-        data["content"],
-        data["dateAdded"].toDate(),
-        data["isFood"],
-        data["isFree"],
-        data["isRazors"],
-        data["isWiFi"],
-        data["userRate"],
-        data["totalRate"]);
+        Account(data["author"]  ),
+        data["content"]  ,
+        data["dateAdded"].toDate() ,
+        data["isFood"]  ,
+        data["isFree"] ,
+        data["isRazors"]  ,
+        data["isWiFi"]  ,
+        data["userRate"]  ,
+        data["totalRate"]  );
   }
 }

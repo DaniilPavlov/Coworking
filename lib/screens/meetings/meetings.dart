@@ -9,14 +9,16 @@ import 'package:coworking/services/database_map.dart';
 import 'package:coworking/widgets/meetings_background.dart';
 
 class UserMeetingsPage extends StatelessWidget {
+  const UserMeetingsPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: Text('Ваши встречи'),
+        title: const Text('Ваши встречи'),
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back_ios,
             semanticLabel: "Back",
           ),
@@ -25,7 +27,7 @@ class UserMeetingsPage extends StatelessWidget {
         actions: <Widget>[
           PopupMenuButton(
             tooltip: "Help",
-            icon: Icon(
+            icon: const Icon(
               Icons.help,
               color: Colors.black,
             ),
@@ -42,12 +44,14 @@ class UserMeetingsPage extends StatelessWidget {
           )
         ],
       ),
-      body: MeetingLayout(),
+      body: const MeetingLayout(),
     );
   }
 }
 
 class MeetingLayout extends StatefulWidget {
+  const MeetingLayout({Key? key}) : super(key: key);
+
   @override
   _MeetingLayoutState createState() => _MeetingLayoutState();
 }
@@ -56,35 +60,35 @@ class _MeetingLayoutState extends State<MeetingLayout> {
   Widget _getFAB() {
     return SpeedDial(
       animatedIcon: AnimatedIcons.menu_close,
-      animatedIconTheme: IconThemeData(size: 22),
+      animatedIconTheme: const IconThemeData(size: 22),
       backgroundColor: Colors.orange,
       visible: true,
       curve: Curves.bounceIn,
       children: [
         // FAB 1
         SpeedDialChild(
-            child: Icon(Icons.assignment_return),
+            child: const Icon(Icons.assignment_return),
             backgroundColor: Colors.orange,
             onTap: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => JoinMeeting()));
+                  MaterialPageRoute(builder: (context) => const JoinMeeting()));
             },
             label: 'Присоединиться ко встрече',
-            labelStyle: TextStyle(
+            labelStyle: const TextStyle(
                 fontWeight: FontWeight.w500,
                 color: Colors.white,
                 fontSize: 16.0),
             labelBackgroundColor: Colors.orange),
         // FAB 2
         SpeedDialChild(
-            child: Icon(Icons.assignment_ind),
+            child: const Icon(Icons.assignment_ind),
             backgroundColor: Colors.orange,
             onTap: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => NewMeetingForm()));
+                  MaterialPageRoute(builder: (context) => const NewMeetingForm(meeting: null,)));
             },
             label: 'Создать встречу',
-            labelStyle: TextStyle(
+            labelStyle: const TextStyle(
                 fontWeight: FontWeight.w500,
                 color: Colors.white,
                 fontSize: 16.0),
@@ -108,15 +112,15 @@ class _MeetingLayoutState extends State<MeetingLayout> {
                   ? StreamBuilder<List<Meeting>>(
                       stream: Account.getMeetingsForUser(context),
                       builder: (context, snapshot) {
-                        if (snapshot.hasData && snapshot.data.length > 0) {
+                        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                           return ListView.builder(
-                            itemCount: snapshot.data.length,
+                            itemCount: snapshot.data!.length,
                             itemBuilder: (context, index) {
-                              return MeetingListItem(snapshot.data[index]);
+                              return MeetingListItem(snapshot.data![index]);
                             },
                           );
                         } else {
-                          return Center(
+                          return const Center(
                             child: Text("Пока здесь пусто :( \n",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 20)),
@@ -126,7 +130,7 @@ class _MeetingLayoutState extends State<MeetingLayout> {
                     )
                   : Center(
                       child: Column(
-                        children: <Widget>[
+                        children: const <Widget>[
                           Text("Загружаем данные"),
                           CircularProgressIndicator(),
                         ],

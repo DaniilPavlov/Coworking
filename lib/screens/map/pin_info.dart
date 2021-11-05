@@ -1,3 +1,4 @@
+import 'package:coworking/screens/map/map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:coworking/models/account.dart';
@@ -9,21 +10,20 @@ import 'package:coworking/screens/menu/review_tile.dart';
 import 'package:coworking/screens/map/new_review_form.dart';
 import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
-import 'map.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class PinInfo extends StatefulWidget {
   final Pin pin;
-  String imgURL;
+  late String imgURL;
 
-  PinInfo(this.pin, this.imgURL);
+  PinInfo(this.pin, this.imgURL, {Key? key}) : super(key: key);
 
   @override
   _PinInfoState createState() => _PinInfoState();
 }
 
 class _PinInfoState extends State<PinInfo> {
-  GlobalKey<NewReviewFormState> reviewFormKey;
+  late GlobalKey<NewReviewFormState> reviewFormKey;
   var visitedText = "";
   var visitedColor = Colors.orange;
   var threeMonthSet = [];
@@ -39,11 +39,11 @@ class _PinInfoState extends State<PinInfo> {
   Widget build(BuildContext context) {
     // достаем информацию посещали ли место
     Widget visitedButton = StreamBuilder<List<String>>(
-      stream: DatabaseMap.visitedByUser(Account.currentAccount, context),
+      stream: DatabaseMap.visitedByUser(Account.currentAccount!, context),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Container();
-        } else if (!snapshot.data.contains(widget.pin.id)) {
+        } else if (!snapshot.data!.contains(widget.pin.id)) {
           visitedText = "Не посещено";
           visitedColor = Colors.red;
         } else {
@@ -51,29 +51,34 @@ class _PinInfoState extends State<PinInfo> {
           visitedColor = Colors.green;
         }
         return Padding(
-          padding: EdgeInsets.all(8.0),
-          child: RaisedButton(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton(
             child: Text(visitedText),
             onPressed: () {
-              if (snapshot.data.contains(widget.pin.id)) {
+              if (snapshot.data!.contains(widget.pin.id)) {
                 setState(() {
                   visitedText = "Не посещено";
                   visitedColor = Colors.red;
                 });
                 DatabaseMap.deleteVisited(
-                    Account.currentAccount.id, widget.pin.id);
+                    Account.currentAccount!.id!, widget.pin.id);
               } else {
                 setState(() {
                   visitedText = "Посещено";
                   visitedColor = Colors.green;
                 });
                 DatabaseMap.addVisited(
-                    Account.currentAccount.id, widget.pin.id);
+                    Account.currentAccount!.id!, widget.pin.id);
               }
             },
-            shape: StadiumBorder(),
-            color: visitedColor,
-            textColor: Theme.of(context).primaryTextTheme.button.color,
+            style: ButtonStyle(
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18.0),
+                  side: BorderSide(color: visitedColor),
+                ),
+              ),
+            ),
           ),
         );
       },
@@ -85,21 +90,21 @@ class _PinInfoState extends State<PinInfo> {
     TextEditingController nameController = TextEditingController();
 
     void _savePin() async {
-      var newImage = imagePickerKey.currentState.value;
-      var timeKey = new DateTime.now();
-      final StorageReference postImageRef =
+      var newImage = imagePickerKey.currentState!.value;
+      var timeKey = DateTime.now();
+      final Reference postImageRef =
           FirebaseStorage.instance.ref().child("Pin Images");
-      final StorageUploadTask uploadTask =
-          postImageRef.child(timeKey.toString() + ".jpg").putFile(newImage);
+      final UploadTask uploadTask = postImageRef
+          .child(timeKey.toString() + ".jpg")
+          .putFile(newImage  );
 
-      String stringUrl =
-          await (await uploadTask.onComplete).ref.getDownloadURL();
-      Category category = categoryPickerKey.currentState.value;
+      String stringUrl = await (await uploadTask).ref.getDownloadURL();
+      Category category = categoryPickerKey.currentState!.value  ;
 
       widget.pin.imageUrl = stringUrl;
       widget.pin.name = nameController.text;
       widget.pin.category.text = category.text;
-      if (_formKey.currentState.validate()) {
+      if (_formKey.currentState!.validate()) {
         if (widget.pin.name != "" &&
             widget.pin.category.text != "" &&
             widget.pin.imageUrl.isNotEmpty) {
@@ -111,7 +116,7 @@ class _PinInfoState extends State<PinInfo> {
           });
           Navigator.of(context).pop(context);
           Clipboard.setData(ClipboardData(text: widget.pin.name));
-          Scaffold.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(widget.pin.name),
           ));
         }
@@ -128,7 +133,7 @@ class _PinInfoState extends State<PinInfo> {
                       return true;
                     },
                     child: IconButton(
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.edit_location_rounded,
                           color: Colors.orange,
                           semanticLabel: "Edit Pin",
@@ -140,7 +145,7 @@ class _PinInfoState extends State<PinInfo> {
                               builder: (_) => Scaffold(
                                   appBar: AppBar(actions: <Widget>[
                                     IconButton(
-                                      icon: Icon(Icons.save),
+                                      icon: const Icon(Icons.save),
                                       onPressed: () {
                                         _savePin();
                                       },
@@ -148,7 +153,7 @@ class _PinInfoState extends State<PinInfo> {
                                   ]),
                                   body: SingleChildScrollView(
                                     child: Container(
-                                        padding: EdgeInsets.all(10),
+                                        padding: const EdgeInsets.all(10),
                                         child: Form(
                                           key: _formKey,
                                           child: Column(children: <Widget>[
@@ -169,10 +174,10 @@ class _PinInfoState extends State<PinInfo> {
                                             ),
                                             TextFormField(
                                               controller: nameController,
-                                              validator: (text) => text.isEmpty
+                                              validator: (text) => text!.isEmpty
                                                   ? "Необходимо название места"
                                                   : null,
-                                              decoration: InputDecoration(
+                                              decoration: const InputDecoration(
                                                 hintText: "Название места",
                                                 contentPadding:
                                                     EdgeInsets.all(8.0),
@@ -181,7 +186,7 @@ class _PinInfoState extends State<PinInfo> {
                                             ButtonTheme(
                                               minWidth: 120.0,
                                               height: 60.0,
-                                              child: RaisedButton(
+                                              child: ElevatedButton(
                                                 onPressed: () {
                                                   // удаление
                                                   Navigator.pushReplacement(
@@ -198,14 +203,18 @@ class _PinInfoState extends State<PinInfo> {
                                                         widget.pin);
                                                   });
                                                 },
-                                                child: Text(
+                                                child: const Text(
                                                   'Удалить',
                                                   style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 26.0,
                                                   ),
                                                 ),
-                                                color: Colors.red,
+                                                style: ButtonStyle(
+                                                    backgroundColor:
+                                                        MaterialStateProperty
+                                                            .all<Color>(
+                                                                Colors.red)),
                                               ),
                                             ),
                                           ]),
@@ -214,7 +223,7 @@ class _PinInfoState extends State<PinInfo> {
                             )))
                 : Container();
           } else {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
         });
 
@@ -233,7 +242,7 @@ class _PinInfoState extends State<PinInfo> {
       ],
       flexibleSpace: FlexibleSpaceBar(
         title: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.orange,
               shape: BoxShape.rectangle,
               borderRadius: BorderRadius.all(Radius.circular(2.0)),
@@ -241,7 +250,7 @@ class _PinInfoState extends State<PinInfo> {
             child: Text(
               widget.pin.name,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.black, fontSize: 22),
+              style: const TextStyle(color: Colors.black, fontSize: 22),
               textAlign: TextAlign.center,
             )),
         background: Stack(
@@ -260,19 +269,20 @@ class _PinInfoState extends State<PinInfo> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: FloatingActionButton(
         tooltip: "Write review",
-        child: Icon(Icons.create),
+        child: const Icon(Icons.create),
         onPressed: () => showModalBottomSheet(
           context: context,
           builder: (_) => Scaffold(
             appBar: AppBar(actions: <Widget>[
               IconButton(
-                icon: Icon(Icons.save),
+                icon: const Icon(Icons.save),
                 onPressed: () async {
-                  if (reviewFormKey.currentState.isValid) {
-                    Review review = reviewFormKey.currentState.getReview();
+                  if (reviewFormKey.currentState!.isValid) {
+                    Review review = reviewFormKey.currentState!.getReview();
                     widget.pin.addReview(review);
                     widget.pin.rating =
-                        await DatabaseMap.updateRateOfPin(widget.pin.id);
+                        await DatabaseMap.updateRateOfPin(widget.pin.id)
+                            ;
                     Navigator.pop(context);
                   }
                 },
@@ -282,31 +292,31 @@ class _PinInfoState extends State<PinInfo> {
           ),
         ),
       ),
-      body: StreamBuilder(
+      body: StreamBuilder<List<Review>>(
           stream: DatabaseMap.getReviewsForPin(widget.pin.id),
           builder: (context, snapshot) {
             Widget progressIndicator = Container(
               alignment: Alignment.center,
-              padding: EdgeInsets.all(24),
-              child: CircularProgressIndicator(),
+              padding: const EdgeInsets.all(24),
+              child: const CircularProgressIndicator(),
             );
 
             Category category = widget.pin.category;
             Widget categoryChip = Chip(
               label: Text(category.text),
-              labelStyle: TextStyle(color: Colors.white),
+              labelStyle: const TextStyle(color: Colors.white),
               backgroundColor: category.colour,
             );
 
             return CustomScrollView(
-              physics: ClampingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               slivers: <Widget>[
                 bar,
                 SliverToBoxAdapter(
                     child: Column(
                   children: <Widget>[
                     Row(children: <Widget>[
-                      Padding(
+                      const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.0),
                         child: Text("Категория:"),
                       ),
@@ -315,10 +325,10 @@ class _PinInfoState extends State<PinInfo> {
                           future: DatabaseMap.updateRateOfPin(widget.pin.id),
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
-                              widget.pin.rating = snapshot.data;
+                              widget.pin.rating = snapshot.data as double;
                               return (snapshot.hasData)
                                   ? Padding(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                           horizontal: 16.0),
                                       child: Text(
                                         "Рейтинг: " +
@@ -328,13 +338,14 @@ class _PinInfoState extends State<PinInfo> {
                                     )
                                   : Container();
                             } else {
-                              return Center(child: CircularProgressIndicator());
+                              return const Center(
+                                  child: CircularProgressIndicator());
                             }
                           })
                     ]),
                     Container(
                       alignment: Alignment.center,
-                      child: Text(
+                      child: const Text(
                         "Статистика за последние 3 месяца",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
@@ -343,18 +354,19 @@ class _PinInfoState extends State<PinInfo> {
                         future: DatabaseMap.threeMonthRate(widget.pin.id),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
-                            threeMonthSet = snapshot.data;
+                            threeMonthSet = snapshot.data as List;
                             return (snapshot.hasData)
                                 ? GridView.count(
                                     childAspectRatio: 6,
                                     crossAxisCount: 2,
                                     shrinkWrap: true,
-                                    padding:
-                                        EdgeInsets.only(left: 16, right: 16),
+                                    padding: const EdgeInsets.only(
+                                        left: 16, right: 16),
                                     children: <Widget>[
                                       Container(
                                         alignment: Alignment.centerLeft,
-                                        child: Text("Можно приобрести еду"),
+                                        child:
+                                            const Text("Можно приобрести еду"),
                                       ),
                                       Container(
                                         alignment: Alignment.center,
@@ -365,8 +377,8 @@ class _PinInfoState extends State<PinInfo> {
                                       ),
                                       Container(
                                         alignment: Alignment.centerLeft,
-                                        child:
-                                            Text("Можно находиться бесплатно"),
+                                        child: const Text(
+                                            "Можно находиться бесплатно"),
                                       ),
                                       Container(
                                         alignment: Alignment.center,
@@ -377,7 +389,7 @@ class _PinInfoState extends State<PinInfo> {
                                       ),
                                       Container(
                                         alignment: Alignment.centerLeft,
-                                        child: Text("Есть розетки"),
+                                        child: const Text("Есть розетки"),
                                       ),
                                       Container(
                                         alignment: Alignment.center,
@@ -388,7 +400,7 @@ class _PinInfoState extends State<PinInfo> {
                                       ),
                                       Container(
                                         alignment: Alignment.centerLeft,
-                                        child: Text("Есть WiFi"),
+                                        child: const Text("Есть WiFi"),
                                       ),
                                       Container(
                                         alignment: Alignment.center,
@@ -399,7 +411,7 @@ class _PinInfoState extends State<PinInfo> {
                                       ),
                                       Container(
                                         alignment: Alignment.centerLeft,
-                                        child: Text("Оценка"),
+                                        child: const Text("Оценка"),
                                       ),
                                       Container(
                                         alignment: Alignment.center,
@@ -412,12 +424,13 @@ class _PinInfoState extends State<PinInfo> {
                                   )
                                 : Container();
                           } else {
-                            return Center(child: CircularProgressIndicator());
+                            return const Center(
+                                child: CircularProgressIndicator());
                           }
                         }),
                     Container(
                       alignment: Alignment.center,
-                      child: Text(
+                      child: const Text(
                         "Отзывы",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
@@ -428,8 +441,8 @@ class _PinInfoState extends State<PinInfo> {
                 snapshot.hasData
                     ? SliverList(
                         delegate: SliverChildBuilderDelegate(
-                          (context, i) => PinListItem(snapshot.data[i]),
-                          childCount: snapshot.data.length,
+                          (context, i) => PinListItem(snapshot.data![i]),
+                          childCount: snapshot.data!.length,
                         ),
                       )
                     : SliverFillRemaining(
@@ -438,7 +451,7 @@ class _PinInfoState extends State<PinInfo> {
                       ),
 
                 ///возможно потом верну
-                SliverFillRemaining(
+                const SliverFillRemaining(
                   hasScrollBody: true,
                 ),
                 // SliverToBoxAdapter(

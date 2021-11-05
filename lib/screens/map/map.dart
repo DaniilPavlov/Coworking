@@ -1,12 +1,11 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/models/account.dart';
 import 'package:coworking/services/database_map.dart';
 import 'package:coworking/models/pin.dart';
 import 'package:coworking/screens/map/pin_info.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:coworking/screens/meetings/meetings.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
@@ -16,21 +15,21 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../services/sign_in.dart';
-import '../menu/menu_drawer.dart';
-import '../map_search.dart';
-import 'create_pin.dart';
-
-import 'package:flutter/services.dart';
+import 'package:coworking/services/sign_in.dart';
+import 'package:coworking/screens/menu/menu_drawer.dart';
+import 'package:coworking/screens/map_search.dart';
+import 'package:coworking/screens/map/create_pin.dart';
 
 class MapPage extends StatefulWidget {
   static const kDefaultZoom = 10.0;
-  final CameraPosition currentMapPosition;
+  final CameraPosition? currentMapPosition;
 
-  MapPage({LatLng currentMapPosition})
-      : this.currentMapPosition = (currentMapPosition == null)
+//TODO тут всегда нул, разобраться
+  MapPage({Key? key, LatLng? currentMapPosition})
+      : currentMapPosition = (currentMapPosition == null)
             ? null
-            : CameraPosition(target: currentMapPosition, zoom: kDefaultZoom);
+            : CameraPosition(target: currentMapPosition, zoom: kDefaultZoom),
+        super(key: key);
 
   @override
   State<MapPage> createState() => MapPageState();
@@ -38,26 +37,26 @@ class MapPage extends StatefulWidget {
 
 class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   //используется для анимации состояния перехода нового пина
-  AnimationController drawerAnimator;
-  bool showDrawer;
+  late AnimationController drawerAnimator;
+  late bool showDrawer;
   final double drawerHeight = 300;
 
   // насколько карта закрыта нижней панелью
-  EdgeInsets mapOverlap;
-  CameraPosition currentMapPosition;
+  late EdgeInsets mapOverlap;
+  late CameraPosition currentMapPosition;
 
-  Set<Pin> pins = Set<Pin>();
+  Set<Pin> pins = <Pin>{};
 
-  GlobalKey<CreatePinState> pinFormKey;
+  late GlobalKey<CreatePinState> pinFormKey;
 
-  FloatingActionButton fabAddPin;
-  FloatingActionButton fabConfirmPin;
-  FloatingActionButton currentFab;
+  late FloatingActionButton fabAddPin;
+  late FloatingActionButton fabConfirmPin;
+  late FloatingActionButton currentFab;
 
   /// ПОПРОБОВАТЬ ИСПОЛЬЗОВАТЬ, ЧТОБЫ НЕ ЗАПРАШИВАТЬ АВТОРСТВО ИЗ БАЗЫ КАЖДЫЙ РАЗ
   // для пользователя
-  FirebaseUser _user;
-  Account _account;
+  late User _user;
+  late Account _account;
 
   // открывыем дроуер снизу вверх, для центральной круглой кнопки
   void openDrawer() {
@@ -98,7 +97,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     });
   }
 
-  StreamSubscription<List<PinChange>> pinsStream;
+  late StreamSubscription<List<PinChange>> pinsStream;
 
   ///кажется что стрим работает стабильно
   void queryPins() {
@@ -108,7 +107,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
           if (pinChange.type == DocumentChangeType.added) {
             print("БЫЛ ДОБАВЛЕН МАРКЕР");
             pins.add(pinChange.pin);
-            MapBodyState.markers.add(pinChange.pin.marker);
+            MapBodyState.markers.add(pinChange.pin.marker!);
           } else if (pinChange.type == DocumentChangeType.removed) {
             print("1 ИЗ МАРКЕРОВ БЫЛ УДАЛЕН");
             MapBodyState.markers.remove(pinChange.pin.marker);
@@ -116,7 +115,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
             print(pinChange.pin.name);
           } else if (pinChange.type == DocumentChangeType.modified) {
             print("1 ИЗ МАРКЕРОВ БЫЛ ИЗМЕНЕН");
-            pins.forEach((element) {
+            for (var element in pins) {
               if (element.author.toString() ==
                       pinChange.pin.author.toString() &&
                   element.name.toString() == pinChange.pin.name.toString() &&
@@ -127,7 +126,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
                   element.marker != pinChange.pin.marker) {
                 element.marker = pinChange.pin.marker;
               }
-            });
+            }
             print(pinChange.pin.name);
           }
         }
@@ -135,85 +134,78 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     });
   }
 
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-
-  ///INIT STATE
   @override
   void initState() {
     super.initState();
     drawerAnimator = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 250),
     );
     showDrawer = false;
     mapOverlap = EdgeInsets.zero;
 
-    currentMapPosition = (widget.currentMapPosition == null)
-        ? CameraPosition(
+    currentMapPosition = ((widget.currentMapPosition == null)
+        ? const CameraPosition(
             target: LatLng(59.933895, 30.359357), zoom: MapPage.kDefaultZoom)
-        : widget.currentMapPosition;
+        : widget.currentMapPosition)!;
 
     pinFormKey = GlobalKey<CreatePinState>();
 
     fabAddPin = FloatingActionButton(
       tooltip: "Add pin",
       onPressed: openDrawer,
-      child: Icon(Icons.add_location),
+      child: const Icon(Icons.add_location),
     );
 
     fabConfirmPin = FloatingActionButton(
       tooltip: "Confirm",
       onPressed: () {
-        if (pinFormKey.currentState.validate()) {
-          pinFormKey.currentState.createPin().then((pin) {
+        if (pinFormKey.currentState!.validate()) {
+          pinFormKey.currentState!.createPin().then((pin) {
             pins.add(pin);
-            DatabaseMap.addVisited(Account.currentAccount.id, pin.id);
+            DatabaseMap.addVisited(Account.currentAccount!.id!, pin.id);
           });
           closeDrawer();
         }
       },
-      child: Icon(Icons.check),
+      child: const Icon(Icons.check),
       backgroundColor: Colors.green,
     );
 
     currentFab = fabAddPin;
 
-    SignIn.auth.currentUser().then((user) {
-      Account account = Account.fromFirebaseUser(user);
-      setState(() {
-        _user = user;
-        _account = account;
-      });
+    var user = SignIn.auth.currentUser;
+    Account account = Account.fromFirebaseUser(user!);
+    setState(() {
+      _user = user;
+      _account = account;
     });
 
     queryPins();
 
-    if (Platform.isIOS) {
-      _firebaseMessaging
-          .requestNotificationPermissions(IosNotificationSettings());
-      _firebaseMessaging.onIosSettingsRegistered.listen((event) {
-        print("IOS Registered");
-      });
-    }
+    // if (Platform.isIOS) {
+    //   _firebaseMessaging
+    //       .requestNotificationPermissions(IosNotificationSettings());
+    //   _firebaseMessaging.onIosSettingsRegistered.listen((event) {
+    //     print("IOS Registered");
+    //   });
+    // }
 
     ///Добавил для уведомлений, нужно добавить алерт диалоги, если мы находимся
     ///в приложении (уведомления приходят только в бэкграунде)
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print("onMessage: $message");
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        print("onLaunch: $message");
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => UserMeetingsPage()));
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print("onResume: $message");
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => UserMeetingsPage()));
-      },
-    );
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("onMessage: $message");
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print("onLaunch: $message");
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const UserMeetingsPage()));
+    });
   }
+  // FirebaseMessaging.onBackgroundMessage((RemoteMessage message) {
+  //   print("onBackgroundMessage: $message");
+  // });
 
   ///WIDGET BUILD
   @override
@@ -223,31 +215,37 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
           showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                      title: Text(
+                      title: const Text(
                         "Вы действительно хотите выйти?",
                         style: TextStyle(color: Colors.orange),
                       ),
                       actions: <Widget>[
-                        FlatButton(
-                            child: Text(
+                        ElevatedButton(
+                            child: const Text(
                               "Да",
                               style: TextStyle(color: Colors.white),
                             ),
-                            color: Colors.orange,
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.orange),
+                            ),
                             onPressed: () {
                               exit(0);
                             }),
-                        SizedBox(
+                        const SizedBox(
                           width: 100,
                         ),
-                        FlatButton(
-                          child: Text("Нет",
+                        TextButton(
+                          child: const Text("Нет",
                               style: TextStyle(color: Colors.white)),
-                          color: Colors.orange,
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.orange),
+                          ),
                           onPressed: () => Navigator.pop(context, false),
                         ),
                       ]));
-          return;
+          return true as Future<bool>;
         },
         child: Scaffold(
           body: MapBody(
@@ -259,7 +257,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
             pinAnimation: drawerAnimator,
             pinsStream: pinsStream,
           ),
-          drawer: MenuDrawer(),
+          drawer: const MenuDrawer(),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerDocked,
           floatingActionButton: currentFab,
@@ -288,14 +286,14 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
 
 class MapBody extends StatefulWidget {
   MapBody({
-    Key key,
-    this.mapMoveCallback,
-    this.initialPosition,
-    this.mapOverlap,
-    this.drawerHeight,
-    this.pins,
-    this.pinAnimation,
-    this.pinsStream,
+    Key? key,
+    required this.mapMoveCallback,
+    required this.initialPosition,
+    required this.mapOverlap,
+    required this.drawerHeight,
+    required this.pins,
+    required this.pinAnimation,
+    required this.pinsStream,
   }) : super(key: key);
 
   final Function(CameraPosition) mapMoveCallback;
@@ -303,7 +301,7 @@ class MapBody extends StatefulWidget {
   final EdgeInsets mapOverlap;
   final double drawerHeight;
 
-  Set<Pin> pins;
+  late Set<Pin> pins;
 
   final Animation<double> pinAnimation;
   final StreamSubscription<List<PinChange>> pinsStream;
@@ -316,17 +314,16 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
   static const CameraPosition startPosition = CameraPosition(
       target: LatLng(59.933895, 30.359357), zoom: MapPage.kDefaultZoom);
 
-  bool locationEnabled;
+  bool locationEnabled = false;
 
   // Обновляем карту и определяем пермишены. Однако, если человек установил
   // режим больше не спрашивать - не спросим
   void monitorLocationPerm() async {
-    ServiceStatus currentServiceStatus, oldServiceStatus;
+    ServiceStatus? currentServiceStatus, oldServiceStatus;
 
     while (true) {
       oldServiceStatus = currentServiceStatus;
-      currentServiceStatus = await PermissionHandler()
-          .checkServiceStatus(PermissionGroup.location);
+      currentServiceStatus = (await Permission.location.serviceStatus);
 
       // проверяем пермишены только если изменился статус сервиса
       if (currentServiceStatus == oldServiceStatus) continue;
@@ -341,18 +338,16 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
       }
 
       // джипиэс включили, проверяем разрешения
-      PermissionStatus permissionStatus = await PermissionHandler()
-          .checkPermissionStatus(PermissionGroup.location);
+      PermissionStatus permissionStatus = await Permission.location.status;
 
       if (permissionStatus == PermissionStatus.denied ||
-          permissionStatus == PermissionStatus.unknown) {
-        permissionStatus = (await PermissionHandler().requestPermissions(
-            [PermissionGroup.location]))[PermissionGroup.location];
+          permissionStatus == PermissionStatus.permanentlyDenied) {
+        permissionStatus = (await Permission.location.request());
       }
 
       setState(() {
         if (permissionStatus == PermissionStatus.denied ||
-            permissionStatus == PermissionStatus.neverAskAgain) {
+            permissionStatus == PermissionStatus.permanentlyDenied) {
           locationEnabled = false;
         } else if (permissionStatus == PermissionStatus.granted) {
           locationEnabled = true;
@@ -366,7 +361,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     monitorLocationPerm();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance!.addObserver(this);
   }
 
   //отписываемся от стрима с пинами
@@ -374,11 +369,11 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
   void dispose() {
     print("DISPOSE PINS STREAM");
     widget.pinsStream.cancel();
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 
-  static Set<Marker> markers = Set<Marker>();
+  static Set<Marker> markers = <Marker>{};
 
   //добавляем пины на карту
   @override
@@ -405,7 +400,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
                   myLocationEnabled: locationEnabled,
                   myLocationButtonEnabled: locationEnabled,
                   onCameraMove: widget.mapMoveCallback,
-                  gestureRecognizers: Set()
+                  gestureRecognizers: {}
                     ..add(Factory<PanGestureRecognizer>(
                         () => PanGestureRecognizer()))
                     ..add(Factory<ScaleGestureRecognizer>(
@@ -432,7 +427,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
             //тут наводимся куда поставить наш пин
             child: ScaleTransition(
               scale: widget.pinAnimation, // масштабирование пина
-              child: FractionalTranslation(
+              child: const FractionalTranslation(
                 translation: Offset(0.0, -0.5), // корректируем пин в центр
                 child: Icon(
                   Icons.location_on,
@@ -450,7 +445,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
 
 class BottomBar extends StatelessWidget {
   final GlobalKey<CreatePinState> pinFormKey;
-  final VoidCallback closeBarCallback;
+  final Function closeBarCallback;
 
   final Function(double) barHeightCallback;
   final double drawerHeight;
@@ -458,7 +453,7 @@ class BottomBar extends StatelessWidget {
   final bool drawerOpen;
   final Function(Pin) updateCameraPosition;
 
-  BottomBar(
+  const BottomBar(
     this.pinFormKey,
     this.closeBarCallback,
     this.barHeightCallback,
@@ -470,15 +465,15 @@ class BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      barHeightCallback(context.size.height);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      barHeightCallback(context.size!.height);
     });
 
     // добавляем для того, чтобы клавиатура поднимала виджет,а не закрывала его
     final keyboardPadding = MediaQuery.of(context).viewInsets.bottom;
 
     return BottomAppBar(
-      shape: CircularNotchedRectangle(),
+      shape: const CircularNotchedRectangle(),
 
       //выпуклость под центральную кнопку
       notchMargin: 8.0,
@@ -513,11 +508,11 @@ class BottomBar extends StatelessWidget {
 }
 
 class BottomBarNav extends StatelessWidget {
-  final VoidCallback closeBarCallback;
+  final Function closeBarCallback;
   final bool drawerOpen;
   final Function(Pin) updateMapPosition;
 
-  BottomBarNav(
+  const BottomBarNav(
     this.closeBarCallback,
     this.drawerOpen,
     this.updateMapPosition,
@@ -525,7 +520,7 @@ class BottomBarNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Set<Pin> pins = context.findAncestorStateOfType<MapPageState>().pins;
+    Set<Pin> pins = context.findAncestorStateOfType<MapPageState>()!.pins;
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -538,7 +533,7 @@ class BottomBarNav extends StatelessWidget {
             onPressed: () {
               Scaffold.of(context).openDrawer();
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.menu,
               semanticLabel: "Menu",
             ),
@@ -551,7 +546,7 @@ class BottomBarNav extends StatelessWidget {
             onPressed: () {
               closeBarCallback();
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back,
               semanticLabel: "Cancel",
             ),
@@ -563,11 +558,11 @@ class BottomBarNav extends StatelessWidget {
             child: IconButton(
               iconSize: 40,
               onPressed: () async {
-                Pin pin = await showSearch(
+                Pin? pin = await showSearch(
                     context: context, delegate: MapSearchDelegate(pins));
-                updateMapPosition(pin);
+                updateMapPosition(pin!);
               },
-              icon: Icon(
+              icon: const Icon(
                 Icons.search,
                 color: Colors.orange,
                 semanticLabel: "Search",
@@ -575,7 +570,7 @@ class BottomBarNav extends StatelessWidget {
             )),
 
         //раскидываем кнопки по разным концам
-        Spacer(),
+        const Spacer(),
         Visibility(
             visible: !drawerOpen,
             child: IconButton(
@@ -584,9 +579,9 @@ class BottomBarNav extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => UserMeetingsPage()));
+                        builder: (context) => const UserMeetingsPage()));
               },
-              icon: Icon(
+              icon: const Icon(
                 Icons.emoji_people,
                 color: Colors.orange,
                 semanticLabel: "Meetings",
@@ -594,7 +589,7 @@ class BottomBarNav extends StatelessWidget {
             )),
         PopupMenuButton(
           tooltip: "Help",
-          icon: Icon(
+          icon: const Icon(
             Icons.help,
             color: Colors.black,
           ),

@@ -5,9 +5,9 @@ import 'package:coworking/screens/map/pin_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'account.dart';
-import 'category.dart';
-import '../services/database_map.dart';
+import 'package:coworking/models/account.dart';
+import 'package:coworking/models/category.dart';
+import 'package:coworking/services/database_map.dart';
 
 class Pin {
   String id;
@@ -15,9 +15,9 @@ class Pin {
   final Account author;
   String name;
   String imageUrl;
-  Marker marker;
-  Category _category;
-  Set<Review> _reviews = Set<Review>();
+  Marker? marker;
+  final Category _category;
+  final Set<Review> _reviews = <Review>{};
   int _visitorCount = 0;
   double rating;
 
@@ -31,7 +31,7 @@ class Pin {
     this.rating,
     BuildContext context, {
     tags,
-    Review review,
+    Review? review,
   }) {
     marker = _createMarker(context);
     if (review != null) {
@@ -60,7 +60,7 @@ class Pin {
 
   void showPinInfo(context) {
     Navigator.push(
-      context,
+      context  ,
       MaterialPageRoute(
         builder: (_) => PinInfo(this, imageUrl),
         fullscreenDialog: true,
@@ -84,7 +84,7 @@ class Pin {
     Category category,
     double rating,
   ) {
-    Map<String, dynamic> pin = Map();
+    Map<String, dynamic> pin = {};
     pin["name"] = name;
     pin["location"] = GeoPoint(location.latitude, location.longitude);
     pin["visitorCount"] = 0;
@@ -95,16 +95,17 @@ class Pin {
     return pin;
   }
 
-  static Pin fromMap(String id, Map<String, dynamic> pinMap, Review review,
+  static Pin fromMap(String id, Map<String, dynamic> pinMap, Review? review,
       BuildContext context) {
     return Pin(
       id,
-      LatLng(pinMap["location"].latitude, pinMap["location"].longitude),
-      Account(pinMap["author"]),
-      pinMap["name"],
-      pinMap["imageUrl"],
-      Category.find(pinMap["category"]),
-      pinMap["rating"],
+      LatLng(pinMap["location"].latitude ,
+          pinMap["location"].longitude  ),
+      Account(pinMap["author"]  ),
+      pinMap["name"]  ,
+      pinMap["imageUrl"]  ,
+      Category.find(pinMap["category"]  ),
+      pinMap["rating"]  ,
       context,
       review: review,
     );

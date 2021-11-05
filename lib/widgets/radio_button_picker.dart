@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:coworking/models/option.dart';
 
 class RadioButtonPicker extends FormField<Option> {
-  final List<Option> options;
+  final List<Option>? options;
 
-  RadioButtonPicker({Key key, this.options, validator})
+  RadioButtonPicker(
+      {Key? key, this.options, String? Function(Option?)? validator})
       : super(
           key: key,
           validator: validator,
@@ -12,7 +13,7 @@ class RadioButtonPicker extends FormField<Option> {
             Wrap(
               alignment: WrapAlignment.center,
               spacing: 8.0,
-              children: List.generate(options.length, (i) {
+              children: List.generate(options!.length, (i) {
                 Option option = options[i];
                 bool selected = state.value == option;
                 return ChoiceChip(
@@ -29,11 +30,11 @@ class RadioButtonPicker extends FormField<Option> {
             ),
             state.hasError
                 ? Text(
-                    state.errorText,
+                    state.errorText!,
                     style: TextStyle(
                       color: Theme.of(state.context).errorColor,
                       fontSize:
-                          Theme.of(state.context).textTheme.caption.fontSize,
+                          Theme.of(state.context).textTheme.caption?.fontSize,
                     ),
                   )
                 : Container(),

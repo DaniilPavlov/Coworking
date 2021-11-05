@@ -1,14 +1,11 @@
 class Visited {
-  String user;
-  String pin;
+  late String user;
+  late String pin;
 
-  Visited(String user, String pin) {
-    this.user = user;
-    this.pin = pin;
-  }
+  Visited(this.user, this.pin);
 
   Map<String, dynamic> asMap() {
-    Map<String, dynamic> accountMap = Map();
+    Map<String, dynamic> accountMap = {};
     accountMap["userID"] = user;
     accountMap["pin"] = pin;
     return accountMap;

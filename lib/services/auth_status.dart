@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../screens/login.dart';
-import '../screens/map/map.dart';
-import 'sign_in.dart';
+import 'package:coworking/screens/login.dart';
+import 'package:coworking/screens/map/map.dart';
+import 'package:coworking/services/sign_in.dart';
 
 class AuthStatusScreen extends StatelessWidget {
+  const AuthStatusScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     doAuth() async {
@@ -14,10 +16,11 @@ class AuthStatusScreen extends StatelessWidget {
         future: SignIn().googleSignIn.isSignedIn(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            if (snapshot.data) doAuth();
-            return (snapshot.data) ? MapPage() : LoginScreen();
+            if (snapshot.data != null) doAuth();
+            // return LoginScreen();
+            return (snapshot.data) != null ? MapPage() : const LoginScreen();
           } else {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
         });
   }

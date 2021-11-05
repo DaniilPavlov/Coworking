@@ -10,8 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:coworking/models/meeting.dart';
 
-import '../models/account.dart';
-import '../models/category.dart';
+import 'package:coworking/models/account.dart';
+import 'package:coworking/models/category.dart';
 
 class PinChange {
   DocumentChangeType type;
@@ -21,18 +21,21 @@ class PinChange {
 }
 
 class DatabaseMap {
+  var firebaseInstance = FirebaseFirestore.instance;
+
   static Stream<List<PinChange>> getPins(BuildContext context) {
-    return Firestore.instance
+    return FirebaseFirestore.instance
         .collection("pins")
         .snapshots()
         .asyncMap((snapshot) async {
       Completer<List<PinChange>> pinsListCompleter =
           Completer<List<PinChange>>();
       List<PinChange> pinChanges = [];
-      for (DocumentChange documentChange in snapshot.documentChanges) {
-        DocumentSnapshot document = documentChange.document;
+      for (DocumentChange documentChange in snapshot.docChanges) {
+        DocumentSnapshot document = documentChange.doc;
+        print("AAAAAAAAAAAAAAAAAAAAAAAA   " + document["name"]);
         Pin pin = Pin(
-          document.documentID,
+          document.id,
           LatLng(
             document["location"].latitude,
             document["location"].longitude,
@@ -41,10 +44,10 @@ class DatabaseMap {
           document["name"],
           document["imageUrl"],
           Category.find(document["category"]),
-          document["rating"],
+          document["rating"] ,
           context,
           review: (documentChange.type == DocumentChangeType.added)
-              ? await getFirstReview(document.documentID)
+              ? await getFirstReview(document.id)
               : null,
         );
         pinChanges.add(PinChange(documentChange.type, pin));
@@ -55,7 +58,7 @@ class DatabaseMap {
   }
 
   static Stream<List<Review>> getReviewsForPin(String pinID) {
-    return Firestore.instance
+    return FirebaseFirestore.instance
         .collection("reviews")
         .where("pinID", isEqualTo: pinID)
         //сначала выведем последние комментарии
@@ -64,30 +67,32 @@ class DatabaseMap {
         .snapshots()
         .map((snapshot) {
       List<Review> reviews = [];
-      for (DocumentSnapshot document in snapshot.documents) {
-        Review review = Review.fromMap(document.documentID, document.data);
+      for (DocumentSnapshot document in snapshot.docs) {
+        Review review = Review.fromMap(
+            document.id, document.data() as Map<String, dynamic>);
         reviews.add(review);
       }
       return reviews;
     });
   }
 
-  static Future updateRateOfPin(String pinID) async {
+  static Future updateRateOfPin(String? pinID) async {
     double rating = 0;
-    return await Firestore.instance
+    return await FirebaseFirestore.instance
         .collection("reviews")
         .where("pinID", isEqualTo: pinID)
-        .getDocuments()
+        .get()
         .then((query) {
-      for (DocumentSnapshot documentSnapshot in query.documents) {
-        Map<String, dynamic> reviewMap = documentSnapshot.data;
-        Review review = Review.fromMap(documentSnapshot.documentID, reviewMap);
+      for (DocumentSnapshot documentSnapshot in query.docs) {
+        Map<String, dynamic> reviewMap =
+            documentSnapshot.data() as Map<String, dynamic>;
+        Review review = Review.fromMap(documentSnapshot.id, reviewMap);
         rating = rating + review.totalRate;
       }
-      rating = rating / query.documents.length;
+      rating = rating / query.docs.length;
       DocumentReference docRef =
-          Firestore.instance.collection("pins").document(pinID);
-      docRef.updateData(<String, dynamic>{"rating": rating});
+          FirebaseFirestore.instance.collection("pins").doc(pinID);
+      docRef.update(<String, dynamic>{"rating": rating});
       print("RATING");
       rating = double.parse(rating.toStringAsFixed(2));
       print(rating);
@@ -96,34 +101,35 @@ class DatabaseMap {
   }
 
   static Future threeMonthRate(String pinID) async {
-    var threeMonth = [];
+    var threeMonth = <double>[];
     double rating = 0.0;
     double isFood = 0.0;
     double isFree = 0.0;
     double isRazors = 0.0;
     double isWiFi = 0.0;
-    return await Firestore.instance
+    return await FirebaseFirestore.instance
         .collection("reviews")
         .where("pinID", isEqualTo: pinID)
         .where('dateAdded',
             isGreaterThanOrEqualTo:
-                DateTime.now().subtract(new Duration(days: 90)))
-        .getDocuments()
+                DateTime.now().subtract(const Duration(days: 90)))
+        .get()
         .then((query) {
-      for (DocumentSnapshot documentSnapshot in query.documents) {
-        Map<String, dynamic> reviewMap = documentSnapshot.data;
-        Review review = Review.fromMap(documentSnapshot.documentID, reviewMap);
+      for (DocumentSnapshot documentSnapshot in query.docs) {
+        Map<String, dynamic> reviewMap =
+            documentSnapshot.data() as Map<String, dynamic>;
+        Review review = Review.fromMap(documentSnapshot.id, reviewMap);
         rating = rating + review.totalRate;
         if (review.isFood) isFood++;
         if (review.isFree) isFree++;
         if (review.isRazors) isRazors++;
         if (review.isWiFi) isWiFi++;
       }
-      rating = rating / query.documents.length;
-      isFood = 100 * isFood / query.documents.length;
-      isFree = 100 * isFree / query.documents.length;
-      isRazors = 100 * isRazors / query.documents.length;
-      isWiFi = 100 * isWiFi / query.documents.length;
+      rating = rating / query.docs.length;
+      isFood = 100 * isFood / query.docs.length;
+      isFree = 100 * isFree / query.docs.length;
+      isRazors = 100 * isRazors / query.docs.length;
+      isWiFi = 100 * isWiFi / query.docs.length;
       rating = double.parse(rating.toStringAsFixed(2));
       isFood = double.parse(isFood.toStringAsFixed(2));
       isFree = double.parse(isFree.toStringAsFixed(2));
@@ -139,45 +145,45 @@ class DatabaseMap {
     });
   }
 
-  static Future<Review> getFirstReview(String pinID) async {
-    return await Firestore.instance
+  static Future<Review?> getFirstReview(String pinID) async {
+    return await FirebaseFirestore.instance
         .collection("reviews")
         .where("pinID", isEqualTo: pinID)
         .limit(1)
         .snapshots()
         .first
         .then((snapshot) {
-      if (snapshot.documents.length > 0) {
-        DocumentSnapshot firstReviewDocument =
-            snapshot.documentChanges.first.document;
-        return Review.fromMap(
-            firstReviewDocument.documentID, firstReviewDocument.data);
-      } else
+      if (snapshot.docs.isNotEmpty) {
+        DocumentSnapshot firstReviewDocument = snapshot.docChanges.first.doc;
+        return Review.fromMap(firstReviewDocument.id,
+            firstReviewDocument.data() as Map<String, dynamic>);
+      } else {
         return null;
+      }
     });
   }
 
-  static Future<Review> getReviewByID(
+  static Future<Review?> getReviewByID(
       String reviewID, BuildContext context) async {
-    return await Firestore.instance
+    return await FirebaseFirestore.instance
         .collection("reviews")
         .where(FieldPath.documentId, isEqualTo: reviewID)
         .limit(1)
         .snapshots()
         .first
         .then((snapshot) {
-      if (snapshot.documents.length > 0) {
-        DocumentSnapshot firstReviewDocument =
-            snapshot.documentChanges.first.document;
-        Review review = Review.fromMap(
-            firstReviewDocument.documentID, firstReviewDocument.data);
-        return getPinByID(firstReviewDocument.data["pinID"], context)
+      if (snapshot.docs.isNotEmpty) {
+        DocumentSnapshot firstReviewDocument = snapshot.docChanges.first.doc;
+        Review review = Review.fromMap(firstReviewDocument.id,
+            firstReviewDocument.data() as Map<String, dynamic>);
+        return getPinByID(firstReviewDocument["pinID"], context)
             .then((pin) {
           review.pin = pin;
           return review;
         });
-      } else
+      } else {
         return null;
+      }
     });
   }
 
@@ -191,29 +197,31 @@ class DatabaseMap {
     BuildContext context,
   ) async {
     //ждем загрузки фото
-    var timeKey = new DateTime.now();
-    final StorageReference postImageRef =
+    var timeKey = DateTime.now();
+    final Reference postImageRef =
         FirebaseStorage.instance.ref().child("Pin Images");
-    final StorageUploadTask uploadTask =
+    final UploadTask uploadTask =
         postImageRef.child(timeKey.toString() + ".jpg").putFile(image);
-    var imageUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
+    var imageUrl = await (await uploadTask).ref.getDownloadURL();
     //добавляем пин в базу
-    DocumentReference newPin = await Firestore.instance.collection("pins").add(
-        Pin.newPinMap(
+    DocumentReference newPin = await FirebaseFirestore.instance
+        .collection("pins")
+        .add(Pin.newPinMap(
             name, location, author, imageUrl, category, review.totalRate));
 
     //создаем map для отзыва
     Map<String, dynamic> initialReviewMap =
-        Review.newReviewMap(review, newPin.documentID);
+        Review.newReviewMap(review, newPin.id);
 
     //добавляем отзыв
-    DocumentReference initialReview =
-        await Firestore.instance.collection("reviews").add(initialReviewMap);
+    DocumentReference initialReview = await FirebaseFirestore.instance
+        .collection("reviews")
+        .add(initialReviewMap);
 
-    review.id = initialReview.documentID;
+    review.id = initialReview.id;
 
     return Pin(
-      newPin.documentID,
+      newPin.id,
       location,
       author,
       name,
@@ -227,17 +235,18 @@ class DatabaseMap {
 
   static Stream<List<Review>> reviewsByUser(
       Account account, BuildContext context) {
-    return Firestore.instance
+    return FirebaseFirestore.instance
         .collection("reviews")
         .where("author", isEqualTo: account.id)
         .snapshots()
         .asyncMap((querySnapshot) async {
-      Completer<List<Review>> reviewsCompleter = new Completer<List<Review>>();
+      Completer<List<Review>> reviewsCompleter = Completer<List<Review>>();
       List<Review> reviews = [];
-      for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
-        Map<String, dynamic> reviewMap = documentSnapshot.data;
-        Review review = Review.fromMap(documentSnapshot.documentID, reviewMap);
-        review.pin = await getPinByID(reviewMap["pinID"], context);
+      for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
+        Map<String, dynamic> reviewMap =
+            documentSnapshot.data() as Map<String, dynamic>;
+        Review review = Review.fromMap(documentSnapshot.id, reviewMap);
+        review.pin = await getPinByID(reviewMap["pinID"] , context);
         reviews.add(review);
       }
       reviewsCompleter.complete(reviews);
@@ -247,130 +256,132 @@ class DatabaseMap {
 
   static Stream<List<String>> visitedByUser(
       Account account, BuildContext context) {
-    return Firestore.instance
+    return FirebaseFirestore.instance
         .collection("visited")
         .where("userID", isEqualTo: account.id)
         .snapshots()
         .asyncMap((querySnapshot) async {
       List<String> pins = [];
-      for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
-        Map<String, dynamic> visitedMap = documentSnapshot.data;
-        pins.add(visitedMap["pin"]);
+      for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
+        Map<String, dynamic> visitedMap =
+            documentSnapshot.data() as Map<String, dynamic>;
+        pins.add(visitedMap["pin"] );
       }
       return pins;
     });
   }
 
   static void addVisited(String user, String pin) {
-    Visited v = new Visited(user, pin);
-    Firestore.instance.collection("visited").add(v.asMap());
+    Visited v = Visited(user, pin);
+    FirebaseFirestore.instance.collection("visited").add(v.asMap());
   }
 
   static void deleteVisited(String user, String pin) async {
-    QuerySnapshot snapshot = await Firestore.instance
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection("visited")
         .where("pin", isEqualTo: pin)
         .where("userID", isEqualTo: user)
         .snapshots()
         .first;
-    String id = snapshot.documents.first.documentID;
-    Firestore.instance.collection("visited").document(id).delete();
+    String id = snapshot.docs.first.id;
+    FirebaseFirestore.instance.collection("visited").doc(id).delete();
   }
 
   static Future<Pin> getPinByID(String pinID, BuildContext context) async {
-    QuerySnapshot snapshot = await Firestore.instance
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection("pins")
         .where(FieldPath.documentId, isEqualTo: pinID)
         .snapshots()
         .first;
-    return Pin.fromMap(pinID, snapshot.documents.first.data,
-        await getFirstReview(pinID), context);
+    return Pin.fromMap(
+        pinID,
+        snapshot.docs.first.data() as Map<String, dynamic>,
+        await getFirstReview(pinID),
+        context);
   }
 
   static void addReview(Review review) {
-    Firestore.instance.collection("reviews").add(review.asMap());
+    FirebaseFirestore.instance.collection("reviews").add(review.asMap());
   }
 
   ///добавляем митинг в базу
   static void addMeeting(Meeting meeting) {
-    Firestore.instance.collection("meetings").add(meeting.asMap());
+    FirebaseFirestore.instance.collection("meetings").add(meeting.asMap());
   }
 
-  static void addUserToDatabase(Account user) {
-    Firestore.instance.collection("users").add(user.asMap());
+  static void addUserToDatabase(Account? user) {
+    FirebaseFirestore.instance.collection("users").add(user!.asMap());
   }
 
-  static void updateUserToken(String notifyToken) {
-    Firestore.instance
+  static void updateUserToken(String? notifyToken) {
+    FirebaseFirestore.instance
         .collection("users")
-        .where("userID", isEqualTo: Account.currentAccount.id)
-        .getDocuments()
+        .where("userID", isEqualTo: Account.currentAccount!.id)
+        .get()
         .then((query) {
-      query.documents.first.reference.updateData({
+      query.docs.first.reference.update({
         "notifyToken": notifyToken,
       });
     });
   }
 
   static Future<String> getUserNameByID(String id) {
-    return Firestore.instance
+    return FirebaseFirestore.instance
         .collection("users")
         .where("userID", isEqualTo: id)
-        .getDocuments()
+        .get()
         .then((snapshot) {
-      return snapshot.documents.first.data["name"];
+      return snapshot.docs.first["name"];
     });
   }
 
   /// удаляем флаг с отзыва
   static void unFlag(String id) {
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("flags")
         .where("reviewID", isEqualTo: id)
-        .where("userID", isEqualTo: Account.currentAccount.id)
-        .getDocuments()
+        .where("userID", isEqualTo: Account.currentAccount!.id)
+        .get()
         .then((snapshot) {
-      if (snapshot.documents.length > 0)
-        snapshot.documents.first.reference.delete();
+      if (snapshot.docs.isNotEmpty) snapshot.docs.first.reference.delete();
     });
   }
 
   /// добавляем флаг на отзыв
   static void flag(String id) {
-    Map<String, dynamic> flag = Map();
+    Map<String, dynamic> flag = <String, dynamic>{};
     flag["reviewID"] = id;
-    flag["userID"] = Account.currentAccount.id;
-    Firestore.instance.collection("flags").add(flag);
+    flag["userID"] = Account.currentAccount!.id;
+    FirebaseFirestore.instance.collection("flags").add(flag);
   }
 
   /// проверяем поставил ли флажок пользователь данному комментарию
-  static Future<bool> isFlagged(id) {
-    return Firestore.instance
+  static Future<bool> isFlagged(dynamic id) {
+    return FirebaseFirestore.instance
         .collection("flags")
         .where("reviewID", isEqualTo: id)
-        .where("userID", isEqualTo: Account.currentAccount.id)
-        .getDocuments()
+        .where("userID", isEqualTo: Account.currentAccount!.id)
+        .get()
         .then((snapshot) {
-      return (snapshot.documents.length > 0);
+      return (snapshot.docs.isNotEmpty);
     });
   }
 
   static Future<bool> isAdmin() {
-    return Firestore.instance
+    return FirebaseFirestore.instance
         .collection("users")
-        .where("userID", isEqualTo: Account.currentAccount.id)
-        .getDocuments()
-        .then((snapshot) => snapshot.documents.first.data["isAdmin"]);
+        .where("userID", isEqualTo: Account.currentAccount!.id)
+        .get()
+        .then((snapshot) => snapshot.docs.first["isAdmin"]);
   }
 
   static Future<bool> isReviewOwner(Review review) {
     DocumentReference docRef =
-        Firestore.instance.collection("reviews").document(review.id);
+        FirebaseFirestore.instance.collection("reviews").doc(review.id);
     return docRef.get().then((datasnapshot) {
-      print(datasnapshot.data['author'].toString());
-      print(
-          datasnapshot.data['author'].toString() == Account.currentAccount.id);
-      if (datasnapshot.data['author'].toString() == Account.currentAccount.id) {
+      print(datasnapshot['author'].toString());
+      print(datasnapshot['author'].toString() == Account.currentAccount!.id);
+      if (datasnapshot['author'].toString() == Account.currentAccount!.id) {
         return true;
       } else {
         return false;
@@ -379,19 +390,18 @@ class DatabaseMap {
   }
 
   static Future<bool> isPinOwner(Pin pin) {
-    return Firestore.instance
+    return FirebaseFirestore.instance
         .collection("users")
-        .where("userID", isEqualTo: Account.currentAccount.id)
-        .getDocuments()
+        .where("userID", isEqualTo: Account.currentAccount!.id)
+        .get()
         .then((datasnap) {
-      if (datasnap.documents.first.data["isAdmin"] == true) {
+      if (datasnap.docs.first["isAdmin"] == true) {
         return true;
       }
       DocumentReference docRef =
-          Firestore.instance.collection("pins").document(pin.id);
+          FirebaseFirestore.instance.collection("pins").doc(pin.id);
       return docRef.get().then((datasnapshot) {
-        if (datasnapshot.data['author'].toString() ==
-            Account.currentAccount.id) {
+        if (datasnapshot['author'].toString() == Account.currentAccount!.id) {
           return true;
         } else {
           return false;
@@ -401,16 +411,16 @@ class DatabaseMap {
   }
 
   /// возвращаем все плохие отзывы для админа
-  static Stream<List<Review>> flaggedReviews(BuildContext context) {
-    return Firestore.instance
+  static Stream<List<Review?>> flaggedReviews(BuildContext context) {
+    return FirebaseFirestore.instance
         .collection("flags")
         .snapshots()
         .asyncMap((querySnapshot) async {
-      Completer<List<Review>> reviewsCompleter = new Completer<List<Review>>();
-      List<Review> reviews = [];
-      for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
-        Review review =
-            await getReviewByID(documentSnapshot.data["reviewID"], context);
+      Completer<List<Review?>> reviewsCompleter = Completer<List<Review>>();
+      List<Review?> reviews = [];
+      for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
+        Review? review = await getReviewByID(
+            documentSnapshot["reviewID"] , context);
         reviews.add(review);
       }
       reviewsCompleter.complete(reviews);
@@ -421,20 +431,23 @@ class DatabaseMap {
   /// если админ считает отзыв нормальным - убираем с него флаг
   /// (для конкретного пользователя)
   static void ignoreFlags(String id) {
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("flags")
         .where("reviewID", isEqualTo: id)
-        .getDocuments()
+        .get()
         .then((query) {
-      query.documents.forEach((document) {
+      for (var document in query.docs) {
         document.reference.delete();
-      });
+      }
     });
   }
 
   /// редактируем отзыв
   Future editReview(Review review) async {
-    Firestore.instance.collection("reviews").document(review.id).setData({
+    FirebaseFirestore.instance
+        .collection("reviews")
+        .doc(review.id)
+        .set(<String, dynamic>{
       "content": review.body,
       "isFood": review.isFood,
       "isFree": review.isFree,
@@ -442,103 +455,102 @@ class DatabaseMap {
       "isWiFi": review.isWiFi,
       "userRate": review.userRate,
       "totalRate": review.totalRate
-    }, merge: true);
+    }, SetOptions(merge: true));
     // return true;
   }
 
   /// редактируем пин
   Future editPin(Pin pin) async {
-    Firestore.instance.collection("pins").document(pin.id).setData({
+    firebaseInstance.collection("pins").doc(pin.id).set(<String, dynamic>{
       "category": pin.category.text,
       "name": pin.name,
       "imageUrl": pin.imageUrl
-    }, merge: true);
+    }, SetOptions(merge: true));
     // return true;
   }
 
   // если админ считает отзыв плохим - удаляем его
   static void deleteReview(Review review) {
-    ignoreFlags(review.id);
-    Firestore.instance.collection("reviews").document(review.id).delete();
+    ignoreFlags(review.id!);
+    FirebaseFirestore.instance.collection("reviews").doc(review.id).delete();
     addStrike(review.author.id);
   }
 
   static void deletePin(Pin pin) {
     ignoreFlags(pin.id);
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("reviews")
         .where("pinID", isEqualTo: pin.id)
-        .getDocuments()
+        .get()
         .then((query) {
-      query.documents.forEach((document) {
+      for (var document in query.docs) {
         print("DOCUMENT DELETE");
         document.reference.delete();
-      });
+      }
     });
-    Firestore.instance.collection("pins").document(pin.id).delete();
+    FirebaseFirestore.instance.collection("pins").doc(pin.id).delete();
   }
 
   static void deleteUser(Account account) {
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("meetings")
         .where("author", isEqualTo: account.id)
-        .getDocuments()
+        .get()
         .then((query) {
-      query.documents.forEach((document) {
+      for (var document in query.docs) {
         document.reference.delete();
-      });
+      }
     });
-    List<String> members = List();
-    List<String> tokens = List();
-    members.add(Account.currentAccount.id);
-    tokens.add(Account.currentAccount.notifyToken);
-    Firestore.instance
+    List<String?> members = [];
+    List<String?> tokens = [];
+    members.add(Account.currentAccount!.id);
+    tokens.add(Account.currentAccount!.notifyToken);
+    FirebaseFirestore.instance
         .collection("meetings")
         .where("tokens", arrayContains: account.notifyToken)
-        .getDocuments()
+        .get()
         .then((query) {
-      query.documents.forEach((document) {
-        print(document.documentID);
-        Firestore.instance
+      for (var document in query.docs) {
+        print(document.id);
+        FirebaseFirestore.instance
             .collection("meetings")
-            .document(document.documentID)
-            .updateData({
+            .doc(document.id)
+            .update({
           'members': FieldValue.arrayRemove(members),
           'tokens': FieldValue.arrayRemove(tokens)
         });
-      });
+      }
     });
     print(account.id);
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("users")
         .where("userID", isEqualTo: account.id)
-        .getDocuments()
+        .get()
         .then((query) {
-      query.documents.forEach((document) {
+      for (var document in query.docs) {
         document.reference.delete();
-      });
+      }
     });
   }
 
   // TODO: решить что делать со страйками на пользователя
-  static void addStrike(String id) {
-    Firestore.instance
+  static void addStrike(String? id) {
+    FirebaseFirestore.instance
         .collection("users")
         .where("userID", isEqualTo: id)
-        .getDocuments()
+        .get()
         .then((query) {
-      query.documents.first.reference
-          .updateData({"strikes": FieldValue.increment(1)});
+      query.docs.first.reference.update({"strikes": FieldValue.increment(1)});
     });
   }
 
   static void updateUsername(String name) {
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("users")
-        .where("userID", isEqualTo: Account.currentAccount.id)
-        .getDocuments()
+        .where("userID", isEqualTo: Account.currentAccount!.id)
+        .get()
         .then((query) {
-      query.documents.first.reference.updateData({
+      query.docs.first.reference.update({
         "name": name,
       });
     });
@@ -553,21 +565,21 @@ class DatabaseMap {
   }
 
   static Future<Stream<List<String>>> getFavouriteReviewsIDs(Account account) {
-    return Firestore.instance
+    return FirebaseFirestore.instance
         .collection("users")
         .where("userID", isEqualTo: account.id)
-        .getDocuments()
+        .get()
         .then((userSnapshot) {
-      String userID = userSnapshot.documents.first.documentID;
-      return Firestore.instance
+      String userID = userSnapshot.docs.first.id;
+      return FirebaseFirestore.instance
           .collection("users")
-          .document(userID)
+          .doc(userID)
           .collection("favourites")
           .snapshots()
           .map((snapshot) {
         List<String> reviewIDs = [];
-        for (DocumentSnapshot document in snapshot.documents) {
-          reviewIDs.add(document.documentID);
+        for (DocumentSnapshot document in snapshot.docs) {
+          reviewIDs.add(document.id);
         }
         return reviewIDs;
       });
@@ -576,61 +588,62 @@ class DatabaseMap {
 
   static Future<List<Review>> getReviewsByReviewIDs(
       List<String> reviewIDs, BuildContext context) {
-    return Firestore.instance
+    return FirebaseFirestore.instance
         .collection("reviews")
         .where(FieldPath.documentId, whereIn: reviewIDs)
-        .getDocuments()
+        .get()
         .then((snapshot) async {
       List<Review> reviews = [];
-      for (DocumentSnapshot document in snapshot.documents) {
-        Review review = Review.fromMap(document.documentID, document.data);
-        review.pin = await getPinByID(document.data["pinID"], context);
+      for (DocumentSnapshot document in snapshot.docs) {
+        Review review = Review.fromMap(
+            document.id, document.data() as Map<String, dynamic>);
+        review.pin = await getPinByID(document["pinID"], context);
         reviews.add(review);
       }
       return reviews;
     });
   }
 
-  static addFavourite(String reviewID) async {
-    List users = await Firestore.instance
+  static void addFavourite(String reviewID) async {
+    var users = await FirebaseFirestore.instance
         .collection("users")
-        .where("userID", isEqualTo: Account.currentAccount.id)
-        .getDocuments()
-        .then((value) => value.documents);
-    String user = users[0].documentID.toString();
+        .where("userID", isEqualTo: Account.currentAccount!.id)
+        .get()
+        .then((value) => value.docs);
+    String user = users[0].id.toString();
 
-    final CollectionReference favouritesRef = Firestore.instance
+    final CollectionReference favouritesRef = FirebaseFirestore.instance
         .collection("users")
-        .document(user)
+        .doc(user)
         .collection("favourites");
 
-    await favouritesRef.document(reviewID).setData(newFavouriteMap());
+    await favouritesRef.doc(reviewID).set(newFavouriteMap());
   }
 
   static Map<String, dynamic> newFavouriteMap() {
-    Map<String, dynamic> favourite = Map();
+    Map<String, dynamic> favourite = <String, dynamic>{};
     return favourite;
   }
 
-  static removeFavourite(String reviewID) {
-    Firestore.instance
+  static void removeFavourite(String reviewID) {
+    FirebaseFirestore.instance
         .collection("users")
-        .where("userID", isEqualTo: Account.currentAccount.id)
-        .getDocuments()
+        .where("userID", isEqualTo: Account.currentAccount!.id)
+        .get()
         .then((userSnapshot) {
-      String user = userSnapshot.documents.first.documentID;
-      Firestore.instance
+      String user = userSnapshot.docs.first.id;
+      FirebaseFirestore.instance
           .collection("users")
-          .document(user)
+          .doc(user)
           .collection("favourites")
-          .document(reviewID)
+          .doc(reviewID)
           .delete();
     });
   }
 
   ///по id можно определить любимый отзыв это или нет
   static Future<bool> isFavourite(String reviewID) async {
-    return getFavouriteReviewsIDs(Account.currentAccount).then((snapshots) {
+    return getFavouriteReviewsIDs(Account.currentAccount!).then((snapshots) {
       return snapshots.first.then((reviewIDs) {
         return reviewIDs.contains(reviewID);
       });

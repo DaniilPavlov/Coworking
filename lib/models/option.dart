@@ -4,11 +4,11 @@ class Option {
   String text;
   Color colour;
 
-  Option({this.text, this.colour});
+  Option({required this.text, required this.colour});
 
   @override
-  bool operator ==(Object other) => other is Option && other.text == this.text;
+  bool operator ==(Object other) => other is Option && other.text == text;
 
   @override
-  int get hashCode => this.text.hashCode;
+  int get hashCode => text.hashCode;
 }

@@ -14,7 +14,7 @@ import 'package:coworking/widgets/radio_button_picker.dart';
 class CreatePin extends StatefulWidget {
   final double drawerHeight;
 
-  CreatePin(this.drawerHeight, {Key key}) : super(key: key);
+  const CreatePin(this.drawerHeight, {Key? key}) : super(key: key);
 
   @override
   State<CreatePin> createState() => CreatePinState();
@@ -22,24 +22,24 @@ class CreatePin extends StatefulWidget {
 
 class CreatePinState extends State<CreatePin>
     with SingleTickerProviderStateMixin {
-  TabController tabController;
+  late TabController tabController;
 
-  GlobalKey<_PinFormState> pinFormKey;
-  GlobalKey<NewReviewFormState> reviewFormKey;
+  late GlobalKey<_PinFormState> pinFormKey;
+  late GlobalKey<NewReviewFormState> reviewFormKey;
 
-  PinForm pinForm;
-  NewReviewForm reviewForm;
+  late PinForm pinForm;
+  late NewReviewForm reviewForm;
 
   bool validate() {
-    if (!pinFormKey.currentState.isValid) {
+    if (!pinFormKey.currentState!.isValid) {
       tabController.animateTo(0);
       return false;
     }
 
     if (reviewFormKey.currentState == null ||
-        !reviewFormKey.currentState.isValid) {
+        !reviewFormKey.currentState!.isValid) {
       tabController.animateTo(1);
-      tabController.addListener(() => reviewFormKey.currentState.isValid);
+      tabController.addListener(() => reviewFormKey.currentState!.isValid);
       return false;
     }
 
@@ -47,8 +47,8 @@ class CreatePinState extends State<CreatePin>
   }
 
   Future<Pin> createPin() async {
-    Review review = reviewFormKey.currentState.getReview();
-    return pinFormKey.currentState.createPin(review);
+    Review review = reviewFormKey.currentState!.getReview();
+    return pinFormKey.currentState!.createPin(review);
   }
 
   @override
@@ -77,7 +77,7 @@ class CreatePinState extends State<CreatePin>
 }
 
 class PinForm extends StatefulWidget {
-  PinForm({Key key}) : super(key: key);
+  const PinForm({Key? key}) : super(key: key);
 
   @override
   _PinFormState createState() => _PinFormState();
@@ -85,10 +85,10 @@ class PinForm extends StatefulWidget {
 
 class _PinFormState extends State<PinForm>
     with AutomaticKeepAliveClientMixin<PinForm> {
-  GlobalKey<FormState> formKey;
-  GlobalKey<FormFieldState> imagePickerKey;
-  GlobalKey<FormFieldState> categoryPickerKey;
-  TextEditingController nameController;
+  late GlobalKey<FormState> formKey;
+  late GlobalKey<FormFieldState> imagePickerKey;
+  late GlobalKey<FormFieldState> categoryPickerKey;
+  late TextEditingController nameController;
 
   @override
   void initState() {
@@ -125,8 +125,8 @@ class _PinFormState extends State<PinForm>
         TextFormField(
           controller: nameController,
           validator: (text) =>
-              text.isEmpty ? "Необходимо название места" : null,
-          decoration: InputDecoration(
+              text!.isEmpty ? "Необходимо название места" : null,
+          decoration: const InputDecoration(
             hintText: "Название места",
             contentPadding: EdgeInsets.all(8.0),
           ),
@@ -135,21 +135,21 @@ class _PinFormState extends State<PinForm>
     );
   }
 
-  bool get isValid => formKey.currentState.validate();
+  bool get isValid => formKey.currentState!.validate();
 
   Future<Pin> createPin(Review review) async {
-    File image = imagePickerKey.currentState.value;
+    File image = imagePickerKey.currentState!.value ;
     String name = nameController.text;
 
-    Category category = categoryPickerKey.currentState.value;
+    Category category = categoryPickerKey.currentState!.value  ;
 
     CameraPosition position =
-        context.findAncestorStateOfType<MapPageState>().currentMapPosition;
+        context.findAncestorStateOfType<MapPageState>()!.currentMapPosition;
     return DatabaseMap.newPin(
       position.target,
       name,
       review,
-      Account.currentAccount,
+      Account.currentAccount!,
       image,
       category,
       context,
