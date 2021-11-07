@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "381893701650",
+    "project_id": "coworking-dea36",
+    "storage_bucket": "coworking-dea36.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:381893701650:android:fce2283f7a6bf127f3e8cb",
+        "android_client_info": {
+          "package_name": "com.spbstu.coworking"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "381893701650-6qbpse3ccf4o3gph7ufr16kkiek5co1t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDka9HM8BJ9ghysuFAvfMK67ATNh0JS3Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "381893701650-6qbpse3ccf4o3gph7ufr16kkiek5co1t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

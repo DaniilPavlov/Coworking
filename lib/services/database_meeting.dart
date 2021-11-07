@@ -111,9 +111,7 @@ class DatabaseMeeting {
         //сначала выводим ближайшие встречи
         .orderBy("dateCompleted", descending: false)
         .snapshots()
-        .asyncMap((querySnapshot) async {
-      Completer<List<Meeting>> meetingsCompleter =
-           Completer<List<Meeting>>();
+        .map((querySnapshot) {
       List<Meeting> meetings = [];
       for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
         Map<String, dynamic>? meetingMap =
@@ -122,8 +120,7 @@ class DatabaseMeeting {
         // meeting.pin = await getPinByID(meetingMap["pinID"], context);
         meetings.add(meeting);
       }
-      meetingsCompleter.complete(meetings);
-      return meetingsCompleter.future;
+      return meetings;
     });
   }
 

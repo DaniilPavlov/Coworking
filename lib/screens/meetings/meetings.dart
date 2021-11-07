@@ -84,8 +84,12 @@ class _MeetingLayoutState extends State<MeetingLayout> {
             child: const Icon(Icons.assignment_ind),
             backgroundColor: Colors.orange,
             onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const NewMeetingForm(meeting: null,)));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const NewMeetingForm(
+                            meeting: null,
+                          )));
             },
             label: 'Создать встречу',
             labelStyle: const TextStyle(
@@ -106,36 +110,24 @@ class _MeetingLayoutState extends State<MeetingLayout> {
         floatingActionButton: _getFAB(),
         body: CustomPaint(
             painter: BackgroundMeetings(),
-            child: FutureBuilder(
-              future: DatabaseMap.isAdmin(),
-              builder: (context, snapshot) => (snapshot.hasData)
-                  ? StreamBuilder<List<Meeting>>(
-                      stream: Account.getMeetingsForUser(context),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                          return ListView.builder(
-                            itemCount: snapshot.data!.length,
-                            itemBuilder: (context, index) {
-                              return MeetingListItem(snapshot.data![index]);
-                            },
-                          );
-                        } else {
-                          return const Center(
-                            child: Text("Пока здесь пусто :( \n",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 20)),
-                          );
-                        }
-                      },
-                    )
-                  : Center(
-                      child: Column(
-                        children: const <Widget>[
-                          Text("Загружаем данные"),
-                          CircularProgressIndicator(),
-                        ],
-                      ),
-                    ),
+            child: StreamBuilder<List<Meeting>>(
+              stream: Account.getMeetingsForUser(context),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                  return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      return MeetingListItem(snapshot.data![index]);
+                    },
+                  );
+                } else {
+                  return const Center(
+                    child: Text("Пока здесь пусто :( \n",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20)),
+                  );
+                }
+              },
             )));
   }
 }

@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.done) {
               return const AuthStatusScreen();
             } else if (snapshot.connectionState == ConnectionState.none) {
-              return const Text("No data");
+              return const Text("No connection with Server");
             }
             return const CircularProgressIndicator();
           },

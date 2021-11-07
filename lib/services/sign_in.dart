@@ -14,7 +14,8 @@ class SignIn {
   );
 
   Future<User?> signInWithGoogle() async {
-    final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+    final GoogleSignInAccount? googleSignInAccount =
+        await googleSignIn.signIn();
     if (googleSignInAccount == null) return null;
     final GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
@@ -23,7 +24,8 @@ class SignIn {
       idToken: googleSignInAuthentication.idToken,
     );
 
-    final UserCredential authResult = await auth.signInWithCredential(credential);
+    final UserCredential authResult =
+        await auth.signInWithCredential(credential);
     final User? user = authResult.user;
 
     if (user != null) {

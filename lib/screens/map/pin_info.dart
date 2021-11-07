@@ -94,12 +94,11 @@ class _PinInfoState extends State<PinInfo> {
       var timeKey = DateTime.now();
       final Reference postImageRef =
           FirebaseStorage.instance.ref().child("Pin Images");
-      final UploadTask uploadTask = postImageRef
-          .child(timeKey.toString() + ".jpg")
-          .putFile(newImage  );
+      final UploadTask uploadTask =
+          postImageRef.child(timeKey.toString() + ".jpg").putFile(newImage);
 
       String stringUrl = await (await uploadTask).ref.getDownloadURL();
-      Category category = categoryPickerKey.currentState!.value  ;
+      Category category = categoryPickerKey.currentState!.value;
 
       widget.pin.imageUrl = stringUrl;
       widget.pin.name = nameController.text;
@@ -281,8 +280,7 @@ class _PinInfoState extends State<PinInfo> {
                     Review review = reviewFormKey.currentState!.getReview();
                     widget.pin.addReview(review);
                     widget.pin.rating =
-                        await DatabaseMap.updateRateOfPin(widget.pin.id)
-                            ;
+                        await DatabaseMap.updateRateOfPin(widget.pin.id);
                     Navigator.pop(context);
                   }
                 },
