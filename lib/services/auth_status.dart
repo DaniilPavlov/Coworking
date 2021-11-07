@@ -20,7 +20,15 @@ class AuthStatusScreen extends StatelessWidget {
             // return LoginScreen();
             return (snapshot.data) != null ? MapPage() : const LoginScreen();
           } else {
-            return const Center(child: CircularProgressIndicator());
+            return Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/logo.webp"),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: const Center(child: CircularProgressIndicator()),
+          );
           }
         });
   }

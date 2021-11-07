@@ -30,16 +30,13 @@ class SignIn {
 
     if (user != null) {
       assert(!user.isAnonymous);
-      // assert(await user.getIdToken() != null);
-
       final User? currentUser = auth.currentUser;
       assert(user.uid == currentUser!.uid);
 
       ///периодически токен меняется, нужно обновлять
       Account.currentAccount = Account.fromFirebaseUser(user);
       Account.currentAccount!.notifyToken = await _fcm.getToken();
-      print(Account.currentAccount!.notifyToken);
-      print("NOTIFY");
+      print("NOTIFY" + Account.currentAccount!.notifyToken!);
       if (authResult.additionalUserInfo!.isNewUser) {
         DatabaseMap.addUserToDatabase(Account.currentAccount);
       } else {
