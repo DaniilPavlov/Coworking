@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/services/auth_status.dart';
-import 'package:coworking/services/sign_in.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,7 +34,7 @@ class MyApp extends StatelessWidget {
         future: getData(),
         builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return const AuthStatusScreen();
+            return const AuthStatus();
           } else if (snapshot.connectionState == ConnectionState.none) {
             return Container(
               decoration: const BoxDecoration(

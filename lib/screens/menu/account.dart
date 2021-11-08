@@ -3,7 +3,7 @@ import 'package:coworking/services/database_map.dart';
 import 'package:coworking/models/review.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/screens/login.dart';
+import 'package:coworking/screens/login/login_widget.dart';
 
 import 'package:coworking/services/sign_in.dart';
 
@@ -56,8 +56,7 @@ class AccountPage extends StatelessWidget {
                   builder: (context, AsyncSnapshot<User?> snapshot) {
                     if (snapshot.hasData) {
                       return CircleAvatar(
-                        backgroundImage:
-                            NetworkImage(snapshot.data!.photoURL!),
+                        backgroundImage: NetworkImage(snapshot.data!.photoURL!),
                         radius: 64,
                       );
                     } else {
@@ -252,15 +251,16 @@ void deleteAccount(BuildContext context) async {
   await currentUser!.delete();
   SignIn().signOutGoogle();
   Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      MaterialPageRoute(builder: (context) => LoginScreen()),
       (Route<dynamic> route) => true);
 }
 
 void signOut(BuildContext context) {
   FirebaseAuth.instance.signOut();
   SignIn().signOutGoogle();
+  Account.currentAccount = null;
   //изменил рут на тру, теперь при перезаходе пины активны
   Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      MaterialPageRoute(builder: (context) => LoginScreen()),
       (Route<dynamic> route) => true);
 }

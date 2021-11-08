@@ -1,7 +1,6 @@
 import 'package:coworking/models/meeting.dart';
-import 'package:coworking/screens/login.dart';
+import 'package:coworking/screens/login/login_widget.dart';
 import 'package:coworking/screens/map/map.dart';
-import 'package:coworking/screens/map/pin_info.dart';
 import 'package:coworking/screens/meetings/meeting_info.dart';
 import 'package:coworking/screens/meetings/meetings.dart';
 import 'package:coworking/screens/meetings/new_meeting_form.dart';
@@ -20,7 +19,7 @@ abstract class MainNavigationRouteNames {
 class MainNavigation {
   String initialRoute = MainNavigationRouteNames.auth;
   final routes = <String, Widget Function(BuildContext)>{
-    MainNavigationRouteNames.auth: (context) => const LoginScreen(),
+    MainNavigationRouteNames.auth: (context) =>  LoginScreen(),
     MainNavigationRouteNames.mapScreen: (context) => MapPage(),
     MainNavigationRouteNames.meetingsScreen: (context) =>
         const UserMeetingsPage(),

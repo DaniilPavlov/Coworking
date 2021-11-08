@@ -5,7 +5,6 @@ import 'package:coworking/screens/meetings/new_meeting_form.dart';
 import 'package:coworking/screens/meetings/meeting_tile.dart';
 import 'package:coworking/screens/meetings/join_meeting.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:coworking/services/database_map.dart';
 import 'package:coworking/widgets/meetings_background.dart';
 
 class UserMeetingsPage extends StatelessWidget {
