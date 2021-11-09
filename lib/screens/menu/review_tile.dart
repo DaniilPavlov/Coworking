@@ -1,5 +1,7 @@
-import 'package:coworking/services/database_map.dart';
+import 'package:coworking/services/database_account.dart';
+import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/review.dart';
+import 'package:coworking/services/database_review.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -94,12 +96,12 @@ class _PinListItemState extends State<PinListItem> {
 
   @override
   void initState() {
-    DatabaseMap.isFlagged(widget.review.id).then((value) {
+    DatabaseReview.isFlagged(widget.review.id).then((value) {
       setState(() {
         isFlagged = value;
       });
     });
-    DatabaseMap.isFavourite(widget.review.id!).then((value) {
+    DatabaseReview.isFavourite(widget.review.id!).then((value) {
       setState(() {
         isFavourite = value;
       });
@@ -136,7 +138,7 @@ class _PinListItemState extends State<PinListItem> {
           widget.review.userRate / 2);
       print("NEW TOTAL");
       print(widget.review.totalRate);
-      await DatabaseMap().editReview(widget.review);
+      await DatabaseReview.editReview(widget.review);
       oldComment = widget.review.body;
       oldRazors = widget.review.isRazors;
       oldFood = widget.review.isFood;
@@ -145,7 +147,7 @@ class _PinListItemState extends State<PinListItem> {
       oldRate = widget.review.userRate;
       Navigator.of(context).pop(context);
       widget.review.pin!.rating =
-          await DatabaseMap.updateRateOfPin(widget.review.pin!.id) ;
+          await DatabasePin.updateRateOfPin(widget.review.pin!.id) ;
       Clipboard.setData(ClipboardData(text: widget.review.body));
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(widget.review.body),
@@ -170,7 +172,7 @@ class _PinListItemState extends State<PinListItem> {
         onTap: () => showModalBottomSheet(
             context: context,
             builder: (_) => FutureBuilder(
-                future: DatabaseMap.isReviewOwner(widget.review),
+                future: DatabaseReview.isReviewOwner(widget.review),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return (snapshot.data == true)
@@ -323,10 +325,10 @@ class _PinListItemState extends State<PinListItem> {
                                   height: 50.0,
                                   child: ElevatedButton(
                                     onPressed: () async {
-                                      DatabaseMap.deleteReview(widget.review);
+                                      DatabaseReview.deleteReview(widget.review);
                                       Navigator.pop(context);
                                       widget.review.pin?.rating =
-                                          await DatabaseMap.updateRateOfPin(
+                                          await DatabasePin.updateRateOfPin(
                                               widget.review.pin?.id) ;
                                     },
                                     child: const Text(
@@ -466,9 +468,9 @@ class _PinListItemState extends State<PinListItem> {
                 ),
                 onPressed: () {
                   if (isFlagged) {
-                    DatabaseMap.unFlag(widget.review.id!);
+                    DatabaseReview.removeFlag(widget.review.id!);
                   } else {
-                    DatabaseMap.flag(widget.review.id!);
+                    DatabaseReview.addFlag(widget.review.id!);
                   }
                   setState(() {
                     isFlagged = !isFlagged;
@@ -483,9 +485,9 @@ class _PinListItemState extends State<PinListItem> {
                 ),
                 onPressed: () {
                   if (isFavourite) {
-                    DatabaseMap.removeFavourite(widget.review.id!);
+                    DatabaseReview.removeFavourite(widget.review.id!);
                   } else {
-                    DatabaseMap.addFavourite(widget.review.id!);
+                    DatabaseReview.addFavourite(widget.review.id!);
                   }
                   setState(() {
                     isFavourite = !isFavourite;
@@ -598,7 +600,7 @@ class StarredReviewsListItem extends ListTile {
             ),
             iconSize: 30.0,
             onPressed: () {
-              DatabaseMap.removeFavourite(review.id!);
+              DatabaseReview.removeFavourite(review.id!);
             },
           ),
         ],
@@ -640,7 +642,7 @@ class FlaggedReviewsListItem extends ListTile {
             iconSize: 40.0,
             color: Colors.grey[600],
             onPressed: () {
-              DatabaseMap.ignoreFlags(review.id!);
+              DatabaseReview.justifyFlag(review.id!);
             },
           ),
           IconButton(
@@ -651,7 +653,7 @@ class FlaggedReviewsListItem extends ListTile {
             iconSize: 40.0,
             color: Colors.red,
             onPressed: () {
-              DatabaseMap.deleteReview(review);
+              DatabaseReview.deleteReview(review);
             },
           ),
         ],

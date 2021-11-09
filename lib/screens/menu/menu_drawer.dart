@@ -1,6 +1,7 @@
 import 'package:coworking/models/account.dart';
-import 'package:coworking/services/database_map.dart';
-import 'package:coworking/screens/menu/starred_reviews.dart';
+import 'package:coworking/services/database_account.dart';
+import 'package:coworking/services/database_pin.dart';
+import 'package:coworking/screens/menu/favourite_reviews.dart';
 import 'package:coworking/screens/menu/user_reviews.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +60,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const StarredCommentsPage()));
+                      builder: (context) => const FavouriteReviewsScreen()));
             },
           ),
           ListTile(
@@ -75,7 +76,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
             title: const Text("Профиль"),
             onTap: () {
               Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AccountPage()))
+                      MaterialPageRoute(builder: (context) => AccountScreen()))
                   .then((value) {
                 if (Account.hasUpdated != null) {
                   Account.hasUpdated!.future.then((_) {
@@ -89,7 +90,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
             },
           ),
           FutureBuilder(
-              future: DatabaseMap.isAdmin(),
+              future: DatabaseAccount.isAdmin(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return ListTile(

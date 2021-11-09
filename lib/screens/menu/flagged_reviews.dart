@@ -1,5 +1,6 @@
-import 'package:coworking/services/database_map.dart';
+import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/review.dart';
+import 'package:coworking/services/database_review.dart';
 import 'package:flutter/material.dart';
 
 import 'package:coworking/screens/menu/review_tile.dart';
@@ -31,7 +32,7 @@ class BodyLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Review?>>(
-      stream: DatabaseMap.flaggedReviews(context),
+      stream: DatabaseReview.flaggedReviews(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

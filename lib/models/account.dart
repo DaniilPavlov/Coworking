@@ -1,11 +1,6 @@
 import 'dart:async';
-
-import 'package:coworking/models/review.dart';
+import 'package:coworking/services/database_account.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:coworking/services/database_meeting.dart';
-import 'package:coworking/services/database_map.dart';
-import 'package:coworking/models/meeting.dart';
 
 class Account {
   static Account? currentAccount;
@@ -34,11 +29,8 @@ class Account {
     );
   }
 
-  Future<String?> get userName async => await DatabaseMap.getUserNameByID(id!);
-
-  static updateUserName(String value) {
-    FirebaseAuth.instance.currentUser!.updateDisplayName(value);
-  }
+  Future<String?> get userName async =>
+      await DatabaseAccount.getUserNameByID(id!);
 
   Map<String, dynamic> asMap() {
     Map<String, dynamic> accountMap = {};
@@ -48,18 +40,5 @@ class Account {
     accountMap["isAdmin"] = false;
     accountMap["notifyToken"] = notifyToken;
     return accountMap;
-  }
-
-  static Stream<List<Review>> getReviewsForUser(BuildContext context) {
-    return DatabaseMap.reviewsByUser(currentAccount!, context);
-  }
-
-  static Stream<List<Meeting>> getMeetingsForUser(BuildContext context) {
-    return DatabaseMeeting.meetingsOfUser(currentAccount!, context);
-  }
-
-  static Future<Stream<List<Review>>> getFavouriteReviewsForUser(
-      BuildContext context) {
-    return DatabaseMap.favouriteReviewsForUser(currentAccount!, context);
   }
 }

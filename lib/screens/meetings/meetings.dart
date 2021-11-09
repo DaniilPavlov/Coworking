@@ -1,3 +1,4 @@
+import 'package:coworking/services/database_meeting.dart';
 import 'package:flutter/material.dart';
 import 'package:coworking/models/account.dart';
 import 'package:coworking/models/meeting.dart';
@@ -110,7 +111,8 @@ class _MeetingLayoutState extends State<MeetingLayout> {
         body: CustomPaint(
             painter: BackgroundMeetings(),
             child: StreamBuilder<List<Meeting>>(
-              stream: Account.getMeetingsForUser(context),
+              stream: DatabaseMeeting.meetingsOfUser(
+                  Account.currentAccount!, context),
               builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                   return ListView.builder(

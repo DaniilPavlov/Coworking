@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/models/account.dart';
-import 'package:coworking/services/database_map.dart';
+import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/pin.dart';
 import 'package:coworking/screens/map/pin_info.dart';
 import 'package:coworking/screens/meetings/meetings.dart';
@@ -101,7 +101,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
 
   ///кажется что стрим работает стабильно
   void queryPins() {
-    pinsStream = DatabaseMap.getPins(context).listen((pinChangesList) {
+    pinsStream = DatabasePin.getPins(context).listen((pinChangesList) {
       setState(() {
         for (PinChange pinChange in pinChangesList) {
           if (pinChange.type == DocumentChangeType.added) {
@@ -163,7 +163,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
         if (pinFormKey.currentState!.validate()) {
           pinFormKey.currentState!.createPin().then((pin) {
             pins.add(pin);
-            DatabaseMap.addVisited(Account.currentAccount!.id!, pin.id);
+            DatabasePin.addVisited(Account.currentAccount!.id!, pin.id);
           });
           closeDrawer();
         }

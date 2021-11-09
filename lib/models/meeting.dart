@@ -51,22 +51,16 @@ class Meeting {
     return meeting;
   }
 
-  // static Map<String, dynamic> newMeetingMap(Meeting meeting, String pinID) {
-  //   Map<String, dynamic> map = meeting.asMap();
-  //   map["pinID"] = pinID;
-  //   return map;
-  // }
-
   static Meeting fromMap(String id, Map<String, dynamic> data) {
     return Meeting(
       id,
-      data["place"] ,
-      data["description"] ,
-      Account(data["author"]  ),
-      List<String>.from(data["members"]  ),
-      List<String>.from(data["tokens"]  ),
-      data["dateCompleted"]  ,
-      data["notify"]  ,
+      data["place"],
+      data["description"],
+      Account(data["author"]),
+      List<String>.from(data["members"]),
+      List<String>.from(data["tokens"]),
+      data["dateCompleted"],
+      data["notify"],
     );
   }
 }

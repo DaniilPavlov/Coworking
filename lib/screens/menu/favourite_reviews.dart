@@ -1,10 +1,12 @@
+import 'package:coworking/services/database_pin.dart';
+import 'package:coworking/services/database_review.dart';
 import 'package:flutter/material.dart';
 import 'package:coworking/models/account.dart';
 import 'package:coworking/models/review.dart';
 import 'package:coworking/screens/menu/review_tile.dart';
 
-class StarredCommentsPage extends StatelessWidget {
-  const StarredCommentsPage({Key? key}) : super(key: key);
+class FavouriteReviewsScreen extends StatelessWidget {
+  const FavouriteReviewsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -49,10 +51,11 @@ class BodyLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Account.getFavouriteReviewsForUser(context),
+      future:
+          DatabaseReview.favouriteReviewsForUser(Account.currentAccount!, context),
       builder: (context, snapshot) => (snapshot.hasData)
           ? StreamBuilder<List<Review>>(
-              stream: snapshot.data as  Stream<List<Review>>?,
+              stream: snapshot.data as Stream<List<Review>>?,
               builder: (context, snapshot) {
                 //пока ждем прогрузы отзывов крутим спин загрузки
                 if (snapshot.connectionState == ConnectionState.waiting) {

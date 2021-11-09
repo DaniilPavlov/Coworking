@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:coworking/models/account.dart';
 import 'package:coworking/models/category.dart';
-import 'package:coworking/services/database_map.dart';
+import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/pin.dart';
 import 'package:coworking/models/review.dart';
 import 'package:coworking/screens/map/map.dart';
@@ -145,7 +145,7 @@ class _PinFormState extends State<PinForm>
 
     CameraPosition position =
         context.findAncestorStateOfType<MapPageState>()!.currentMapPosition;
-    return DatabaseMap.newPin(
+    return DatabasePin.newPin(
       position.target,
       name,
       review,

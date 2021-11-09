@@ -19,14 +19,6 @@ class Review {
   Review(this.id, this.author, this.body, this.timestamp, this.isFood,
       this.isFree, this.isRazors, this.isWiFi, this.userRate, this.totalRate);
 
-  // @override
-  // int get hashCode => id.hashCode;
-
-  // @override
-  // bool operator ==(other) {
-  //   return id == other.id;
-  // }
-
   Map<String, dynamic> asMap() {
     Map<String, dynamic> review = {};
     review["author"] = author.id;

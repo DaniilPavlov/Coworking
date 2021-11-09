@@ -1,3 +1,5 @@
+import 'package:coworking/services/database_pin.dart';
+import 'package:coworking/services/database_review.dart';
 import 'package:flutter/material.dart';
 import 'package:coworking/models/account.dart';
 import 'package:coworking/models/review.dart';
@@ -13,7 +15,7 @@ class UserCommentsPage extends StatelessWidget {
         automaticallyImplyLeading: true,
         title: const Text('Ваши отзывы'),
         leading: IconButton(
-          icon:const  Icon(
+          icon: const Icon(
             Icons.arrow_back_ios,
             semanticLabel: "Back",
           ),
@@ -54,7 +56,7 @@ class _BodyLayoutState extends State<BodyLayout> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Review>>(
-      stream: Account.getReviewsForUser(context),
+      stream: DatabaseReview.reviewsOfUser(Account.currentAccount!, context),
       builder: (context, snapshot) {
         if (!snapshot.hasData ||
             snapshot.connectionState == ConnectionState.waiting) {

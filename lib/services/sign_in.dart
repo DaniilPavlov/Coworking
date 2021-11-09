@@ -1,5 +1,6 @@
 import 'package:coworking/models/account.dart';
-import 'package:coworking/services/database_map.dart';
+import 'package:coworking/services/database_account.dart';
+import 'package:coworking/services/database_pin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -38,9 +39,9 @@ class SignIn {
       Account.currentAccount!.notifyToken = await _fcm.getToken();
       print("NOTIFY" + Account.currentAccount!.notifyToken!);
       if (authResult.additionalUserInfo!.isNewUser) {
-        DatabaseMap.addUserToDatabase(Account.currentAccount);
+        DatabaseAccount.addUserToDatabase(Account.currentAccount);
       } else {
-        DatabaseMap.updateUserToken(Account.currentAccount!.notifyToken);
+        DatabaseAccount.updateUserToken(Account.currentAccount!.notifyToken);
       }
       return user;
     }

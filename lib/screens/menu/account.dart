@@ -1,6 +1,8 @@
 import 'package:coworking/models/account.dart';
-import 'package:coworking/services/database_map.dart';
+import 'package:coworking/services/database_account.dart';
+import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/review.dart';
+import 'package:coworking/services/database_review.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:coworking/screens/login/login_widget.dart';
@@ -11,10 +13,10 @@ import 'package:coworking/services/sign_in.dart';
 const int userNameMin = 1;
 const int userNameMax = 100;
 
-class AccountPage extends StatelessWidget {
+class AccountScreen extends StatelessWidget {
   final GlobalKey<DisplayNameFormState> formKey = GlobalKey();
 
-  AccountPage({Key? key}) : super(key: key);
+  AccountScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +74,7 @@ class AccountPage extends StatelessWidget {
                   children: <Widget>[
                     Column(children: [
                       StreamBuilder<List<String>>(
-                        stream: DatabaseMap.visitedByUser(
+                        stream: DatabasePin.visitedByUser(
                             Account.currentAccount as Account, context),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
@@ -87,7 +89,8 @@ class AccountPage extends StatelessWidget {
                     ]),
                     Column(children: [
                       StreamBuilder(
-                        stream: Account.getReviewsForUser(context),
+                        stream: DatabaseReview.reviewsOfUser(
+                            Account.currentAccount!, context),
                         builder:
                             (context, AsyncSnapshot<List<Review>> snapshot) {
                           if (snapshot.hasData) {
@@ -175,7 +178,7 @@ class DisplayNameFormState extends State<DisplayNameForm> {
 
   void submitValue(value) {
     String? oldDisplayName = FirebaseAuth.instance.currentUser!.displayName;
-    Account.updateUserName(value);
+    DatabaseAccount.updateUsername(value);
 
     setState(() => pending = false);
 
@@ -184,7 +187,7 @@ class DisplayNameFormState extends State<DisplayNameForm> {
       action: SnackBarAction(
         label: "Отменить",
         onPressed: () {
-          Account.updateUserName(oldDisplayName!);
+          DatabaseAccount.updateUsername(oldDisplayName!);
           setState(() {
             controller.text = oldDisplayName;
           });
@@ -247,7 +250,7 @@ class DisplayNameFormState extends State<DisplayNameForm> {
 void deleteAccount(BuildContext context) async {
   //изменил рут на тру, теперь все нормально закрывается
   var currentUser = FirebaseAuth.instance.currentUser;
-  DatabaseMap.deleteUser(Account.currentAccount!);
+  DatabaseAccount.deleteUser(Account.currentAccount!);
   await currentUser!.delete();
   SignIn().signOutGoogle();
   Navigator.of(context).pushAndRemoveUntil(

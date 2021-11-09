@@ -15,7 +15,6 @@ abstract class MainNavigationRouteNames {
   static const meetingCreate = '/meetings/create';
 }
 
-// утащим роуты для удобного использования в отдельный файл
 class MainNavigation {
   String initialRoute = MainNavigationRouteNames.auth;
   final routes = <String, Widget Function(BuildContext)>{

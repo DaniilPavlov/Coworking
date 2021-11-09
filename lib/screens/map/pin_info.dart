@@ -1,9 +1,10 @@
 import 'package:coworking/screens/map/map.dart';
+import 'package:coworking/services/database_review.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:coworking/models/account.dart';
 import 'package:coworking/models/category.dart';
-import 'package:coworking/services/database_map.dart';
+import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/pin.dart';
 import 'package:coworking/models/review.dart';
 import 'package:coworking/screens/menu/review_tile.dart';
@@ -39,7 +40,7 @@ class _PinInfoState extends State<PinInfo> {
   Widget build(BuildContext context) {
     // достаем информацию посещали ли место
     Widget visitedButton = StreamBuilder<List<String>>(
-      stream: DatabaseMap.visitedByUser(Account.currentAccount!, context),
+      stream: DatabasePin.visitedByUser(Account.currentAccount!, context),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Container();
@@ -60,14 +61,14 @@ class _PinInfoState extends State<PinInfo> {
                   visitedText = "Не посещено";
                   visitedColor = Colors.red;
                 });
-                DatabaseMap.deleteVisited(
+                DatabasePin.deleteVisited(
                     Account.currentAccount!.id!, widget.pin.id);
               } else {
                 setState(() {
                   visitedText = "Посещено";
                   visitedColor = Colors.green;
                 });
-                DatabaseMap.addVisited(
+                DatabasePin.addVisited(
                     Account.currentAccount!.id!, widget.pin.id);
               }
             },
@@ -107,7 +108,7 @@ class _PinInfoState extends State<PinInfo> {
         if (widget.pin.name != "" &&
             widget.pin.category.text != "" &&
             widget.pin.imageUrl.isNotEmpty) {
-          await DatabaseMap().editPin(widget.pin);
+          await DatabasePin().editPin(widget.pin);
           setState(() {
             widget.imgURL = stringUrl;
             widget.pin.name = nameController.text;
@@ -123,7 +124,7 @@ class _PinInfoState extends State<PinInfo> {
     }
 
     editPinButton(context) => FutureBuilder(
-        future: DatabaseMap.isPinOwner(widget.pin),
+        future: DatabasePin.isPinOwner(widget.pin),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return (snapshot.data == true)
@@ -198,7 +199,7 @@ class _PinInfoState extends State<PinInfo> {
                                                                         .location,
                                                               )));
                                                   setState(() {
-                                                    DatabaseMap.deletePin(
+                                                    DatabasePin.deletePin(
                                                         widget.pin);
                                                   });
                                                 },
@@ -280,7 +281,7 @@ class _PinInfoState extends State<PinInfo> {
                     Review review = reviewFormKey.currentState!.getReview();
                     widget.pin.addReview(review);
                     widget.pin.rating =
-                        await DatabaseMap.updateRateOfPin(widget.pin.id);
+                        await DatabasePin.updateRateOfPin(widget.pin.id);
                     Navigator.pop(context);
                   }
                 },
@@ -291,7 +292,7 @@ class _PinInfoState extends State<PinInfo> {
         ),
       ),
       body: StreamBuilder<List<Review>>(
-          stream: DatabaseMap.getReviewsForPin(widget.pin.id),
+          stream: DatabaseReview.getReviewsForPin(widget.pin.id),
           builder: (context, snapshot) {
             Widget progressIndicator = Container(
               alignment: Alignment.center,
@@ -320,7 +321,7 @@ class _PinInfoState extends State<PinInfo> {
                       ),
                       categoryChip,
                       FutureBuilder(
-                          future: DatabaseMap.updateRateOfPin(widget.pin.id),
+                          future: DatabasePin.updateRateOfPin(widget.pin.id),
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               widget.pin.rating = snapshot.data as double;
@@ -349,7 +350,7 @@ class _PinInfoState extends State<PinInfo> {
                       ),
                     ),
                     FutureBuilder(
-                        future: DatabaseMap.threeMonthRate(widget.pin.id),
+                        future: DatabasePin.threeMonthRate(widget.pin.id),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             threeMonthSet = snapshot.data as List;
