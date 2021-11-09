@@ -1,3 +1,4 @@
+import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/screens/map/map.dart';
 import 'package:coworking/services/database_review.dart';
 import 'package:flutter/material.dart';
@@ -8,22 +9,21 @@ import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/pin.dart';
 import 'package:coworking/models/review.dart';
 import 'package:coworking/screens/menu/review_tile.dart';
-import 'package:coworking/screens/map/new_review_form.dart';
+import 'package:coworking/screens/map/pin/review/new_review_form.dart';
 import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-class PinInfo extends StatefulWidget {
+class PinWidget extends StatefulWidget {
   final Pin pin;
-  late String imgURL;
 
-  PinInfo(this.pin, this.imgURL, {Key? key}) : super(key: key);
+  PinWidget(this.pin, {Key? key}) : super(key: key);
 
   @override
-  _PinInfoState createState() => _PinInfoState();
+  _PinWidgetState createState() => _PinWidgetState();
 }
 
-class _PinInfoState extends State<PinInfo> {
+class _PinWidgetState extends State<PinWidget> {
   late GlobalKey<NewReviewFormState> reviewFormKey;
   var visitedText = "";
   var visitedColor = Colors.orange;
@@ -110,7 +110,7 @@ class _PinInfoState extends State<PinInfo> {
             widget.pin.imageUrl.isNotEmpty) {
           await DatabasePin().editPin(widget.pin);
           setState(() {
-            widget.imgURL = stringUrl;
+            widget.pin.imageUrl = stringUrl;
             widget.pin.name = nameController.text;
             widget.pin.category.text = category.text;
           });
@@ -187,17 +187,14 @@ class _PinInfoState extends State<PinInfo> {
                                               minWidth: 120.0,
                                               height: 60.0,
                                               child: ElevatedButton(
+                                                // удаление
                                                 onPressed: () {
-                                                  // удаление
-                                                  Navigator.pushReplacement(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              MapPage(
-                                                                currentMapPosition:
-                                                                    widget.pin
-                                                                        .location,
-                                                              )));
+                                                  Navigator.of(context)
+                                                      .pushReplacementNamed(
+                                                          MainNavigationRouteNames
+                                                              .mapScreen,
+                                                          arguments: widget
+                                                              .pin.location);
                                                   setState(() {
                                                     DatabasePin.deletePin(
                                                         widget.pin);
@@ -257,7 +254,7 @@ class _PinInfoState extends State<PinInfo> {
           fit: StackFit.expand,
           children: <Widget>[
             Image.network(
-              widget.imgURL,
+              widget.pin.imageUrl,
               fit: BoxFit.fill,
             ),
           ],

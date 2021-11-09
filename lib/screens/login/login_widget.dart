@@ -73,7 +73,7 @@ class _LoginView extends StatelessWidget {
           // ignore: prefer_const_constructors
           Padding(
             padding: const EdgeInsets.only(top: 300, left: 40, right: 40),
-            child: ErrorMessageWidget(),
+            child: const ErrorMessageWidget(),
           )
         ]),
       ),

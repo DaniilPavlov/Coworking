@@ -5,7 +5,7 @@ import 'package:coworking/services/database_review.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:coworking/screens/map/new_review_form.dart';
+import 'package:coworking/screens/map/pin/review/new_review_form.dart';
 
 import 'package:coworking/screens/map/map.dart';
 

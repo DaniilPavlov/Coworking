@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/models/review.dart';
 
-import 'package:coworking/screens/map/pin_info.dart';
+import 'package:coworking/screens/map/pin/pin_widget.dart';
 import 'package:coworking/services/database_review.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -62,7 +62,7 @@ class Pin {
     Navigator.push(
       context  ,
       MaterialPageRoute(
-        builder: (_) => PinInfo(this, imageUrl),
+        builder: (_) => PinWidget(this),
         fullscreenDialog: true,
       ),
     );

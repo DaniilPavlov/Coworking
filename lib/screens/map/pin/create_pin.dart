@@ -7,7 +7,7 @@ import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/pin.dart';
 import 'package:coworking/models/review.dart';
 import 'package:coworking/screens/map/map.dart';
-import 'package:coworking/screens/map/new_review_form.dart';
+import 'package:coworking/screens/map/pin/review/new_review_form.dart';
 import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
 

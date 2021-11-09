@@ -68,7 +68,7 @@ class DatabaseAccount {
         .then((snapshot) => snapshot.docs.first["isAdmin"]);
   }
 
-  static Future<String> getUserNameByID(String id) {
+  static Future<String> getUserNameByID(String? id) {
     return FirebaseFirestore.instance
         .collection("users")
         .where("userID", isEqualTo: id)

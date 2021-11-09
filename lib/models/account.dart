@@ -28,9 +28,10 @@ class Account {
       userName: user.displayName,
     );
   }
-
+  
+//TODO разобраться почему Bad State No Element
   Future<String?> get userName async =>
-      await DatabaseAccount.getUserNameByID(id!);
+      await DatabaseAccount.getUserNameByID(id);
 
   Map<String, dynamic> asMap() {
     Map<String, dynamic> accountMap = {};
