@@ -5,7 +5,7 @@ import 'package:coworking/models/review.dart';
 import 'package:coworking/services/database_review.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/screens/login/login_widget.dart';
+import 'package:coworking/screens/login/login_screen.dart';
 
 import 'package:coworking/services/sign_in.dart';
 
@@ -254,7 +254,7 @@ void deleteAccount(BuildContext context) async {
   await currentUser!.delete();
   SignIn().signOutGoogle();
   Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => LoginScreen()),
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
       (Route<dynamic> route) => true);
 }
 
@@ -264,6 +264,6 @@ void signOut(BuildContext context) {
   Account.currentAccount = null;
   //изменил рут на тру, теперь при перезаходе пины активны
   Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => LoginScreen()),
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
       (Route<dynamic> route) => true);
 }

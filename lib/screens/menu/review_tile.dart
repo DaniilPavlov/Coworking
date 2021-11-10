@@ -1,4 +1,3 @@
-import 'package:coworking/services/database_account.dart';
 import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/review.dart';
 import 'package:coworking/services/database_review.dart';
@@ -7,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:coworking/screens/map/pin/review/new_review_form.dart';
 
-import 'package:coworking/screens/map/map.dart';
+import 'package:coworking/screens/map/map_screen.dart';
 
 //этот класс отвечает за отображение *моих* отзывов
 class YourReviewsListItem extends ListTile {
@@ -60,7 +59,7 @@ class YourReviewsListItem extends ListTile {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => MapPage(
+                      builder: (context) => MapScreen(
                             currentMapPosition: location,
                           )));
             },
@@ -587,7 +586,7 @@ class StarredReviewsListItem extends ListTile {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => MapPage(
+                      builder: (context) => MapScreen(
                             currentMapPosition: location,
                           )));
             },

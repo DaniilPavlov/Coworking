@@ -1,7 +1,7 @@
 import 'package:coworking/models/meeting.dart';
 import 'package:coworking/models/pin.dart';
-import 'package:coworking/screens/login/login_widget.dart';
-import 'package:coworking/screens/map/map.dart';
+import 'package:coworking/screens/login/login_screen.dart';
+import 'package:coworking/screens/map/map_screen.dart';
 import 'package:coworking/screens/map/pin/pin_widget.dart';
 import 'package:coworking/screens/meetings/meeting_info.dart';
 import 'package:coworking/screens/meetings/meetings.dart';
@@ -21,7 +21,7 @@ abstract class MainNavigationRouteNames {
 class MainNavigation {
   String initialRoute = MainNavigationRouteNames.auth;
   final routes = <String, Widget Function(BuildContext)>{
-    MainNavigationRouteNames.auth: (context) => LoginScreen(),
+    MainNavigationRouteNames.auth: (context) => const LoginScreen(),
     MainNavigationRouteNames.meetingsScreen: (context) =>
         const UserMeetingsPage(),
     MainNavigationRouteNames.meetingCreate: (context) => const NewMeetingForm(),
@@ -32,11 +32,11 @@ class MainNavigation {
       case MainNavigationRouteNames.mapScreen:
         final arguments = settings.arguments;
         if (arguments == null) {
-          return MaterialPageRoute(builder: (context) => MapPage());
+          return MaterialPageRoute(builder: (context) => MapScreen());
         }
         final map = arguments as LatLng;
         return MaterialPageRoute(
-            builder: (context) => MapPage(
+            builder: (context) => MapScreen(
                   currentMapPosition: map,
                 ));
       case MainNavigationRouteNames.meetingDetails:

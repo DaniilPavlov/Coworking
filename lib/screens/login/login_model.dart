@@ -3,6 +3,7 @@ import 'package:coworking/services/sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+
 class LoginModel extends ChangeNotifier {
   String? _errorMessage;
 
@@ -13,6 +14,7 @@ class LoginModel extends ChangeNotifier {
   bool get canStartAuth => !_isAuthProgress;
 
   bool get isAuthProgress => _isAuthProgress;
+
 
   Future<void> auth(BuildContext context) async {
     _isAuthProgress = true;
@@ -33,4 +35,5 @@ class LoginModel extends ChangeNotifier {
     Navigator.of(context)
         .pushReplacementNamed(MainNavigationRouteNames.mapScreen);
   }
+
 }

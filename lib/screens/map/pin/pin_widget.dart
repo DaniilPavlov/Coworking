@@ -1,5 +1,4 @@
 import 'package:coworking/navigation/main_navigation.dart';
-import 'package:coworking/screens/map/map.dart';
 import 'package:coworking/services/database_review.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,7 +16,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 class PinWidget extends StatefulWidget {
   final Pin pin;
 
-  PinWidget(this.pin, {Key? key}) : super(key: key);
+  const PinWidget(this.pin, {Key? key}) : super(key: key);
 
   @override
   _PinWidgetState createState() => _PinWidgetState();

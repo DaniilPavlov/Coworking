@@ -1,6 +1,6 @@
 import 'package:coworking/models/pin.dart';
 import 'package:coworking/navigation/main_navigation.dart';
-import 'package:coworking/screens/map/map.dart';
+import 'package:coworking/screens/map/map_screen.dart';
 import 'package:coworking/screens/map/map_search.dart';
 import 'package:coworking/screens/map/pin/create_pin.dart';
 import 'package:coworking/screens/meetings/meetings.dart';
@@ -83,7 +83,7 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Set<Pin> pins = context.findAncestorStateOfType<MapPageState>()!.pins;
+    Set<Pin> pins = context.findAncestorStateOfType<MapScreenState>()!.pins;
 
     return Row(
       mainAxisSize: MainAxisSize.max,

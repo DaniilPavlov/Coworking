@@ -1,6 +1,5 @@
 import 'package:coworking/models/account.dart';
 import 'package:coworking/services/database_account.dart';
-import 'package:coworking/services/database_pin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';

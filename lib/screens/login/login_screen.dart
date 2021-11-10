@@ -9,9 +9,8 @@ import 'package:auth_buttons/auth_buttons.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
-  final model = LoginModel();
 
-  LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   //в инхерит передается значение и может использоваться лишь стейтфул виджет.

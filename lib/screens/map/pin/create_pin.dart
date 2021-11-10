@@ -6,7 +6,7 @@ import 'package:coworking/models/category.dart';
 import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/pin.dart';
 import 'package:coworking/models/review.dart';
-import 'package:coworking/screens/map/map.dart';
+import 'package:coworking/screens/map/map_screen.dart';
 import 'package:coworking/screens/map/pin/review/new_review_form.dart';
 import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
@@ -144,7 +144,7 @@ class _PinFormState extends State<PinForm>
     Category category = categoryPickerKey.currentState!.value  ;
 
     CameraPosition position =
-        context.findAncestorStateOfType<MapPageState>()!.currentMapPosition;
+        context.findAncestorStateOfType<MapScreenState>()!.currentMapPosition;
     return DatabasePin.newPin(
       position.target,
       name,
