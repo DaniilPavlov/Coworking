@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'package:coworking/screens/menu/review_tile.dart';
 
-class FlaggedCommentsPage extends StatelessWidget {
-  const FlaggedCommentsPage({Key? key}) : super(key: key);
+class FlaggedReviewsScreen extends StatelessWidget {
+  const FlaggedReviewsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

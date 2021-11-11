@@ -3,7 +3,6 @@ import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/screens/map/map_screen.dart';
 import 'package:coworking/screens/map/map_search.dart';
 import 'package:coworking/screens/map/pin/create_pin.dart';
-import 'package:coworking/screens/meetings/meetings.dart';
 import 'package:flutter/material.dart';
 
 class BottomBar extends StatelessWidget {

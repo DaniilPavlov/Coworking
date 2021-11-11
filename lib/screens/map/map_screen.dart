@@ -20,11 +20,17 @@ import 'package:coworking/screens/map/pin/create_pin.dart';
 
 GoogleMapController? mapController;
 
+late StreamSubscription<List<PinChange>> pinsStream;
+
+late StreamSubscription<ServiceStatus> locationStream;
+late AnimationController drawerAnimator;
+
+const double drawerHeight = 300;
+
 class MapScreen extends StatefulWidget {
   static const kDefaultZoom = 10.0;
   final CameraPosition? currentMapPosition;
 
-//TODO тут всегда нул, разобраться
   MapScreen({Key? key, LatLng? currentMapPosition})
       : currentMapPosition = (currentMapPosition == null)
             ? null
@@ -38,13 +44,11 @@ class MapScreen extends StatefulWidget {
 class MapScreenState extends State<MapScreen>
     with SingleTickerProviderStateMixin {
   //используется для анимации состояния перехода нового пина
-  late AnimationController drawerAnimator;
 
-  late bool showDrawer;
-  double drawerHeight = 300;
+  bool showDrawer = false;
 
   // насколько карта закрыта нижней панелью
-  late EdgeInsets mapOverlap;
+  EdgeInsets mapOverlap = EdgeInsets.zero;
   late CameraPosition currentMapPosition;
 
   Set<Pin> pins = <Pin>{};
@@ -81,7 +85,6 @@ class MapScreenState extends State<MapScreen>
     setState(() {
       currentMapPosition = newPosition;
     });
-
     Navigator.of(context)
         .pushNamed(MainNavigationRouteNames.pinDetails, arguments: pin);
   }
@@ -93,14 +96,12 @@ class MapScreenState extends State<MapScreen>
     });
   }
 
-  late StreamSubscription<List<PinChange>> pinsStream;
-
-  late StreamSubscription<ServiceStatus> locationStream;
-
+//TODO разобраться с тостом, говорящем что нет соединения
   void watchLocationStatus() {
     locationStream = Geolocator.getServiceStatusStream()
         .listen((ServiceStatus status) async {
       await LocationStatus.checkLocationPermission();
+
       if (LocationStatus.locationEnabled) {
         while (mapController == null) {}
         currentMapPosition = CameraPosition(
@@ -109,7 +110,6 @@ class MapScreenState extends State<MapScreen>
             zoom: MapScreen.kDefaultZoom);
         mapController!
             .moveCamera(CameraUpdate.newCameraPosition(currentMapPosition));
-        setState(() {});
       }
     });
   }
@@ -158,8 +158,6 @@ class MapScreenState extends State<MapScreen>
       vsync: this,
       duration: const Duration(milliseconds: 250),
     );
-    showDrawer = false;
-    mapOverlap = EdgeInsets.zero;
 
     pinFormKey = GlobalKey<CreatePinState>();
 
@@ -189,12 +187,8 @@ class MapScreenState extends State<MapScreen>
     queryPins();
 
     getLocation = LocationStatus.checkLocationPermission();
-    watchLocationStatus();
-    currentMapPosition = CameraPosition(
-        target: LatLng(LocationStatus.currentPosition.latitude,
-            LocationStatus.currentPosition.longitude),
-        zoom: MapScreen.kDefaultZoom);
 
+    watchLocationStatus();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print("onMessage: $message");
     });
@@ -203,25 +197,30 @@ class MapScreenState extends State<MapScreen>
       print("onLaunch: $message");
       Navigator.of(context).pushNamed(MainNavigationRouteNames.meetingsScreen);
     });
+    currentMapPosition = CameraPosition(
+        target: LatLng(LocationStatus.currentPosition.latitude,
+            LocationStatus.currentPosition.longitude),
+        zoom: MapScreen.kDefaultZoom);
   }
 
-  ///WIDGET BUILD
+  void shouldMoveLocation() {
+    if (LocationStatus.locationEnabled &&
+        LocationStatus.isMapControllerConnected == false &&
+        mapController != null) {
+      LocationStatus.isMapControllerConnected =
+          !LocationStatus.isMapControllerConnected;
+      currentMapPosition = CameraPosition(
+          target: LatLng(LocationStatus.currentPosition.latitude,
+              LocationStatus.currentPosition.longitude),
+          zoom: MapScreen.kDefaultZoom);
+      mapController!
+          .moveCamera(CameraUpdate.newCameraPosition(currentMapPosition));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (LocationStatus.locationEnabled) {
-      if (LocationStatus.isMapControllerConnected == false &&
-          mapController != null) {
-        LocationStatus.isMapControllerConnected =
-            !LocationStatus.isMapControllerConnected;
-        currentMapPosition = CameraPosition(
-            target: LatLng(LocationStatus.currentPosition.latitude,
-                LocationStatus.currentPosition.longitude),
-            zoom: MapScreen.kDefaultZoom);
-        mapController!
-            .moveCamera(CameraUpdate.newCameraPosition(currentMapPosition));
-        print("AUF3");
-      }
-    }
+    shouldMoveLocation();
     return FutureBuilder(
         future: getLocation,
         builder: (context, snapshot) {
@@ -269,10 +268,6 @@ class MapScreenState extends State<MapScreen>
                   initialPosition: currentMapPosition,
                   locationEnabled: LocationStatus.locationEnabled,
                   mapOverlap: mapOverlap,
-                  drawerHeight: drawerHeight,
-                  pins: pins,
-                  pinAnimation: drawerAnimator,
-                  pinsStream: pinsStream,
                 ),
                 drawer: const MenuDrawer(),
                 floatingActionButtonLocation:
@@ -294,9 +289,10 @@ class MapScreenState extends State<MapScreen>
               ),
             );
           } else {
-            return const LogoDecoration(
+            return const Scaffold(
+                body: LogoDecoration(
               child: Center(child: CircularProgressIndicator()),
-            );
+            ));
           }
         });
   }
@@ -305,7 +301,12 @@ class MapScreenState extends State<MapScreen>
   void dispose() {
     drawerAnimator.dispose();
     print("DISPOSE LOCATION STREAM");
-    locationStream.cancel;
+    locationStream.cancel();
+    pinsStream.cancel();
+    LocationStatus.locationEnabled = false;
+    LocationStatus.isStarted = false;
+    LocationStatus.isMapControllerConnected = false;
+    LocationStatus.locationStatusChanged = false;
     super.dispose();
   }
 }
@@ -317,44 +318,28 @@ class MapBody extends StatefulWidget {
     required this.initialPosition,
     required this.locationEnabled,
     required this.mapOverlap,
-    required this.drawerHeight,
-    required this.pins,
-    required this.pinAnimation,
-    required this.pinsStream,
   }) : super(key: key);
 
   final Function(CameraPosition) mapMoveCallback;
   final CameraPosition initialPosition;
   final bool locationEnabled;
   final EdgeInsets mapOverlap;
-  final double drawerHeight;
-
-  late Set<Pin> pins;
-
-  final Animation<double> pinAnimation;
-  final StreamSubscription<List<PinChange>> pinsStream;
 
   @override
   State<MapBody> createState() => MapBodyState();
 }
 
-class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
-  //начальное состояние, проверяем пермишены
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance!.addObserver(this);
-  }
-
+class MapBodyState extends State<MapBody> {
   //отписываемся от стрима с пинами
   @override
   void dispose() {
     print("DISPOSE PINS STREAM");
-    widget.pinsStream.cancel();
-    WidgetsBinding.instance!.removeObserver(this);
+    mapController!.dispose();
+    markers.clear();
     super.dispose();
   }
 
+  final Animation<double> pinAnimation = drawerAnimator;
   static Set<Marker> markers = <Marker>{};
 
   onMapCreated(GoogleMapController controller) {
@@ -367,7 +352,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
     return Stack(
       children: <Widget>[
         AnimatedBuilder(
-          animation: widget.pinAnimation,
+          animation: pinAnimation,
 
           ///Была ошибка с жестом 3 пальцев, добавил ListView с itemExtent
           builder: (context, _) => ListView(
@@ -380,8 +365,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
                   onMapCreated: onMapCreated,
                   padding: widget.mapOverlap +
                       EdgeInsets.only(
-                          bottom:
-                              widget.drawerHeight * widget.pinAnimation.value),
+                          bottom: drawerHeight * pinAnimation.value),
                   // поднимаем +- и надпись гугл
                   markers: markers,
                   myLocationEnabled: widget.locationEnabled,
@@ -405,7 +389,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
             offset: Offset(
               0.0,
               (widget.mapOverlap.top -
-                      widget.drawerHeight -
+                      drawerHeight -
                       widget.mapOverlap.bottom +
                       20) /
                   2,
@@ -413,7 +397,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
 
             //тут наводимся куда поставить наш пин
             child: ScaleTransition(
-              scale: widget.pinAnimation, // масштабирование пина
+              scale: pinAnimation, // масштабирование пина
               child: const FractionalTranslation(
                 translation: Offset(0.0, -0.5), // корректируем пин в центр
                 child: Icon(

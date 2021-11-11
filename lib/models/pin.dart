@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/models/review.dart';
+import 'package:coworking/navigation/main_navigation.dart';
 
-import 'package:coworking/screens/map/pin/pin_widget.dart';
 import 'package:coworking/services/database_review.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -30,7 +30,6 @@ class Pin {
     this._category,
     this.rating,
     BuildContext context, {
-    tags,
     Review? review,
   }) {
     marker = _createMarker(context);
@@ -58,21 +57,12 @@ class Pin {
     // TODO: update DB
   }
 
-  void showPinInfo(context) {
-    Navigator.push(
-      context  ,
-      MaterialPageRoute(
-        builder: (_) => PinWidget(this),
-        fullscreenDialog: true,
-      ),
-    );
-  }
 
   Marker _createMarker(BuildContext context) {
     return Marker(
       markerId: MarkerId(id),
       position: location,
-      onTap: () => showPinInfo(context),
+      onTap: () => Navigator.pushNamed(context, MainNavigationRouteNames.pinDetails, arguments: this),
     );
   }
 
@@ -99,13 +89,12 @@ class Pin {
       BuildContext context) {
     return Pin(
       id,
-      LatLng(pinMap["location"].latitude ,
-          pinMap["location"].longitude  ),
-      Account(pinMap["author"]  ),
-      pinMap["name"]  ,
-      pinMap["imageUrl"]  ,
-      Category.find(pinMap["category"]  ),
-      pinMap["rating"]  ,
+      LatLng(pinMap["location"].latitude, pinMap["location"].longitude),
+      Account(pinMap["author"]),
+      pinMap["name"],
+      pinMap["imageUrl"],
+      Category.find(pinMap["category"]),
+      pinMap["rating"],
       context,
       review: review,
     );

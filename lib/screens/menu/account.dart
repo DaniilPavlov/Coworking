@@ -1,11 +1,11 @@
 import 'package:coworking/models/account.dart';
+import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/services/database_account.dart';
 import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/review.dart';
 import 'package:coworking/services/database_review.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/screens/login/login_screen.dart';
 
 import 'package:coworking/services/sign_in.dart';
 
@@ -253,17 +253,14 @@ void deleteAccount(BuildContext context) async {
   DatabaseAccount.deleteUser(Account.currentAccount!);
   await currentUser!.delete();
   SignIn().signOutGoogle();
-  Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (Route<dynamic> route) => true);
+   Navigator.of(context)
+      .popUntil(ModalRoute.withName(MainNavigationRouteNames.auth));
 }
 
 void signOut(BuildContext context) {
   FirebaseAuth.instance.signOut();
   SignIn().signOutGoogle();
   Account.currentAccount = null;
-  //изменил рут на тру, теперь при перезаходе пины активны
-  Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (Route<dynamic> route) => true);
+  Navigator.of(context)
+      .popUntil(ModalRoute.withName(MainNavigationRouteNames.auth));
 }

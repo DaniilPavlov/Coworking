@@ -46,9 +46,7 @@ class _MeetingInfoState extends State<MeetingInfo> {
                   widget.meeting.dateCompleted =
                       value.dateCompleted  ;
                 });
-              } else {
-                print('Do nothing');
-              }
+              } 
             });
           } else {
             buildToast('Вы не автор!');

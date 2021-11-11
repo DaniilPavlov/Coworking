@@ -10,7 +10,7 @@ class LocationStatus {
   static bool locationStatusChanged = false;
 
   static Position currentPosition = const Position(
-      longitude: 31.359357,
+      longitude: 30.359357,
       latitude: 59.933895,
       accuracy: 0.0,
       altitude: 0.0,

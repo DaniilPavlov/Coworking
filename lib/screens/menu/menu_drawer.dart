@@ -1,13 +1,10 @@
 import 'package:coworking/models/account.dart';
+import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/services/database_account.dart';
-import 'package:coworking/screens/menu/favourite_reviews.dart';
-import 'package:coworking/screens/menu/user_reviews.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'package:coworking/services/sign_in.dart';
 import 'package:coworking/screens/menu/account.dart';
-import 'package:coworking/screens/menu/flagged_reviews.dart';
 
 class MenuDrawer extends StatefulWidget {
   const MenuDrawer({Key? key}) : super(key: key);
@@ -50,25 +47,21 @@ class _MenuDrawerState extends State<MenuDrawer> {
               (_user == null) ? "Username" : _user!.displayName!,
             ),
             accountEmail: Text(
-              (_user == null) ? "Email" : _user!.email! ,
+              (_user == null) ? "Email" : _user!.email!,
             ),
           ),
           ListTile(
             title: const Text("Понравившиеся отзывы"),
             onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const FavouriteReviewsScreen()));
+              Navigator.pushNamed(
+                  context, MainNavigationRouteNames.favouriteReviews);
             },
           ),
           ListTile(
             title: const Text("Ваши отзывы"),
             onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const UserCommentsPage()));
+              Navigator.pushNamed(
+                  context, MainNavigationRouteNames.userReviews);
             },
           ),
           ListTile(
@@ -95,10 +88,8 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   return ListTile(
                     title: const Text("Жалобы на отзывы"),
                     onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const FlaggedCommentsPage()));
+                      Navigator.pushNamed(
+                          context, MainNavigationRouteNames.flaggedReviews);
                     },
                   );
                 } else {

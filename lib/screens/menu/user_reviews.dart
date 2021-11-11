@@ -4,8 +4,8 @@ import 'package:coworking/models/account.dart';
 import 'package:coworking/models/review.dart';
 import 'package:coworking/screens/menu/review_tile.dart';
 
-class UserCommentsPage extends StatelessWidget {
-  const UserCommentsPage({Key? key}) : super(key: key);
+class UserReviewsScreen extends StatelessWidget {
+  const UserReviewsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

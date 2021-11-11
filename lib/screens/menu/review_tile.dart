@@ -1,3 +1,4 @@
+import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/review.dart';
 import 'package:coworking/services/database_review.dart';
@@ -6,9 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:coworking/screens/map/pin/review/new_review_form.dart';
 
-import 'package:coworking/screens/map/map_screen.dart';
 
-//этот класс отвечает за отображение *моих* отзывов
 class YourReviewsListItem extends ListTile {
   final String name;
   final DateTime date;
@@ -56,12 +55,9 @@ class YourReviewsListItem extends ListTile {
             color: const Color.fromRGBO(0, 0, 0, 0.3),
             onPressed: () {
               //заменяем страницу в стеке страниц
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MapScreen(
-                            currentMapPosition: location,
-                          )));
+              Navigator.pushReplacementNamed(
+                  context, MainNavigationRouteNames.mapScreen,
+                  arguments: location);
             },
           ),
         ],
@@ -146,7 +142,7 @@ class _PinListItemState extends State<PinListItem> {
       oldRate = widget.review.userRate;
       Navigator.of(context).pop(context);
       widget.review.pin!.rating =
-          await DatabasePin.updateRateOfPin(widget.review.pin!.id) ;
+          await DatabasePin.updateRateOfPin(widget.review.pin!.id);
       Clipboard.setData(ClipboardData(text: widget.review.body));
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(widget.review.body),
@@ -324,11 +320,12 @@ class _PinListItemState extends State<PinListItem> {
                                   height: 50.0,
                                   child: ElevatedButton(
                                     onPressed: () async {
-                                      DatabaseReview.deleteReview(widget.review);
+                                      DatabaseReview.deleteReview(
+                                          widget.review);
                                       Navigator.pop(context);
                                       widget.review.pin?.rating =
                                           await DatabasePin.updateRateOfPin(
-                                              widget.review.pin?.id) ;
+                                              widget.review.pin?.id);
                                     },
                                     child: const Text(
                                       'Удалить',
@@ -447,7 +444,7 @@ class _PinListItemState extends State<PinListItem> {
                     future: widget.review.author.userName,
                     builder: (_, snapshot) => Text(
                       (snapshot.hasData)
-                          ? snapshot.data.toString()  
+                          ? snapshot.data.toString()
                           : "Anonymous",
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -583,12 +580,9 @@ class StarredReviewsListItem extends ListTile {
             color: const Color.fromRGBO(0, 0, 0, 0.3),
             onPressed: () {
               //заменяем страницу в стеке страниц
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MapScreen(
-                            currentMapPosition: location,
-                          )));
+              Navigator.pushReplacementNamed(
+                  context, MainNavigationRouteNames.mapScreen,
+                  arguments: location);
             },
           ),
           const Spacer(),

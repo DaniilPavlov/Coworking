@@ -9,7 +9,6 @@ import 'package:auth_buttons/auth_buttons.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
-
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
@@ -69,10 +68,9 @@ class _LoginView extends StatelessWidget {
             ),
             height: 50,
           ),
-          // ignore: prefer_const_constructors
-          Padding(
-            padding: const EdgeInsets.only(top: 300, left: 40, right: 40),
-            child: const ErrorMessageWidget(),
+          const Padding(
+            padding: EdgeInsets.only(top: 300, left: 40, right: 40),
+            child: ErrorMessageWidget(),
           )
         ]),
       ),

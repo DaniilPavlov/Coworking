@@ -33,7 +33,7 @@ class LoginModel extends ChangeNotifier {
     _isAuthProgress = false;
     notifyListeners();
     Navigator.of(context)
-        .pushReplacementNamed(MainNavigationRouteNames.mapScreen);
+        .pushNamed(MainNavigationRouteNames.mapScreen);
   }
 
 }
