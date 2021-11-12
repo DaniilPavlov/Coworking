@@ -5,7 +5,7 @@ import 'package:coworking/services/database_review.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:coworking/screens/map/pin/review/new_review_form.dart';
+import 'package:coworking/screens/map/pin/review/review_form.dart';
 
 
 class YourReviewsListItem extends ListTile {
@@ -125,7 +125,7 @@ class _PinListItemState extends State<PinListItem> {
             double.parse(rateController.text) > 0)) {
       widget.review.body = reviewController.text;
       widget.review.userRate = double.parse(rateController.text);
-      widget.review.totalRate = NewReviewFormState().countRate(
+      widget.review.totalRate = ReviewFormState().countRate(
           widget.review.isFood,
           widget.review.isFree,
           widget.review.isRazors,

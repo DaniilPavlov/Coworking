@@ -25,7 +25,7 @@ late StreamSubscription<List<PinChange>> pinsStream;
 late StreamSubscription<ServiceStatus> locationStream;
 late AnimationController drawerAnimator;
 
-const double drawerHeight = 300;
+const double drawerHeight = 315;
 
 class MapScreen extends StatefulWidget {
   static const kDefaultZoom = 10.0;
@@ -77,14 +77,12 @@ class MapScreenState extends State<MapScreen>
     });
   }
 
-  // ОТКРЫВАЕМ ИНФОРМАЦИЮ О ПИНЕ
-  // TODO не работает
-  void updateMapPosition(Pin pin) {
-    CameraPosition newPosition =
+  // открываем пин из серча
+  void openPinFromSearch(Pin pin) {
+    currentMapPosition =
         CameraPosition(target: pin.location, zoom: MapScreen.kDefaultZoom);
-    setState(() {
-      currentMapPosition = newPosition;
-    });
+    mapController!
+        .moveCamera(CameraUpdate.newCameraPosition(currentMapPosition));
     Navigator.of(context)
         .pushNamed(MainNavigationRouteNames.pinDetails, arguments: pin);
   }
@@ -266,7 +264,6 @@ class MapScreenState extends State<MapScreen>
                 body: MapBody(
                   mapMoveCallback: (value) => currentMapPosition = value,
                   initialPosition: currentMapPosition,
-                  locationEnabled: LocationStatus.locationEnabled,
                   mapOverlap: mapOverlap,
                 ),
                 drawer: const MenuDrawer(),
@@ -276,7 +273,7 @@ class MapScreenState extends State<MapScreen>
                 resizeToAvoidBottomInset: false,
                 // сделанно для того, чтобы при открытии клавиатуры карта не изменяла размер
                 extendBody: true,
-                // сверху над картой помещаем боттом нав бар
+                // сверху над картой помещаем боттом бар
                 bottomNavigationBar: BottomBar(
                   pinFormKey,
                   closeDrawer,
@@ -284,7 +281,7 @@ class MapScreenState extends State<MapScreen>
                   drawerHeight,
                   drawerAnimator,
                   showDrawer,
-                  updateMapPosition,
+                  openPinFromSearch,
                 ),
               ),
             );
@@ -316,13 +313,11 @@ class MapBody extends StatefulWidget {
     Key? key,
     required this.mapMoveCallback,
     required this.initialPosition,
-    required this.locationEnabled,
     required this.mapOverlap,
   }) : super(key: key);
 
   final Function(CameraPosition) mapMoveCallback;
   final CameraPosition initialPosition;
-  final bool locationEnabled;
   final EdgeInsets mapOverlap;
 
   @override
@@ -333,7 +328,7 @@ class MapBodyState extends State<MapBody> {
   //отписываемся от стрима с пинами
   @override
   void dispose() {
-    print("DISPOSE PINS STREAM");
+    print("DISPOSE MapController");
     mapController!.dispose();
     markers.clear();
     super.dispose();
@@ -368,8 +363,8 @@ class MapBodyState extends State<MapBody> {
                           bottom: drawerHeight * pinAnimation.value),
                   // поднимаем +- и надпись гугл
                   markers: markers,
-                  myLocationEnabled: widget.locationEnabled,
-                  myLocationButtonEnabled: widget.locationEnabled,
+                  myLocationEnabled: LocationStatus.locationEnabled,
+                  myLocationButtonEnabled: LocationStatus.locationEnabled,
                   onCameraMove: widget.mapMoveCallback,
                   gestureRecognizers: {}
                     ..add(Factory<PanGestureRecognizer>(

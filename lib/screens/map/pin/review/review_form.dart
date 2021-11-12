@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:coworking/models/account.dart';
 import 'package:coworking/models/review.dart';
 
-class NewReviewForm extends StatefulWidget {
-  const NewReviewForm({Key? key}) : super(key: key);
+class ReviewForm extends StatefulWidget {
+  const ReviewForm({Key? key}) : super(key: key);
 
   @override
-  State<NewReviewForm> createState() => NewReviewFormState();
+  State<ReviewForm> createState() => ReviewFormState();
 }
 
-class NewReviewFormState extends State<NewReviewForm>
-    with AutomaticKeepAliveClientMixin<NewReviewForm> {
+class ReviewFormState extends State<ReviewForm>
+    with AutomaticKeepAliveClientMixin<ReviewForm> {
   late GlobalKey<FormState> formKey;
 
   late TextEditingController reviewController;
@@ -176,7 +176,7 @@ class NewReviewFormState extends State<NewReviewForm>
   Review getReview() {
     formKey.currentState!.save();
     return Review(
-      //tODO проверить
+        //tODO проверить
         "null",
         Account.currentAccount!,
         reviewController.text,

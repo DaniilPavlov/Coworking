@@ -8,7 +8,7 @@ import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/pin.dart';
 import 'package:coworking/models/review.dart';
 import 'package:coworking/screens/menu/review_tile.dart';
-import 'package:coworking/screens/map/pin/review/new_review_form.dart';
+import 'package:coworking/screens/map/pin/review/review_form.dart';
 import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -23,14 +23,14 @@ class PinWidget extends StatefulWidget {
 }
 
 class _PinWidgetState extends State<PinWidget> {
-  late GlobalKey<NewReviewFormState> reviewFormKey;
+  late GlobalKey<ReviewFormState> reviewFormKey;
   var visitedText = "";
   var visitedColor = Colors.orange;
   var threeMonthSet = [];
 
   @override
   void initState() {
-    reviewFormKey = GlobalKey<NewReviewFormState>();
+    reviewFormKey = GlobalKey<ReviewFormState>();
     super.initState();
     threeMonthSet = [0, 0, 0, 0, 0];
   }
@@ -283,7 +283,7 @@ class _PinWidgetState extends State<PinWidget> {
                 },
               )
             ]),
-            body: NewReviewForm(key: reviewFormKey),
+            body: ReviewForm(key: reviewFormKey),
           ),
         ),
       ),

@@ -13,17 +13,18 @@ class BottomBar extends StatelessWidget {
   final double drawerHeight;
   final Animation<double> openAnimation;
   final bool drawerOpen;
-  final Function(Pin) updateCameraPosition;
+  final Function(Pin) openPinFromSearch;
 
   const BottomBar(
-    this.pinFormKey,
-    this.closeBarCallback,
-    this.barHeightCallback,
-    this.drawerHeight,
-    this.openAnimation,
-    this.drawerOpen,
-    this.updateCameraPosition,
-  );
+      this.pinFormKey,
+      this.closeBarCallback,
+      this.barHeightCallback,
+      this.drawerHeight,
+      this.openAnimation,
+      this.drawerOpen,
+      this.openPinFromSearch,
+      {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,12 +44,42 @@ class BottomBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          BottomNavBar(
-            closeBarCallback,
-            drawerOpen,
-            updateCameraPosition,
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Visibility(
+                visible: !drawerOpen,
+                child: IconButton(
+                  iconSize: 40,
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                  icon: const Icon(
+                    Icons.menu,
+                    semanticLabel: "Menu",
+                  ),
+                ),
+                replacement: IconButton(
+                  iconSize: 40,
+                  onPressed: () {
+                    closeBarCallback();
+                  },
+                  icon: const Icon(
+                    Icons.arrow_back,
+                    semanticLabel: "Cancel",
+                  ),
+                ),
+              ),
+              SearchButton(
+                  drawerOpen: drawerOpen,
+                  updateCameraPosition: openPinFromSearch),
+  
+              const Spacer(),
+              MeetingsButton(drawerOpen: drawerOpen),
+              const HintButton(),
+            ],
           ),
-
           // по нажатию центральной кнопки - поднимаем боттем бар и
           // связанные с ним элементы, создаем новый пин
           Visibility(
@@ -59,7 +90,7 @@ class BottomBar extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.only(bottom: keyboardPadding),
                 //добавил 15, при изменении drawerHeight ничего не происходило
-                child: CreatePin(drawerHeight + 15, key: pinFormKey),
+                child: CreatePin(drawerHeight , key: pinFormKey),
               ),
             ),
           ),
@@ -69,101 +100,80 @@ class BottomBar extends StatelessWidget {
   }
 }
 
-class BottomNavBar extends StatelessWidget {
-  final Function closeBarCallback;
+class SearchButton extends StatelessWidget {
   final bool drawerOpen;
-  final Function(Pin) updateMapPosition;
+  final Function(Pin) updateCameraPosition;
 
-  const BottomNavBar(
-    this.closeBarCallback,
-    this.drawerOpen,
-    this.updateMapPosition,
-  );
+  const SearchButton(
+      {Key? key, required this.drawerOpen, required this.updateCameraPosition})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     Set<Pin> pins = context.findAncestorStateOfType<MapScreenState>()!.pins;
-
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Visibility(
-          visible: !drawerOpen,
-          child: IconButton(
-            iconSize: 40,
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-            icon: const Icon(
-              Icons.menu,
-              semanticLabel: "Menu",
-            ),
-          ),
-
-          //когда нажимаем центральную кнопку, иконка меню заменяется
-          //на стрелочку назад
-          replacement: IconButton(
-            iconSize: 40,
-            onPressed: () {
-              closeBarCallback();
-            },
-            icon: const Icon(
-              Icons.arrow_back,
-              semanticLabel: "Cancel",
-            ),
-          ),
+    return Visibility(
+      visible: !drawerOpen,
+      child: IconButton(
+        iconSize: 40,
+        onPressed: () async {
+          Pin? pin = await showSearch(
+              context: context, delegate: MapSearchDelegate(pins));
+          if (pin != null) {
+            updateCameraPosition(pin);
+          }
+        },
+        icon: const Icon(
+          Icons.search,
+          color: Colors.orange,
+          semanticLabel: "Search",
         ),
+      ),
+    );
+  }
+}
 
-        Visibility(
-            visible: !drawerOpen,
-            child: IconButton(
-              iconSize: 40,
-              onPressed: () async {
-                Pin? pin = await showSearch(
-                    context: context, delegate: MapSearchDelegate(pins));
-                if (pin != null) {
-                  updateMapPosition(pin);
-                }
-              },
-              icon: const Icon(
-                Icons.search,
-                color: Colors.orange,
-                semanticLabel: "Search",
-              ),
-            )),
+class MeetingsButton extends StatelessWidget {
+  final bool drawerOpen;
+  const MeetingsButton({Key? key, required this.drawerOpen}) : super(key: key);
 
-        //раскидываем кнопки по разным концам
-        const Spacer(),
-        Visibility(
-            visible: !drawerOpen,
-            child: IconButton(
-              iconSize: 40,
-              onPressed: () {
-                Navigator.of(context)
-                    .pushNamed(MainNavigationRouteNames.meetingsScreen);
-              },
-              icon: const Icon(
-                Icons.emoji_people,
-                color: Colors.orange,
-                semanticLabel: "Meetings",
-              ),
-            )),
-        PopupMenuButton(
-          tooltip: "Help",
-          icon: const Icon(
-            Icons.help,
-            color: Colors.black,
-          ),
-          itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-            const PopupMenuItem(
-              child: Text(
-                  "\nЭто наша карта. Здесь можно свободно перемещаться и узнавать информацию о местах кликнув по ним.\n"
-                  "\nВы можете добавить свой собственный пин, нажав кнопку с плюсом и центрируя экран в нужном месте.\n"
-                  "\nВы также можете найти пин по названию с помощью значка поиска.\n",
-                  textAlign: TextAlign.justify),
-            ),
-          ],
+  @override
+  Widget build(BuildContext context) {
+    return Visibility(
+      visible: !drawerOpen,
+      child: IconButton(
+        iconSize: 40,
+        onPressed: () {
+          Navigator.of(context)
+              .pushNamed(MainNavigationRouteNames.meetingsScreen);
+        },
+        icon: const Icon(
+          Icons.emoji_people,
+          color: Colors.orange,
+          semanticLabel: "Meetings",
+        ),
+      ),
+    );
+  }
+}
+
+class HintButton extends StatelessWidget {
+  const HintButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton(
+      tooltip: "Help",
+      icon: const Icon(
+        Icons.help,
+        color: Colors.black,
+      ),
+      itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+        const PopupMenuItem(
+          child: Text(
+              "\nЭто наша карта. Здесь можно свободно перемещаться и узнавать информацию о местах кликнув по ним.\n"
+              "\nВы можете добавить свой собственный пин, нажав кнопку с плюсом и центрируя экран в нужном месте.\n"
+              "\nВы также можете найти пин по названию с помощью значка поиска.\n",
+              textAlign: TextAlign.justify),
         ),
       ],
     );
