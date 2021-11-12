@@ -171,7 +171,7 @@ class MapScreenState extends State<MapScreen>
         if (pinFormKey.currentState!.validate()) {
           pinFormKey.currentState!.createPin().then((pin) {
             pins.add(pin);
-            DatabasePin.addVisited(Account.currentAccount!.id!, pin.id);
+            DatabasePin.addVisited(Account.currentAccount!.id, pin.id);
           });
           closeDrawer();
         }

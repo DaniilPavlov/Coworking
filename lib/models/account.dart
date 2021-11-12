@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class Account {
   static Account? currentAccount;
-  String? id;
+  String id;
 
   String? _userName;
   String? _email;
@@ -28,10 +28,14 @@ class Account {
       userName: user.displayName,
     );
   }
-  
-//TODO разобраться почему Bad State No Element
-  Future<String?> get userName async =>
-      await DatabaseAccount.getUserNameByID(id);
+
+  Future<String?> get userName async {
+    if (_userName != null) {
+      return _userName!;
+    } else {
+      return await DatabaseAccount.getUserNameByID(id);
+    }
+  }
 
   Map<String, dynamic> asMap() {
     Map<String, dynamic> accountMap = {};

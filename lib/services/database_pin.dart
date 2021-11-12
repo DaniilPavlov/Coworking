@@ -251,6 +251,7 @@ class DatabasePin {
 
   static void deletePin(Pin pin) {
     DatabaseReview.justifyFlag(pin.id);
+    FirebaseStorage.instance.refFromURL(pin.imageUrl).delete();
     FirebaseFirestore.instance
         .collection("reviews")
         .where("pinID", isEqualTo: pin.id)

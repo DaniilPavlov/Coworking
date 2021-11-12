@@ -61,14 +61,14 @@ class _PinWidgetState extends State<PinWidget> {
                   visitedColor = Colors.red;
                 });
                 DatabasePin.deleteVisited(
-                    Account.currentAccount!.id!, widget.pin.id);
+                    Account.currentAccount!.id, widget.pin.id);
               } else {
                 setState(() {
                   visitedText = "Посещено";
                   visitedColor = Colors.green;
                 });
                 DatabasePin.addVisited(
-                    Account.currentAccount!.id!, widget.pin.id);
+                    Account.currentAccount!.id, widget.pin.id);
               }
             },
             style: ButtonStyle(

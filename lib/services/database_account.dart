@@ -68,14 +68,19 @@ class DatabaseAccount {
         .then((snapshot) => snapshot.docs.first["isAdmin"]);
   }
 
-  static Future<String> getUserNameByID(String? id) {
-    return FirebaseFirestore.instance
-        .collection("users")
-        .where("userID", isEqualTo: id)
-        .get()
-        .then((snapshot) {
-      return snapshot.docs.first["name"];
-    });
+  static Future<String?> getUserNameByID(String id) async {
+    try {
+      return await FirebaseFirestore.instance
+          .collection("users")
+          .where("userID", isEqualTo: id)
+          .get()
+          .then((snapshot) {
+        return snapshot.docs.first["name"];
+      });
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
   static void addUserToDatabase(Account? user) {

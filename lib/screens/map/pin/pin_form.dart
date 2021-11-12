@@ -57,13 +57,18 @@ class PinFormState extends State<PinForm>
               option == null ? "Необходима категория места" : null,
           options: Category.all(),
         ),
-        TextFormField(
-          controller: nameController,
-          validator: (text) =>
-              text!.isEmpty ? "Необходимо название места" : null,
-          decoration: const InputDecoration(
-            hintText: "Название места",
-            contentPadding: EdgeInsets.all(8.0),
+        Padding(
+          padding: const EdgeInsets.only(top: 40.0, left: 20.0, right: 20.0),
+          child: TextFormField(
+            controller: nameController,
+            validator: (text) =>
+                text!.isEmpty ? "Необходимо название места" : null,
+            maxLines: 2,
+            decoration: const InputDecoration(
+              hintText: "Название места",
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.all(8.0),
+            ),
           ),
         ),
       ]),

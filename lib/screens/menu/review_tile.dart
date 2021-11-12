@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:coworking/screens/map/pin/review/review_form.dart';
 
-
 class YourReviewsListItem extends ListTile {
   final String name;
   final DateTime date;
