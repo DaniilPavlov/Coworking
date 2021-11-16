@@ -1,70 +1,11 @@
-import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/review.dart';
 import 'package:coworking/services/database_review.dart';
+import 'package:coworking/utils/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'package:coworking/screens/map/pin/review/review_form.dart';
-
-class YourReviewsListItem extends ListTile {
-  final String name;
-  final DateTime date;
-  final String comment;
-  final LatLng location;
-  final String photoUrl;
-
-  const YourReviewsListItem({
-    Key? key,
-    required this.name,
-    required this.date,
-    required this.comment,
-    required this.location,
-    required this.photoUrl,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Image.network(
-            photoUrl,
-            height: 100,
-            width: 100,
-          ),
-          Expanded(
-            flex: 3,
-            child: CustomListItem(
-              name: name,
-              date: date,
-              comment: comment,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.pin_drop_outlined,
-              color: Colors.black,
-              semanticLabel: "Go to pin",
-            ),
-            iconSize: 40.0,
-            color: const Color.fromRGBO(0, 0, 0, 0.3),
-            onPressed: () {
-              //заменяем страницу в стеке страниц
-              //TODO не работает переход по локации
-              Navigator.pushReplacementNamed(
-                  context, MainNavigationRouteNames.mapScreen,
-                  arguments: location);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 //информация по комментарию пина: флажок\сердечко
 //автор, время, сам коммент
@@ -387,7 +328,7 @@ class _PinListItemState extends State<PinListItem> {
                                           children: <Widget>[
                                             Expanded(
                                               child: Text(
-                                                formatDate(
+                                                FormatDate.formatDate(
                                                     widget.review.timestamp),
                                                 style: Theme.of(context)
                                                     .textTheme
@@ -445,7 +386,7 @@ class _PinListItemState extends State<PinListItem> {
                     ),
                   ),
                   Text(
-                    formatDate(widget.review.timestamp),
+                    FormatDate.formatDate(widget.review.timestamp),
                     style: TextStyle(color: Colors.black.withOpacity(0.4)),
                   ),
                 ],
@@ -468,116 +409,9 @@ class _PinListItemState extends State<PinListItem> {
                   });
                 },
               ),
-
             ])
           ],
         ),
-      ),
-    );
-  }
-}
-
-String formatDate(DateTime timestamp) =>
-    timestamp.day.toString().padLeft(2, '0') +
-    "/" +
-    timestamp.month.toString().padLeft(2, '0') +
-    "/" +
-    timestamp.year.toString() +
-    " " +
-    timestamp.hour.toString().padLeft(2, '0') +
-    ":" +
-    timestamp.minute.toString().padLeft(2, '0');
-
-class CustomListItem extends ListTile {
-  // ignore: annotate_overrides, overridden_fields
-  final bool enabled = true;
-  final String name;
-  final DateTime date;
-  final String comment;
-
-  const CustomListItem({
-    Key? key,
-    required this.name,
-    required this.date,
-    required this.comment,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Место: " + name,
-              style:
-                  DefaultTextStyle.of(context).style.apply(fontSizeFactor: 1.3),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            SizedBox(width: 200, child: Text("Отзыв: " + comment)),
-            Text(
-              formatDate(date),
-              style: TextStyle(color: Colors.black.withOpacity(0.4)),
-            ),
-          ]),
-    );
-  }
-}
-
-
-
-//жалобы на отзывы. Показываются только админу
-//Админ устанавливается напрямую через firebase. Вкладка появляется
-//в левом меню.
-class FlaggedReviewsListItem extends ListTile {
-  const FlaggedReviewsListItem(this.review, {Key? key}) : super(key: key);
-
-  final Review review;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Expanded(
-            flex: 3,
-            child: CustomListItem(
-              name: review.pin!.name,
-              date: review.timestamp,
-              comment: review.body,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.check_circle,
-              color: Colors.green,
-              semanticLabel: "Allow",
-            ),
-            iconSize: 40.0,
-            color: Colors.grey[600],
-            onPressed: () {
-              DatabaseReview.justifyFlag(review.id!);
-            },
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.delete,
-              semanticLabel: "Delete",
-            ),
-            iconSize: 40.0,
-            color: Colors.red,
-            onPressed: () {
-              DatabaseReview.deleteReview(review);
-            },
-          ),
-        ],
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'package:coworking/services/database_pin.dart';
 import 'package:flutter/material.dart';
 import 'package:coworking/models/account.dart';
 
-
 class FavouritePinsScreen extends StatelessWidget {
   const FavouritePinsScreen({Key? key}) : super(key: key);
 
@@ -67,7 +66,7 @@ class BodyLayout extends StatelessWidget {
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
                         Pin pin = snapshot.data![index];
-                        return FavouritePinsListItem(pin, pin.location);
+                        return FavouritePinsListItem(pin);
                       },
                     );
                   } else {

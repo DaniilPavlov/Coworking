@@ -7,8 +7,8 @@ import 'package:coworking/screens/meetings/meeting_info.dart';
 import 'package:coworking/screens/meetings/meetings.dart';
 import 'package:coworking/screens/meetings/new_meeting_form.dart';
 import 'package:coworking/screens/menu/favourite_pins/favourite_pins_screen.dart';
-import 'package:coworking/screens/menu/flagged_reviews.dart';
-import 'package:coworking/screens/menu/user_reviews.dart';
+import 'package:coworking/screens/menu/flagged_reviews/flagged_reviews_screen.dart';
+import 'package:coworking/screens/menu/user_reviews/user_reviews_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -52,7 +52,6 @@ class MainNavigation {
           return MaterialPageRoute(builder: (context) => MapScreen());
         }
         final map = arguments as LatLng;
-         print("LOCATION"+ map.toString());
         return MaterialPageRoute(
             builder: (context) => MapScreen(
                   currentMapPosition: map,

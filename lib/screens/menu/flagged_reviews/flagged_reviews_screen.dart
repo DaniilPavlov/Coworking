@@ -1,8 +1,7 @@
 import 'package:coworking/models/review.dart';
+import 'package:coworking/screens/menu/flagged_reviews/flagged_reviews_list.dart';
 import 'package:coworking/services/database_review.dart';
 import 'package:flutter/material.dart';
-
-import 'package:coworking/screens/menu/review_tile.dart';
 
 class FlaggedReviewsScreen extends StatelessWidget {
   const FlaggedReviewsScreen({Key? key}) : super(key: key);

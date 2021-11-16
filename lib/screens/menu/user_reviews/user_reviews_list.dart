@@ -1,11 +1,12 @@
-import 'package:coworking/models/pin.dart';
+import 'package:coworking/models/review.dart';
 import 'package:coworking/navigation/main_navigation.dart';
+import 'package:coworking/utils/format_date.dart';
 import 'package:flutter/material.dart';
 
-class FavouritePinsListItem extends ListTile {
-  final Pin pin;
+class UserReviewsListItem extends ListTile {
+  final Review review;
 
-  const FavouritePinsListItem(this.pin, {Key? key}) : super(key: key);
+  const UserReviewsListItem(this.review, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +14,7 @@ class FavouritePinsListItem extends ListTile {
       child: InkWell(
         onTap: () {
           Navigator.pushNamed(context, MainNavigationRouteNames.pinDetails,
-              arguments: pin);
+              arguments: review.pin);
         },
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -24,15 +25,16 @@ class FavouritePinsListItem extends ListTile {
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2))
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                )
               ],
             ),
             clipBehavior: Clip.hardEdge,
             child: Row(children: [
               Image.network(
-                pin.imageUrl,
+                review.pin!.imageUrl,
                 width: 140,
                 height: 140,
                 fit: BoxFit.fill,
@@ -42,19 +44,33 @@ class FavouritePinsListItem extends ListTile {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      pin.name,
+                      review.pin!.name,
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 19),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(
-                      height: 10,
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(left: 10, right: 10, top: 5),
+                      child: Text(
+                        review.body,
+                        textAlign: TextAlign.justify,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5, bottom: 5),
+                      child: Text(
+                        review.pin!.rating.toStringAsFixed(2),
+                        style: const TextStyle(color: Colors.blueAccent),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     Text(
-                      pin.rating.toStringAsFixed(2),
-                      style: const TextStyle(color: Colors.blueAccent),
-                      overflow: TextOverflow.ellipsis,
+                      FormatDate.formatDate(review.timestamp),
+                      style: TextStyle(color: Colors.black.withOpacity(0.4)),
                     ),
                   ],
                 ),

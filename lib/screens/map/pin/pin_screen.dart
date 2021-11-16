@@ -1,13 +1,13 @@
 import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/services/database_review.dart';
+import 'package:coworking/widgets/google_map_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:coworking/models/account.dart';
 import 'package:coworking/models/category.dart';
 import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/pin.dart';
 import 'package:coworking/models/review.dart';
-import 'package:coworking/screens/menu/review_tile.dart';
+import 'package:coworking/screens/map/pin/review/reviews_list.dart';
 import 'package:coworking/screens/map/pin/review/review_form.dart';
 import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
@@ -74,7 +74,6 @@ class _PinScreenState extends State<PinScreen> {
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18.0),
-                  side: BorderSide(color: visitedColor),
                 ),
               ),
             ),
@@ -222,40 +221,19 @@ class _PinScreenState extends State<PinScreen> {
           }
         });
 
-    Widget bar = SliverAppBar(
+    Widget sliverAppBar = SliverAppBar(
       pinned: true,
-      floating: true,
-      stretch: true,
-      onStretchTrigger: () async {
-        Navigator.maybePop(context);
-      },
-      backgroundColor: Colors.grey,
-      expandedHeight: 400,
+      floating: false,
+      backgroundColor: Colors.orange,
+      expandedHeight: 350,
       actions: <Widget>[
         favouriteButton,
         editPinButton(context),
       ],
       flexibleSpace: FlexibleSpaceBar(
-        title: Container(
-            decoration: const BoxDecoration(
-              color: Colors.orange,
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.all(Radius.circular(2.0)),
-            ),
-            child: Text(
-              widget.pin.name,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.black, fontSize: 22),
-              textAlign: TextAlign.center,
-            )),
-        background: Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            Image.network(
-              widget.pin.imageUrl,
-              fit: BoxFit.fill,
-            ),
-          ],
+        background: Image.network(
+          widget.pin.imageUrl,
+          fit: BoxFit.fill,
         ),
       ),
     );
@@ -302,136 +280,144 @@ class _PinScreenState extends State<PinScreen> {
               backgroundColor: category.colour,
             );
 
+            Widget threeMonthRate = FutureBuilder(
+              future: DatabasePin.threeMonthRate(widget.pin.id),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  threeMonthSet = snapshot.data as List;
+                  return (snapshot.hasData)
+                      ? GridView.count(
+                          physics: const NeverScrollableScrollPhysics(),
+                          childAspectRatio: 6,
+                          crossAxisCount: 2,
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.only(left: 16, right: 16),
+                          children: <Widget>[
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: const Text("Можно приобрести еду"),
+                            ),
+                            Container(
+                              alignment: Alignment.center,
+                              child: Text(
+                                  threeMonthSet.elementAt(1).toString() +
+                                      "% ответили да"),
+                            ),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: const Text("Можно находиться бесплатно"),
+                            ),
+                            Container(
+                              alignment: Alignment.center,
+                              child: Text(
+                                  threeMonthSet.elementAt(2).toString() +
+                                      "% ответили да"),
+                            ),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: const Text("Есть розетки"),
+                            ),
+                            Container(
+                              alignment: Alignment.center,
+                              child: Text(
+                                  threeMonthSet.elementAt(3).toString() +
+                                      "% ответили да"),
+                            ),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: const Text("Есть WiFi"),
+                            ),
+                            Container(
+                              alignment: Alignment.center,
+                              child: Text(
+                                  threeMonthSet.elementAt(4).toString() +
+                                      "% ответили да"),
+                            ),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: const Text("Оценка"),
+                            ),
+                            Container(
+                              alignment: Alignment.center,
+                              child: Text(
+                                  threeMonthSet.elementAt(0).toString() +
+                                      "/10"),
+                            ),
+                          ],
+                        )
+                      : Container();
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
+            );
+
             return CustomScrollView(
               physics: const ClampingScrollPhysics(),
               slivers: <Widget>[
-                bar,
+                sliverAppBar,
                 SliverToBoxAdapter(
-                    child: Column(
-                  children: <Widget>[
-                    Row(children: <Widget>[
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text("Категория:"),
+                  child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          widget.pin.name,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 22,
+                              fontStyle: FontStyle.italic),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                      categoryChip,
-                      FutureBuilder(
-                          future: DatabasePin.updateRateOfPin(widget.pin.id),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              widget.pin.rating = snapshot.data as double;
-                              return (snapshot.hasData)
-                                  ? Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16.0),
-                                      child: Text(
-                                        "Рейтинг: " +
-                                            widget.pin.rating.toString() +
-                                            " / 10",
-                                      ),
-                                    )
-                                  : Container();
-                            } else {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            }
-                          })
-                    ]),
-                    Container(
-                      alignment: Alignment.center,
-                      child: const Text(
-                        "Статистика за последние 3 месяца",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      Row(children: <Widget>[
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text("Категория:"),
+                        ),
+                        categoryChip,
+                        FutureBuilder(
+                            future: DatabasePin.updateRateOfPin(widget.pin.id),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                widget.pin.rating = snapshot.data as double;
+                                return (snapshot.hasData)
+                                    ? Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16.0),
+                                        child: Text(
+                                          "Рейтинг: " +
+                                              widget.pin.rating.toString() +
+                                              " / 10",
+                                        ),
+                                      )
+                                    : Container();
+                              } else {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
+                            })
+                      ]),
+                      GoogleMapButton(location: widget.pin.location),
+                      Container(
+                        alignment: Alignment.center,
+                        child: const Text(
+                          "Статистика за последние 3 месяца",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                    FutureBuilder(
-                        future: DatabasePin.threeMonthRate(widget.pin.id),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            threeMonthSet = snapshot.data as List;
-                            return (snapshot.hasData)
-                                ? GridView.count(
-                                    childAspectRatio: 6,
-                                    crossAxisCount: 2,
-                                    shrinkWrap: true,
-                                    padding: const EdgeInsets.only(
-                                        left: 16, right: 16),
-                                    children: <Widget>[
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        child:
-                                            const Text("Можно приобрести еду"),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        child: Text(threeMonthSet
-                                                .elementAt(1)
-                                                .toString() +
-                                            "% ответили да"),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        child: const Text(
-                                            "Можно находиться бесплатно"),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        child: Text(threeMonthSet
-                                                .elementAt(2)
-                                                .toString() +
-                                            "% ответили да"),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        child: const Text("Есть розетки"),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        child: Text(threeMonthSet
-                                                .elementAt(3)
-                                                .toString() +
-                                            "% ответили да"),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        child: const Text("Есть WiFi"),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        child: Text(threeMonthSet
-                                                .elementAt(4)
-                                                .toString() +
-                                            "% ответили да"),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        child: const Text("Оценка"),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        child: Text(threeMonthSet
-                                                .elementAt(0)
-                                                .toString() +
-                                            "/10"),
-                                      ),
-                                    ],
-                                  )
-                                : Container();
-                          } else {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          }
-                        }),
-                    Container(
-                      alignment: Alignment.center,
-                      child: const Text(
-                        "Отзывы",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      threeMonthRate,
+                      Container(
+                        alignment: Alignment.center,
+                        child: const Text(
+                          "Отзывы",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                  ],
-                )),
-
+                    ],
+                  ),
+                ),
                 snapshot.hasData
                     ? SliverList(
                         delegate: SliverChildBuilderDelegate(
@@ -443,14 +429,11 @@ class _PinScreenState extends State<PinScreen> {
                         child: progressIndicator,
                         hasScrollBody: false,
                       ),
-
-                ///возможно потом верну
-                const SliverFillRemaining(
-                  hasScrollBody: true,
+                const SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 100,
+                  ),
                 ),
-                // SliverToBoxAdapter(
-                //   child: Padding(padding: EdgeInsets.all(1.0)),
-                // )
               ],
             );
           }),

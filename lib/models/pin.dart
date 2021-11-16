@@ -57,12 +57,14 @@ class Pin {
     // TODO: update DB
   }
 
-
   Marker _createMarker(BuildContext context) {
     return Marker(
       markerId: MarkerId(id),
       position: location,
-      onTap: () => Navigator.pushNamed(context, MainNavigationRouteNames.pinDetails, arguments: this),
+      infoWindow: InfoWindow(title: name),
+      onTap: () => Navigator.pushNamed(
+          context, MainNavigationRouteNames.pinDetails,
+          arguments: this),
     );
   }
 

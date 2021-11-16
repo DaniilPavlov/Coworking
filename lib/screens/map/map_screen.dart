@@ -35,7 +35,6 @@ class MapScreen extends StatefulWidget {
             ? null
             : CameraPosition(target: currentMapPosition, zoom: kDefaultZoom),
         super(key: key);
-    
 
   @override
   State<MapScreen> createState() => MapScreenState();
@@ -217,7 +216,7 @@ class MapScreenState extends State<MapScreen>
 
   @override
   Widget build(BuildContext context) {
-      print("main LOCATION"+currentMapPosition.toString());
+    print("main LOCATION" + currentMapPosition.toString());
     shouldMoveLocation();
     return FutureBuilder(
         future: getLocation,
@@ -340,6 +339,7 @@ class MapBodyState extends State<MapBody> {
   onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
+  
 
   //добавляем пины на карту
   @override
