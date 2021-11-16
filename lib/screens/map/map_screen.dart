@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:coworking/models/account.dart';
 import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/screens/login/logo_decoration.dart';
 import 'package:coworking/screens/map/bottom_nav_bar.dart';
@@ -36,6 +35,7 @@ class MapScreen extends StatefulWidget {
             ? null
             : CameraPosition(target: currentMapPosition, zoom: kDefaultZoom),
         super(key: key);
+    
 
   @override
   State<MapScreen> createState() => MapScreenState();
@@ -44,7 +44,6 @@ class MapScreen extends StatefulWidget {
 class MapScreenState extends State<MapScreen>
     with SingleTickerProviderStateMixin {
   //используется для анимации состояния перехода нового пина
-
   bool showDrawer = false;
 
   // насколько карта закрыта нижней панелью
@@ -171,7 +170,7 @@ class MapScreenState extends State<MapScreen>
         if (pinFormKey.currentState!.validate()) {
           pinFormKey.currentState!.createPin().then((pin) {
             pins.add(pin);
-            DatabasePin.addVisited(Account.currentAccount!.id, pin.id);
+            DatabasePin.addFavourite(pin.id);
           });
           closeDrawer();
         }
@@ -218,6 +217,7 @@ class MapScreenState extends State<MapScreen>
 
   @override
   Widget build(BuildContext context) {
+      print("main LOCATION"+currentMapPosition.toString());
     shouldMoveLocation();
     return FutureBuilder(
         future: getLocation,

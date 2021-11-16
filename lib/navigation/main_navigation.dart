@@ -2,11 +2,11 @@ import 'package:coworking/models/meeting.dart';
 import 'package:coworking/models/pin.dart';
 import 'package:coworking/screens/login/login_screen.dart';
 import 'package:coworking/screens/map/map_screen.dart';
-import 'package:coworking/screens/map/pin/pin_widget.dart';
+import 'package:coworking/screens/map/pin/pin_screen.dart';
 import 'package:coworking/screens/meetings/meeting_info.dart';
 import 'package:coworking/screens/meetings/meetings.dart';
 import 'package:coworking/screens/meetings/new_meeting_form.dart';
-import 'package:coworking/screens/menu/favourite_reviews.dart';
+import 'package:coworking/screens/menu/favourite_pins/favourite_pins_screen.dart';
 import 'package:coworking/screens/menu/flagged_reviews.dart';
 import 'package:coworking/screens/menu/user_reviews.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +32,7 @@ class MainNavigation {
   final routes = <String, Widget Function(BuildContext)>{
     MainNavigationRouteNames.auth: (context) => const LoginScreen(),
     MainNavigationRouteNames.favouriteReviews: (context) =>
-        const FavouriteReviewsScreen(),
+        const FavouritePinsScreen(),
     MainNavigationRouteNames.userReviews: (context) =>
         const UserReviewsScreen(),
     MainNavigationRouteNames.flaggedReviews: (context) =>
@@ -47,10 +47,12 @@ class MainNavigation {
     switch (settings.name) {
       case MainNavigationRouteNames.mapScreen:
         final arguments = settings.arguments;
+       
         if (arguments == null) {
           return MaterialPageRoute(builder: (context) => MapScreen());
         }
         final map = arguments as LatLng;
+         print("LOCATION"+ map.toString());
         return MaterialPageRoute(
             builder: (context) => MapScreen(
                   currentMapPosition: map,
@@ -75,7 +77,7 @@ class MainNavigation {
         final arguments = settings.arguments;
         final pin = arguments is Pin ? arguments : '' as Pin;
         return MaterialPageRoute(
-          builder: (context) => PinWidget(pin),
+          builder: (context) => PinScreen(pin),
         );
       default:
         const widget = Text('Navigation error');

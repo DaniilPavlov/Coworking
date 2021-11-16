@@ -13,16 +13,16 @@ import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-class PinWidget extends StatefulWidget {
+class PinScreen extends StatefulWidget {
   final Pin pin;
 
-  const PinWidget(this.pin, {Key? key}) : super(key: key);
+  const PinScreen(this.pin, {Key? key}) : super(key: key);
 
   @override
-  _PinWidgetState createState() => _PinWidgetState();
+  _PinScreenState createState() => _PinScreenState();
 }
 
-class _PinWidgetState extends State<PinWidget> {
+class _PinScreenState extends State<PinScreen> {
   late GlobalKey<ReviewFormState> reviewFormKey;
   var visitedText = "";
   var visitedColor = Colors.orange;
@@ -38,40 +38,39 @@ class _PinWidgetState extends State<PinWidget> {
   @override
   Widget build(BuildContext context) {
     // достаем информацию посещали ли место
-    Widget visitedButton = StreamBuilder<List<String>>(
-      stream: DatabasePin.visitedByUser(Account.currentAccount!, context),
+    Widget favouriteButton = FutureBuilder(
+      future: DatabasePin.isFavourite(widget.pin.id),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Container();
-        } else if (!snapshot.data!.contains(widget.pin.id)) {
-          visitedText = "Не посещено";
-          visitedColor = Colors.red;
+        } else if (snapshot.data == true) {
+          visitedText = "В избранном";
+          visitedColor = Colors.yellow;
         } else {
-          visitedText = "Посещено";
-          visitedColor = Colors.green;
+          visitedText = "Добавить в избранное";
+          visitedColor = Colors.grey;
         }
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: ElevatedButton(
             child: Text(visitedText),
             onPressed: () {
-              if (snapshot.data!.contains(widget.pin.id)) {
+              if (snapshot.data == false) {
                 setState(() {
-                  visitedText = "Не посещено";
-                  visitedColor = Colors.red;
+                  visitedText = "Добавить в избранное";
+                  visitedColor = Colors.grey;
                 });
-                DatabasePin.deleteVisited(
-                    Account.currentAccount!.id, widget.pin.id);
+                DatabasePin.addFavourite(widget.pin.id);
               } else {
                 setState(() {
-                  visitedText = "Посещено";
-                  visitedColor = Colors.green;
+                  visitedText = "В избранном";
+                  visitedColor = Colors.yellow;
                 });
-                DatabasePin.addVisited(
-                    Account.currentAccount!.id, widget.pin.id);
+                DatabasePin.removeFavourite(widget.pin.id);
               }
             },
             style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(visitedColor),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18.0),
@@ -233,7 +232,7 @@ class _PinWidgetState extends State<PinWidget> {
       backgroundColor: Colors.grey,
       expandedHeight: 400,
       actions: <Widget>[
-        visitedButton,
+        favouriteButton,
         editPinButton(context),
       ],
       flexibleSpace: FlexibleSpaceBar(

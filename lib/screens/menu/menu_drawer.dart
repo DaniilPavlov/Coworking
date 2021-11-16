@@ -51,7 +51,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
             ),
           ),
           ListTile(
-            title: const Text("Понравившиеся отзывы"),
+            title: const Text("Понравившиеся места"),
             onTap: () {
               Navigator.pushNamed(
                   context, MainNavigationRouteNames.favouriteReviews);

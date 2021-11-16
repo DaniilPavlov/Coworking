@@ -54,6 +54,7 @@ class YourReviewsListItem extends ListTile {
             color: const Color.fromRGBO(0, 0, 0, 0.3),
             onPressed: () {
               //заменяем страницу в стеке страниц
+              //TODO не работает переход по локации
               Navigator.pushReplacementNamed(
                   context, MainNavigationRouteNames.mapScreen,
                   arguments: location);
@@ -78,7 +79,7 @@ class PinListItem extends StatefulWidget {
 
 class _PinListItemState extends State<PinListItem> {
   bool isFlagged = false;
-  bool isFavourite = false;
+
   String oldComment = "";
   var oldRazors = false;
   var oldFood = false;
@@ -93,11 +94,6 @@ class _PinListItemState extends State<PinListItem> {
     DatabaseReview.isFlagged(widget.review.id).then((value) {
       setState(() {
         isFlagged = value;
-      });
-    });
-    DatabaseReview.isFavourite(widget.review.id!).then((value) {
-      setState(() {
-        isFavourite = value;
       });
     });
     oldComment = widget.review.body;
@@ -472,23 +468,7 @@ class _PinListItemState extends State<PinListItem> {
                   });
                 },
               ),
-              IconButton(
-                padding: EdgeInsets.zero,
-                icon: Icon(
-                  isFavourite ? Icons.star : Icons.star_border,
-                  semanticLabel: "Favourite",
-                ),
-                onPressed: () {
-                  if (isFavourite) {
-                    DatabaseReview.removeFavourite(widget.review.id!);
-                  } else {
-                    DatabaseReview.addFavourite(widget.review.id!);
-                  }
-                  setState(() {
-                    isFavourite = !isFavourite;
-                  });
-                },
-              ),
+
             ])
           ],
         ),
@@ -548,58 +528,7 @@ class CustomListItem extends ListTile {
   }
 }
 
-// Любимые отзывы
-class StarredReviewsListItem extends ListTile {
-  final LatLng location;
-  final Review review;
 
-  const StarredReviewsListItem(this.review, this.location, {Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          CustomListItem(
-            name: review.pin!.name,
-            date: review.timestamp,
-            comment: review.body,
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.pin_drop_outlined,
-              color: Colors.black,
-              semanticLabel: "Go to pin",
-            ),
-            iconSize: 40.0,
-            color: const Color.fromRGBO(0, 0, 0, 0.3),
-            onPressed: () {
-              //заменяем страницу в стеке страниц
-              Navigator.pushReplacementNamed(
-                  context, MainNavigationRouteNames.mapScreen,
-                  arguments: location);
-            },
-          ),
-          const Spacer(),
-          IconButton(
-            icon: const Icon(
-              Icons.star,
-              semanticLabel: "Remove",
-            ),
-            iconSize: 30.0,
-            onPressed: () {
-              DatabaseReview.removeFavourite(review.id!);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 //жалобы на отзывы. Показываются только админу
 //Админ устанавливается напрямую через firebase. Вкладка появляется

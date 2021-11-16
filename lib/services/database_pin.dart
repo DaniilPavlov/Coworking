@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/models/pin.dart';
 import 'package:coworking/models/review.dart';
-import 'package:coworking/models/visited.dart';
 import 'package:coworking/services/database_review.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -189,35 +188,6 @@ class DatabasePin {
     });
   }
 
-  static void addVisited(String user, String pin) {
-    Visited v = Visited(user, pin);
-    FirebaseFirestore.instance.collection("visited").add(v.asMap());
-  }
-
-  static void deleteVisited(String user, String pin) async {
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collection("visited")
-        .where("pin", isEqualTo: pin)
-        .where("userID", isEqualTo: user)
-        .snapshots()
-        .first;
-    String id = snapshot.docs.first.id;
-    FirebaseFirestore.instance.collection("visited").doc(id).delete();
-  }
-
-  static Future<Pin> getPinByID(String pinID, BuildContext context) async {
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collection("pins")
-        .where(FieldPath.documentId, isEqualTo: pinID)
-        .snapshots()
-        .first;
-    return Pin.fromMap(
-        pinID,
-        snapshot.docs.first.data() as Map<String, dynamic>,
-        await DatabaseReview.getFirstReview(pinID),
-        context);
-  }
-
   static Future<bool> isPinOwner(Pin pin) {
     return FirebaseFirestore.instance
         .collection("users")
@@ -263,5 +233,109 @@ class DatabasePin {
       }
     });
     FirebaseFirestore.instance.collection("pins").doc(pin.id).delete();
+  }
+
+  static Future<Stream<List<Pin>>> favouritePinsForUser(
+      Account account, BuildContext context) {
+    return getFavouritePinsIDs(account).then((idStream) {
+      return idStream
+          .asyncMap((snapshot) => getPinsByPinIDs(snapshot, context));
+    });
+  }
+
+  static Future<Pin> getPinByID(String pinID, BuildContext context) async {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection("pins")
+        .where(FieldPath.documentId, isEqualTo: pinID)
+        .snapshots()
+        .first;
+    return Pin.fromMap(
+        pinID,
+        snapshot.docs.first.data() as Map<String, dynamic>,
+        await DatabaseReview.getFirstReview(pinID),
+        context);
+  }
+
+  static Future<List<Pin>> getPinsByPinIDs(
+      List<String> pinIDs, BuildContext context) {
+    return FirebaseFirestore.instance
+        .collection("pins")
+        .where(FieldPath.documentId, whereIn: pinIDs)
+        .get()
+        .then((snapshot) async {
+      List<Pin> pins = [];
+      for (DocumentSnapshot document in snapshot.docs) {
+        Pin pin = await DatabasePin.getPinByID(document.id, context);
+        pins.add(pin);
+      }
+      return pins;
+    });
+  }
+
+  static Future<Stream<List<String>>> getFavouritePinsIDs(Account account) {
+    return FirebaseFirestore.instance
+        .collection("users")
+        .where("userID", isEqualTo: account.id)
+        .get()
+        .then((userSnapshot) {
+      String userID = userSnapshot.docs.first.id;
+      return FirebaseFirestore.instance
+          .collection("users")
+          .doc(userID)
+          .collection("favourites")
+          .snapshots()
+          .map((snapshot) {
+        List<String> pinIDs = [];
+        for (DocumentSnapshot document in snapshot.docs) {
+          pinIDs.add(document.id);
+        }
+        return pinIDs;
+      });
+    });
+  }
+
+  static void addFavourite(String pinID) async {
+    var users = await FirebaseFirestore.instance
+        .collection("users")
+        .where("userID", isEqualTo: Account.currentAccount!.id)
+        .get()
+        .then((value) => value.docs);
+    String user = users[0].id.toString();
+
+    final CollectionReference favouritesRef = FirebaseFirestore.instance
+        .collection("users")
+        .doc(user)
+        .collection("favourites");
+
+    await favouritesRef.doc(pinID).set(newFavouriteMap());
+  }
+
+  static Map<String, dynamic> newFavouriteMap() {
+    Map<String, dynamic> favourite = <String, dynamic>{};
+    return favourite;
+  }
+
+  static void removeFavourite(String pinId) {
+    FirebaseFirestore.instance
+        .collection("users")
+        .where("userID", isEqualTo: Account.currentAccount!.id)
+        .get()
+        .then((userSnapshot) {
+      String user = userSnapshot.docs.first.id;
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(user)
+          .collection("favourites")
+          .doc(pinId)
+          .delete();
+    });
+  }
+
+  static Future<bool> isFavourite(String pinId) async {
+    return getFavouritePinsIDs(Account.currentAccount!).then((snapshots) {
+      return snapshots.first.then((pinIds) {
+        return pinIds.contains(pinId);
+      });
+    });
   }
 }
