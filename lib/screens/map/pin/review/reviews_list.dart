@@ -387,7 +387,7 @@ class _PinListItemState extends State<PinListItem> {
                   ),
                   Text(
                     FormatDate.formatDate(widget.review.timestamp),
-                    style: TextStyle(color: Colors.black.withOpacity(0.4)),
+                    style: TextStyle(color: Theme.of(context).primaryColor),
                   ),
                 ],
               ),

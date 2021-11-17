@@ -20,13 +20,14 @@ class FavouritePinsListItem extends ListTile {
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: Colors.black.withOpacity(0.2)),
+              // border: Border.all(color: Colors.black.withOpacity(0.2)),
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2))
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                )
               ],
             ),
             clipBehavior: Clip.hardEdge,
@@ -35,7 +36,7 @@ class FavouritePinsListItem extends ListTile {
                 pin.imageUrl,
                 width: 140,
                 height: 140,
-                fit: BoxFit.fill,
+                fit: BoxFit.cover,
               ),
               Expanded(
                 child: Column(
@@ -44,7 +45,9 @@ class FavouritePinsListItem extends ListTile {
                     Text(
                       pin.name,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 19),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 19,
+                          color: Colors.black),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),

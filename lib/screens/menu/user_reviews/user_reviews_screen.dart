@@ -12,6 +12,7 @@ class UserReviewsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
+        backgroundColor: Theme.of(context).primaryColor,
         title: const Text('Ваши отзывы'),
         leading: IconButton(
           icon: const Icon(

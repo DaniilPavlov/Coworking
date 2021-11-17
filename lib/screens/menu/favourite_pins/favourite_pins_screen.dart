@@ -12,6 +12,7 @@ class FavouritePinsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
+        backgroundColor: Theme.of(context).primaryColor,
         title: const Text('Понравившиеся места'),
         leading: IconButton(
           icon: const Icon(

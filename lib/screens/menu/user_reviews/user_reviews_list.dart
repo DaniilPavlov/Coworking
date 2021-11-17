@@ -21,7 +21,7 @@ class UserReviewsListItem extends ListTile {
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: Colors.black.withOpacity(0.2)),
+              // border: Border.all(color: Colors.black.withOpacity(0.2)),
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               boxShadow: [
                 BoxShadow(
@@ -37,7 +37,7 @@ class UserReviewsListItem extends ListTile {
                 review.pin!.imageUrl,
                 width: 140,
                 height: 140,
-                fit: BoxFit.fill,
+                fit: BoxFit.cover,
               ),
               Expanded(
                 child: Column(
@@ -46,7 +46,9 @@ class UserReviewsListItem extends ListTile {
                     Text(
                       review.pin!.name,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 19),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 19,
+                          color: Colors.black),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -58,6 +60,7 @@ class UserReviewsListItem extends ListTile {
                         textAlign: TextAlign.justify,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.black),
                       ),
                     ),
                     Padding(
@@ -70,7 +73,7 @@ class UserReviewsListItem extends ListTile {
                     ),
                     Text(
                       FormatDate.formatDate(review.timestamp),
-                      style: TextStyle(color: Colors.black.withOpacity(0.4)),
+                      style: TextStyle(color: Theme.of(context).primaryColor),
                     ),
                   ],
                 ),
