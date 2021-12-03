@@ -18,8 +18,9 @@ class RadioButtonPicker extends FormField<Option> {
                 bool selected = state.value == option;
                 return ChoiceChip(
                   label: Text(option.text),
-                  labelStyle: TextStyle(
-                    color: selected ? Colors.white : Colors.black,
+                  labelStyle: const TextStyle(
+                    // color: selected ? Colors.white : Colors.black,
+                     color: Colors.white,
                   ),
                   onSelected: (selected) => state.didChange(option),
                   selected: selected,

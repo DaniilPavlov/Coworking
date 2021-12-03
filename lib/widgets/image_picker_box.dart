@@ -36,7 +36,7 @@ class ImagePickerBoxState extends StatelessWidget {
             onPressed: () async {
               var pickedFile =
                   await _picker.pickImage(source: ImageSource.gallery);
-
+//TODO ошибка если не выбрали фотографию
               state.didChange(File(pickedFile!.path));
             },
             child: state.value == null

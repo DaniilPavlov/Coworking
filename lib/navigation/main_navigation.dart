@@ -76,7 +76,7 @@ class MainNavigation {
         final arguments = settings.arguments;
         final pin = arguments is Pin ? arguments : '' as Pin;
         return MaterialPageRoute(
-          builder: (context) => PinScreen(pin),
+          builder: (context) => PinScreen(pin: pin),
         );
       default:
         const widget = Text('Navigation error');

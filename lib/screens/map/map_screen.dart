@@ -160,7 +160,10 @@ class MapScreenState extends State<MapScreen>
     fabAddPin = FloatingActionButton(
       tooltip: "Add pin",
       onPressed: openDrawer,
-      child: const Icon(Icons.add_location),
+      backgroundColor: Colors.orange,
+      child: const Icon(
+        Icons.add_location,
+      ),
     );
 
     fabConfirmPin = FloatingActionButton(
@@ -339,7 +342,6 @@ class MapBodyState extends State<MapBody> {
   onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
-  
 
   //добавляем пины на карту
   @override

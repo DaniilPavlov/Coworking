@@ -140,6 +140,7 @@ class _PlaceRateSectionState extends State<PlaceRateSection> {
           alignment: Alignment.center,
           child: Checkbox(
             value: isFood,
+            activeColor: Colors.orange,
             onChanged: (value) {
               setState(() {
                 isFood = value!;
@@ -156,6 +157,7 @@ class _PlaceRateSectionState extends State<PlaceRateSection> {
           alignment: Alignment.center,
           child: Checkbox(
             value: isFree,
+            activeColor: Colors.orange,
             onChanged: (value) {
               setState(() {
                 isFree = value!;
@@ -171,6 +173,7 @@ class _PlaceRateSectionState extends State<PlaceRateSection> {
         Container(
           alignment: Alignment.center,
           child: Checkbox(
+            activeColor: Colors.orange,
             value: isRazors,
             onChanged: (value) {
               setState(() {
@@ -187,6 +190,7 @@ class _PlaceRateSectionState extends State<PlaceRateSection> {
         Container(
           alignment: Alignment.center,
           child: Checkbox(
+            activeColor: Colors.orange,
             value: isWiFi,
             onChanged: (value) {
               setState(() {

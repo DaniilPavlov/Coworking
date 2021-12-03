@@ -77,8 +77,9 @@ class _PinListItemState extends State<PinListItem> {
       oldWiFi = widget.review.isWiFi;
       oldRate = widget.review.userRate;
       Navigator.of(context).pop(context);
-      widget.review.pin!.rating =
-          await DatabasePin.updateRateOfPin(widget.review.pin!.id);
+      //TODO заменил ! на ?
+      widget.review.pin?.rating =
+          await DatabasePin.updateRateOfPin(widget.review.pin?.id);
       Clipboard.setData(ClipboardData(text: widget.review.body));
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(widget.review.body),
