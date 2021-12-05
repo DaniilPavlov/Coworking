@@ -30,7 +30,7 @@ class BodyLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Review?>>(
-      stream: DatabaseReview.flaggedReviews(context),
+      stream: DatabaseReview.fetchFlaggedReviews(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

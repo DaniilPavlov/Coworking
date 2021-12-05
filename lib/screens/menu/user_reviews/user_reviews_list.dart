@@ -66,7 +66,7 @@ class UserReviewsListItem extends ListTile {
                     Padding(
                       padding: const EdgeInsets.only(top: 5, bottom: 5),
                       child: Text(
-                        review.pin!.rating.toStringAsFixed(2),
+                        review.userRate.toStringAsFixed(2),
                         style: const TextStyle(color: Colors.blueAccent),
                         overflow: TextOverflow.ellipsis,
                       ),

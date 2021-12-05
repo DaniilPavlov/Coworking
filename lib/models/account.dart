@@ -33,7 +33,7 @@ class Account {
     if (_userName != null) {
       return _userName!;
     } else {
-      return await DatabaseAccount.getUserNameByID(id);
+      return await DatabaseAccount.fetchUserNameByID(id);
     }
   }
 

@@ -73,12 +73,11 @@ class AccountScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     Column(children: [
-                      StreamBuilder<List<String>>(
-                        stream: DatabasePin.visitedByUser(
-                            Account.currentAccount as Account, context),
+                      FutureBuilder(
+                        future: DatabasePin.fetchFavouritePinsAmount(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
-                            return Text(snapshot.data!.length.toString(),
+                            return Text(snapshot.data!.toString(),
                                 textScaleFactor: 2.0);
                           } else {
                             return const CircularProgressIndicator();
@@ -88,14 +87,12 @@ class AccountScreen extends StatelessWidget {
                       const Text("Посещенные места"),
                     ]),
                     Column(children: [
-                      StreamBuilder(
-                        stream: DatabaseReview.reviewsOfUser(
-                            Account.currentAccount!, context),
-                        builder:
-                            (context, AsyncSnapshot<List<Review>> snapshot) {
+                      FutureBuilder(
+                        future: DatabaseReview.fetchReviewsOfUserAmount(Account.currentAccount!),
+                        builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             return Text(
-                              snapshot.data!.length.toString(),
+                              snapshot.data!.toString(),
                               textScaleFactor: 2.0,
                             );
                           } else {
@@ -253,7 +250,7 @@ void deleteAccount(BuildContext context) async {
   DatabaseAccount.deleteUser(Account.currentAccount!);
   await currentUser!.delete();
   SignIn().signOutGoogle();
-   Navigator.of(context)
+  Navigator.of(context)
       .popUntil(ModalRoute.withName(MainNavigationRouteNames.auth));
 }
 

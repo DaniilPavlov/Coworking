@@ -112,7 +112,7 @@ class MapScreenState extends State<MapScreen>
 
   ///кажется что стрим работает стабильно
   void queryPins() {
-    pinsStream = DatabasePin.getPins(context).listen((pinChangesList) {
+    pinsStream = DatabasePin.fetchPins(context).listen((pinChangesList) {
       setState(() {
         for (PinChange pinChange in pinChangesList) {
           if (pinChange.type == DocumentChangeType.added) {

@@ -51,7 +51,7 @@ class BodyLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Review>>(
-        stream: DatabaseReview.reviewsOfUser(Account.currentAccount!, context),
+        stream: DatabaseReview.fetchReviewsOfUser(Account.currentAccount!, context),
         builder: (context, snapshot) {
           if (!snapshot.hasData ||
               snapshot.connectionState == ConnectionState.waiting) {

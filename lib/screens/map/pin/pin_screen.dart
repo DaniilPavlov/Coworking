@@ -62,7 +62,7 @@ class _PinView extends StatelessWidget {
         ),
       ),
       body: StreamBuilder<List<Review>>(
-        stream: DatabaseReview.getReviewsForPin(model.pin.id),
+        stream: DatabaseReview.fetchReviewsForPin(model.pin.id),
         builder: (context, snapshot) {
           Widget progressIndicator = Container(
             alignment: Alignment.center,
@@ -232,6 +232,87 @@ class _EditPinButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<PinModel>();
+
+    _editPinForm() {
+      return Scaffold(
+        appBar: AppBar(actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: () async {
+              var errorSave = await model.savePin();
+              if (errorSave) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Вы заполнили не всю информацию"),
+                ));
+              } else {
+                Navigator.of(context).pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Информация о месте изменена"),
+                ));
+              }
+            },
+          )
+        ]),
+        body: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            child: Form(
+              key: model.formKey,
+              child: Column(
+                children: <Widget>[
+                  ImagePickerBox(
+                    key: model.imagePickerKey,
+                    validator: (image) =>
+                        image == null ? "Необходима фотография места" : null,
+                  ),
+                  RadioButtonPicker(
+                    key: model.categoryPickerKey,
+                    validator: (option) =>
+                        option == null ? "Необходима категория места" : null,
+                    options: Category.all(),
+                  ),
+                  const SizedBox(height: 10,),
+                  TextFormField(
+                    controller: model.nameController,
+                    validator: (text) =>
+                        text!.isEmpty ? "Необходимо название места" : null,
+                    decoration: const InputDecoration(
+                      hintText: "Название места",
+                      contentPadding: EdgeInsets.all(8.0),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 40),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pushReplacementNamed(
+                            MainNavigationRouteNames.mapScreen,
+                            arguments: model.pin.location);
+        
+                        DatabasePin.deletePin(model.pin);
+                      },
+                      child: const Text(
+                        'Удалить',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 26.0,
+                        ),
+                      ),
+                      style: ButtonStyle(
+                          padding:
+                              MaterialStateProperty.all(const EdgeInsets.all(10)),
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.red)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return FutureBuilder(
       future: DatabasePin.isPinOwner(model.pin),
       builder: (context, snapshot) {
@@ -251,90 +332,7 @@ class _EditPinButton extends StatelessWidget {
                     ),
                     onPressed: () => showModalBottomSheet(
                       context: context,
-                      builder: (_) => Scaffold(
-                        appBar: AppBar(actions: <Widget>[
-                          IconButton(
-                            icon: const Icon(Icons.save),
-                            onPressed: () async {
-                              var errorSave = await model.savePin();
-                              if (errorSave) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(const SnackBar(
-                                  content:
-                                      Text("Вы заполнили не всю информацию"),
-                                ));
-                              } else {
-                                Navigator.of(context).pop(context);
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(const SnackBar(
-                                  content: Text("Информация о месте изменена"),
-                                ));
-                              }
-                            },
-                          )
-                        ]),
-                        body: SingleChildScrollView(
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            child: Form(
-                              key: model.formKey,
-                              child: Column(
-                                children: <Widget>[
-                                  ImagePickerBox(
-                                    key: model.imagePickerKey,
-                                    validator: (image) => image == null
-                                        ? "Необходима фотография места"
-                                        : null,
-                                  ),
-                                  RadioButtonPicker(
-                                    key: model.categoryPickerKey,
-                                    validator: (option) => option == null
-                                        ? "Необходима категория места"
-                                        : null,
-                                    options: Category.all(),
-                                  ),
-                                  TextFormField(
-                                    controller: model.nameController,
-                                    validator: (text) => text!.isEmpty
-                                        ? "Необходимо название места"
-                                        : null,
-                                    decoration: const InputDecoration(
-                                      hintText: "Название места",
-                                      contentPadding: EdgeInsets.all(8.0),
-                                    ),
-                                  ),
-                                  ButtonTheme(
-                                    minWidth: 120.0,
-                                    height: 60.0,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.of(context)
-                                            .pushReplacementNamed(
-                                                MainNavigationRouteNames
-                                                    .mapScreen,
-                                                arguments: model.pin.location);
-
-                                        DatabasePin.deletePin(model.pin);
-                                      },
-                                      child: const Text(
-                                        'Удалить',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 26.0,
-                                        ),
-                                      ),
-                                      style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  Colors.red)),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      builder: (_) => _editPinForm(),
                     ),
                   ),
                 )
@@ -354,7 +352,7 @@ class _ThreeMonthRateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<PinModel>();
     return FutureBuilder(
-      future: DatabasePin.threeMonthRate(model.pin.id),
+      future: DatabasePin.calculateThreeMonthRate(model.pin.id),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           model.threeMonthStats = snapshot.data as List<double>;

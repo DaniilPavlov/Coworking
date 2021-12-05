@@ -13,7 +13,7 @@ class DatabaseReview {
     FirebaseFirestore.instance.collection("reviews").add(review.asMap());
   }
 
-  static Stream<List<Review>> getReviewsForPin(String pinID) {
+  static Stream<List<Review>> fetchReviewsForPin(String pinID) {
     return FirebaseFirestore.instance
         .collection("reviews")
         .where("pinID", isEqualTo: pinID)
@@ -32,8 +32,7 @@ class DatabaseReview {
     });
   }
 
-
-  static Stream<List<Review>> reviewsOfUser(
+  static Stream<List<Review>> fetchReviewsOfUser(
       Account account, BuildContext context) {
     return FirebaseFirestore.instance
         .collection("reviews")
@@ -46,7 +45,8 @@ class DatabaseReview {
         Map<String, dynamic> reviewMap =
             documentSnapshot.data() as Map<String, dynamic>;
         Review review = Review.fromMap(documentSnapshot.id, reviewMap);
-        review.pin = await DatabasePin.getPinByID(reviewMap["pinID"], context);
+        review.pin =
+            await DatabasePin.fetchPinByID(reviewMap["pinID"], context);
         reviews.add(review);
       }
       reviewsCompleter.complete(reviews);
@@ -54,7 +54,20 @@ class DatabaseReview {
     });
   }
 
-    static Future<Review?> getFirstReview(String pinID) async {
+  static Future<int> fetchReviewsOfUserAmount(Account account) async {
+    var numberOfReviews;
+
+    await FirebaseFirestore.instance
+        .collection("reviews")
+        .where("author", isEqualTo: account.id)
+        .get()
+        .then((list) {
+      numberOfReviews = list.docs.length;
+    });
+    return numberOfReviews ?? 0;
+  }
+
+  static Future<Review?> fetchFirstReview(String pinID) async {
     return await FirebaseFirestore.instance
         .collection("reviews")
         .where("pinID", isEqualTo: pinID)
@@ -72,7 +85,7 @@ class DatabaseReview {
     });
   }
 
-  static Future<Review> getReviewByID(
+  static Future<Review> fetchReviewByID(
       String reviewID, BuildContext context) async {
     return await FirebaseFirestore.instance
         .collection("reviews")
@@ -84,14 +97,13 @@ class DatabaseReview {
       DocumentSnapshot firstReviewDocument = snapshot.docChanges.first.doc;
       Review review = Review.fromMap(firstReviewDocument.id,
           firstReviewDocument.data() as Map<String, dynamic>);
-      return DatabasePin.getPinByID(firstReviewDocument["pinID"], context).then((pin) {
+      return DatabasePin.fetchPinByID(firstReviewDocument["pinID"], context)
+          .then((pin) {
         review.pin = pin;
         return review;
       });
     });
   }
-
-
 
   static Future<bool> isReviewOwner(Review review) {
     DocumentReference docRef =
@@ -107,7 +119,6 @@ class DatabaseReview {
     });
   }
 
-  /// удаляем флаг с отзыва
   static void removeFlag(String id) {
     FirebaseFirestore.instance
         .collection("flags")
@@ -119,7 +130,6 @@ class DatabaseReview {
     });
   }
 
-  /// добавляем флаг на отзыв
   static void addFlag(String id) {
     Map<String, dynamic> flag = <String, dynamic>{};
     flag["reviewID"] = id;
@@ -127,7 +137,6 @@ class DatabaseReview {
     FirebaseFirestore.instance.collection("flags").add(flag);
   }
 
-  /// проверяем поставил ли флажок пользователь данному комментарию
   static Future<bool> isFlagged(dynamic id) {
     return FirebaseFirestore.instance
         .collection("flags")
@@ -139,8 +148,7 @@ class DatabaseReview {
     });
   }
 
-  /// возвращаем все плохие отзывы для админа
-  static Stream<List<Review?>> flaggedReviews(BuildContext context) {
+  static Stream<List<Review?>> fetchFlaggedReviews(BuildContext context) {
     return FirebaseFirestore.instance
         .collection("flags")
         .snapshots()
@@ -149,7 +157,7 @@ class DatabaseReview {
       List<Review?> reviews = [];
       for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
         Review review =
-            await getReviewByID(documentSnapshot["reviewID"], context);
+            await fetchReviewByID(documentSnapshot["reviewID"], context);
         reviews.add(review);
       }
       reviewsCompleter.complete(reviews);
@@ -157,8 +165,6 @@ class DatabaseReview {
     });
   }
 
-  /// если админ считает отзыв нормальным - убираем с него флаг
-  /// (для конкретного пользователя)
   static void justifyFlag(String id) {
     FirebaseFirestore.instance
         .collection("flags")
@@ -171,7 +177,6 @@ class DatabaseReview {
     });
   }
 
-  /// редактируем отзыв
   static Future<void> editReview(Review review) async {
     FirebaseFirestore.instance
         .collection("reviews")
@@ -185,10 +190,8 @@ class DatabaseReview {
       "userRate": review.userRate,
       "totalRate": review.totalRate
     }, SetOptions(merge: true));
-    // return true;
   }
 
-  // если админ считает отзыв плохим - удаляем его
   static void deleteReview(Review review) {
     justifyFlag(review.id!);
     FirebaseFirestore.instance.collection("reviews").doc(review.id).delete();

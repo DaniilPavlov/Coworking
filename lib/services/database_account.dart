@@ -68,7 +68,7 @@ class DatabaseAccount {
         .then((snapshot) => snapshot.docs.first["isAdmin"]);
   }
 
-  static Future<String?> getUserNameByID(String id) async {
+  static Future<String?> fetchUserNameByID(String id) async {
     try {
       return await FirebaseFirestore.instance
           .collection("users")

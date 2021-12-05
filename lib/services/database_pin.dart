@@ -22,7 +22,7 @@ class PinChange {
 class DatabasePin {
   var firebaseInstance = FirebaseFirestore.instance;
 
-  static Stream<List<PinChange>> getPins(BuildContext context) {
+  static Stream<List<PinChange>> fetchPins(BuildContext context) {
     return FirebaseFirestore.instance
         .collection("pins")
         .snapshots()
@@ -46,7 +46,7 @@ class DatabasePin {
           document["rating"],
           context,
           review: (documentChange.type == DocumentChangeType.added)
-              ? await DatabaseReview.getFirstReview(document.id)
+              ? await DatabaseReview.fetchFirstReview(document.id)
               : null,
         );
         pinChanges.add(PinChange(documentChange.type, pin));
@@ -73,14 +73,13 @@ class DatabasePin {
       DocumentReference docRef =
           FirebaseFirestore.instance.collection("pins").doc(pinID);
       docRef.update(<String, dynamic>{"rating": rating});
-      print("RATING");
       rating = double.parse(rating.toStringAsFixed(2));
-      print(rating);
+      print("RATING " + rating.toString());
       return rating;
     });
   }
 
-  static Future threeMonthRate(String pinID) async {
+  static Future calculateThreeMonthRate(String pinID) async {
     var threeMonth = <double>[];
     double rating = 0.0;
     double isFood = 0.0;
@@ -120,7 +119,6 @@ class DatabasePin {
       threeMonth.add(isFree);
       threeMonth.add(isRazors);
       threeMonth.add(isWiFi);
-      print(threeMonth.length);
       return threeMonth;
     });
   }
@@ -134,14 +132,12 @@ class DatabasePin {
     Category category,
     BuildContext context,
   ) async {
-    //ждем загрузки фото
     var timeKey = DateTime.now();
     final Reference postImageRef =
         FirebaseStorage.instance.ref().child("Pin Images");
     final UploadTask uploadTask =
         postImageRef.child(timeKey.toString() + ".jpg").putFile(image);
     var imageUrl = await (await uploadTask).ref.getDownloadURL();
-    //добавляем пин в базу
     DocumentReference newPin = await FirebaseFirestore.instance
         .collection("pins")
         .add(Pin.newPinMap(
@@ -151,13 +147,11 @@ class DatabasePin {
     Map<String, dynamic> initialReviewMap =
         Review.newReviewMap(review, newPin.id);
 
-    //добавляем отзыв
     DocumentReference initialReview = await FirebaseFirestore.instance
         .collection("reviews")
         .add(initialReviewMap);
 
     review.id = initialReview.id;
-
     return Pin(
       newPin.id,
       location,
@@ -169,23 +163,6 @@ class DatabasePin {
       context,
       review: review,
     );
-  }
-
-  static Stream<List<String>> visitedByUser(
-      Account account, BuildContext context) {
-    return FirebaseFirestore.instance
-        .collection("visited")
-        .where("userID", isEqualTo: account.id)
-        .snapshots()
-        .asyncMap((querySnapshot) async {
-      List<String> pins = [];
-      for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
-        Map<String, dynamic> visitedMap =
-            documentSnapshot.data() as Map<String, dynamic>;
-        pins.add(visitedMap["pin"]);
-      }
-      return pins;
-    });
   }
 
   static Future<bool> isPinOwner(Pin pin) {
@@ -209,41 +186,47 @@ class DatabasePin {
     });
   }
 
-  /// редактируем пин
   Future editPin(Pin pin) async {
     firebaseInstance.collection("pins").doc(pin.id).set(<String, dynamic>{
       "category": pin.category.text,
       "name": pin.name,
       "imageUrl": pin.imageUrl
     }, SetOptions(merge: true));
-    // return true;
   }
 
   static void deletePin(Pin pin) {
     DatabaseReview.justifyFlag(pin.id);
     FirebaseStorage.instance.refFromURL(pin.imageUrl).delete();
+    FirebaseFirestore.instance.collection("users").get().then((query) {
+      for (var document in query.docs) {
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(document.id)
+            .collection("favourites")
+            .doc(pin.id)
+            .delete();
+      }
+    });
     FirebaseFirestore.instance
         .collection("reviews")
         .where("pinID", isEqualTo: pin.id)
         .get()
         .then((query) {
       for (var document in query.docs) {
-        print("DOCUMENT DELETE");
         document.reference.delete();
       }
     });
     FirebaseFirestore.instance.collection("pins").doc(pin.id).delete();
   }
 
-  static Future<Stream<List<Pin>>> favouritePinsForUser(
+  static Future<Stream<List<Pin>>> fetchFavouritePinsForUser(
       Account account, BuildContext context) {
-    return getFavouritePinsIDs(account).then((idStream) {
-      return idStream
-          .asyncMap((snapshot) => getPinsByPinIDs(snapshot, context));
+    return fethcFavouritePinsIDs(account).then((idStream) {
+      return idStream.asyncMap((snapshot) => fetchPinsByIDs(snapshot, context));
     });
   }
 
-  static Future<Pin> getPinByID(String pinID, BuildContext context) async {
+  static Future<Pin> fetchPinByID(String pinID, BuildContext context) async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection("pins")
         .where(FieldPath.documentId, isEqualTo: pinID)
@@ -252,11 +235,11 @@ class DatabasePin {
     return Pin.fromMap(
         pinID,
         snapshot.docs.first.data() as Map<String, dynamic>,
-        await DatabaseReview.getFirstReview(pinID),
+        await DatabaseReview.fetchFirstReview(pinID),
         context);
   }
 
-  static Future<List<Pin>> getPinsByPinIDs(
+  static Future<List<Pin>> fetchPinsByIDs(
       List<String> pinIDs, BuildContext context) {
     return FirebaseFirestore.instance
         .collection("pins")
@@ -265,14 +248,14 @@ class DatabasePin {
         .then((snapshot) async {
       List<Pin> pins = [];
       for (DocumentSnapshot document in snapshot.docs) {
-        Pin pin = await DatabasePin.getPinByID(document.id, context);
+        Pin pin = await DatabasePin.fetchPinByID(document.id, context);
         pins.add(pin);
       }
       return pins;
     });
   }
 
-  static Future<Stream<List<String>>> getFavouritePinsIDs(Account account) {
+  static Future<Stream<List<String>>> fethcFavouritePinsIDs(Account account) {
     return FirebaseFirestore.instance
         .collection("users")
         .where("userID", isEqualTo: account.id)
@@ -294,6 +277,14 @@ class DatabasePin {
     });
   }
 
+  static Future<int> fetchFavouritePinsAmount() async {
+    return fethcFavouritePinsIDs(Account.currentAccount!).then((snapshots) {
+      return snapshots.first.then((pinIds) {
+        return pinIds.length;
+      });
+    });
+  }
+
   static void addFavourite(String pinID) async {
     var users = await FirebaseFirestore.instance
         .collection("users")
@@ -301,18 +292,11 @@ class DatabasePin {
         .get()
         .then((value) => value.docs);
     String user = users[0].id.toString();
-
     final CollectionReference favouritesRef = FirebaseFirestore.instance
         .collection("users")
         .doc(user)
         .collection("favourites");
-
-    await favouritesRef.doc(pinID).set(newFavouriteMap());
-  }
-
-  static Map<String, dynamic> newFavouriteMap() {
-    Map<String, dynamic> favourite = <String, dynamic>{};
-    return favourite;
+    await favouritesRef.doc(pinID).set(<String, dynamic>{});
   }
 
   static void removeFavourite(String pinId) {
@@ -332,7 +316,7 @@ class DatabasePin {
   }
 
   static Future<bool> isFavourite(String pinId) async {
-    return getFavouritePinsIDs(Account.currentAccount!).then((snapshots) {
+    return fethcFavouritePinsIDs(Account.currentAccount!).then((snapshots) {
       return snapshots.first.then((pinIds) {
         return pinIds.contains(pinId);
       });

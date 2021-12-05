@@ -52,7 +52,7 @@ class BodyLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future:
-          DatabasePin.favouritePinsForUser(Account.currentAccount!, context),
+          DatabasePin.fetchFavouritePinsForUser(Account.currentAccount!, context),
       builder: (context, snapshot) => (snapshot.hasData)
           ? StreamBuilder<List<Pin>>(
               stream: snapshot.data as Stream<List<Pin>>?,
