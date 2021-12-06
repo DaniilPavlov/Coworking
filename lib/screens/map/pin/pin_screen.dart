@@ -7,7 +7,7 @@ import 'package:coworking/models/category.dart';
 import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/models/pin.dart';
 import 'package:coworking/models/review.dart';
-import 'package:coworking/screens/map/pin/review/reviews_list.dart';
+import 'package:coworking/screens/map/pin/review/review_list_widget.dart';
 import 'package:coworking/screens/map/pin/review/review_form.dart';
 import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
@@ -136,7 +136,7 @@ class _PinView extends StatelessWidget {
               snapshot.hasData
                   ? SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, i) => PinListItem(snapshot.data![i]),
+                        (context, i) => ReviewListWidget(snapshot.data![i]),
                         childCount: snapshot.data!.length,
                       ),
                     )
@@ -271,7 +271,9 @@ class _EditPinButton extends StatelessWidget {
                         option == null ? "Необходима категория места" : null,
                     options: Category.all(),
                   ),
-                  const SizedBox(height: 10,),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   TextFormField(
                     controller: model.nameController,
                     validator: (text) =>
@@ -288,7 +290,7 @@ class _EditPinButton extends StatelessWidget {
                         Navigator.of(context).pushReplacementNamed(
                             MainNavigationRouteNames.mapScreen,
                             arguments: model.pin.location);
-        
+
                         DatabasePin.deletePin(model.pin);
                       },
                       child: const Text(
@@ -299,8 +301,8 @@ class _EditPinButton extends StatelessWidget {
                         ),
                       ),
                       style: ButtonStyle(
-                          padding:
-                              MaterialStateProperty.all(const EdgeInsets.all(10)),
+                          padding: MaterialStateProperty.all(
+                              const EdgeInsets.all(10)),
                           backgroundColor:
                               MaterialStateProperty.all<Color>(Colors.red)),
                     ),
@@ -345,6 +347,7 @@ class _EditPinButton extends StatelessWidget {
   }
 }
 
+///TODO при изменении отзыва не обновляется эта часть
 class _ThreeMonthRateWidget extends StatelessWidget {
   const _ThreeMonthRateWidget({Key? key}) : super(key: key);
 

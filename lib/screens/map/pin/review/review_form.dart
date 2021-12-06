@@ -100,18 +100,24 @@ class ReviewFormState extends State<ReviewForm>
   Review getReview() {
     formKey.currentState!.save();
     return Review(
-        //tODO проверить
-        "null",
-        Account.currentAccount!,
-        reviewController.text,
-        DateTime.now(),
+      //tODO проверить
+      "null",
+      Account.currentAccount!,
+      reviewController.text,
+      DateTime.now(),
+      isFood,
+      isFree,
+      isRazors,
+      isWiFi,
+      double.parse(rateController.text),
+      countRate(
         isFood,
         isFree,
         isRazors,
         isWiFi,
-        double.parse(rateController.text),
-        countRate(isFood, isFree, isRazors, isWiFi,
-            (double.parse(rateController.text) / 2)));
+        (double.parse(rateController.text) / 2),
+      ),
+    );
   }
 }
 
