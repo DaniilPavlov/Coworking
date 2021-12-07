@@ -51,6 +51,9 @@ class ReviewFormState extends State<ReviewForm>
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
+            const SizedBox(
+              height: 10,
+            ),
             Padding(
               padding: const EdgeInsets.only(left: 20.0, right: 20.0),
               child: TextFormField(
@@ -67,12 +70,16 @@ class ReviewFormState extends State<ReviewForm>
             Padding(
               padding: const EdgeInsets.only(top: 5, left: 16, right: 16),
               child: Column(
-                children: <Widget>[
-                  Text(
-                    "Раздел оценки места",
-                    style: Theme.of(context).textTheme.bodyText1,
+                children: const <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
+                    child: Text(
+                      "Раздел оценки места",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  const PlaceRateSection(),
+                  PlaceRateSection(),
                 ],
               ),
             ),
@@ -133,86 +140,93 @@ class PlaceRateSection extends StatefulWidget {
 class _PlaceRateSectionState extends State<PlaceRateSection> {
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      childAspectRatio: 5,
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      children: <Widget>[
-        Container(
-          alignment: Alignment.centerLeft,
-          child: const Text("Можно приобрести еду"),
+    return Column(
+      children: [
+        GridView.count(
+          childAspectRatio: 5,
+          crossAxisCount: 2,
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          children: <Widget>[
+            Container(
+              alignment: Alignment.centerLeft,
+              child: const Text("Можно приобрести еду"),
+            ),
+            Container(
+              alignment: Alignment.center,
+              child: Checkbox(
+                value: isFood,
+                activeColor: Colors.orange,
+                onChanged: (value) {
+                  setState(() {
+                    isFood = value!;
+                  });
+                },
+                tristate: false,
+              ),
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              child: const Text("Можно находиться бесплатно"),
+            ),
+            Container(
+              alignment: Alignment.center,
+              child: Checkbox(
+                value: isFree,
+                activeColor: Colors.orange,
+                onChanged: (value) {
+                  setState(() {
+                    isFree = value!;
+                  });
+                },
+                tristate: false,
+              ),
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              child: const Text("Есть розетки"),
+            ),
+            Container(
+              alignment: Alignment.center,
+              child: Checkbox(
+                activeColor: Colors.orange,
+                value: isRazors,
+                onChanged: (value) {
+                  setState(() {
+                    isRazors = value!;
+                  });
+                },
+                tristate: false,
+              ),
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              child: const Text("Есть WiFi"),
+            ),
+            Container(
+              alignment: Alignment.center,
+              child: Checkbox(
+                activeColor: Colors.orange,
+                value: isWiFi,
+                onChanged: (value) {
+                  setState(() {
+                    isWiFi = value!;
+                  });
+                },
+                tristate: false,
+              ),
+            ),
+          ],
         ),
+        const SizedBox(height: 10),
         Container(
-          alignment: Alignment.center,
-          child: Checkbox(
-            value: isFood,
-            activeColor: Colors.orange,
-            onChanged: (value) {
-              setState(() {
-                isFood = value!;
-              });
-            },
-            tristate: false,
-          ),
-        ),
-        Container(
-          alignment: Alignment.centerLeft,
-          child: const Text("Можно находиться бесплатно"),
-        ),
-        Container(
-          alignment: Alignment.center,
-          child: Checkbox(
-            value: isFree,
-            activeColor: Colors.orange,
-            onChanged: (value) {
-              setState(() {
-                isFree = value!;
-              });
-            },
-            tristate: false,
-          ),
-        ),
-        Container(
-          alignment: Alignment.centerLeft,
-          child: const Text("Есть розетки"),
-        ),
-        Container(
-          alignment: Alignment.center,
-          child: Checkbox(
-            activeColor: Colors.orange,
-            value: isRazors,
-            onChanged: (value) {
-              setState(() {
-                isRazors = value!;
-              });
-            },
-            tristate: false,
-          ),
-        ),
-        Container(
-          alignment: Alignment.centerLeft,
-          child: const Text("Есть WiFi"),
-        ),
-        Container(
-          alignment: Alignment.center,
-          child: Checkbox(
-            activeColor: Colors.orange,
-            value: isWiFi,
-            onChanged: (value) {
-              setState(() {
-                isWiFi = value!;
-              });
-            },
-            tristate: false,
-          ),
-        ),
-        Container(
+          padding: const EdgeInsets.only(top: 10),
           alignment: Alignment.centerLeft,
           child:
               const Text("Ваша личная оценка места (введите число от 0 до 10)"),
         ),
         Container(
-          alignment: Alignment.bottomCenter,
+          alignment: Alignment.center,
           child: TextFormField(
             textAlign: TextAlign.center,
             controller: rateController,
@@ -233,6 +247,9 @@ class _PlaceRateSectionState extends State<PlaceRateSection> {
             },
           ),
         ),
+        const SizedBox(
+          height: 10,
+        )
       ],
     );
   }

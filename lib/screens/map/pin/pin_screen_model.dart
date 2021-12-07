@@ -6,9 +6,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class PinModel extends ChangeNotifier {
+class PinScreenModel extends ChangeNotifier {
   Pin pin;
-  PinModel(this.pin);
+  PinScreenModel(this.pin);
 
   var visitedText = "";
   var visitedColor = Colors.orange;

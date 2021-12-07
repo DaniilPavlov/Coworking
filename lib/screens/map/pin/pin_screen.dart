@@ -19,7 +19,7 @@ class PinScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
-        create: (context) => PinModel(pin),
+        create: (context) => PinScreenModel(pin),
         lazy: true,
         child: const _PinView(),
       );
@@ -30,7 +30,7 @@ class _PinView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<PinModel>();
+    final model = context.watch<PinScreenModel>();
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: FloatingActionButton(
@@ -41,6 +41,7 @@ class _PinView extends StatelessWidget {
           context: context,
           builder: (_) => Scaffold(
             appBar: AppBar(
+              backgroundColor: Colors.orange,
               actions: <Widget>[
                 IconButton(
                   icon: const Icon(Icons.save),
@@ -162,7 +163,7 @@ class _PinAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<PinModel>();
+    final model = context.watch<PinScreenModel>();
     return SliverAppBar(
       pinned: true,
       floating: false,
@@ -187,7 +188,7 @@ class _FavouriteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<PinModel>();
+    final model = context.watch<PinScreenModel>();
     return FutureBuilder(
       future: DatabasePin.isFavourite(model.pin.id),
       builder: (context, snapshot) {
@@ -231,7 +232,7 @@ class _EditPinButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<PinModel>();
+    final model = context.watch<PinScreenModel>();
 
     _editPinForm() {
       return Scaffold(
@@ -353,9 +354,9 @@ class _ThreeMonthRateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<PinModel>();
-    return FutureBuilder(
-      future: DatabasePin.calculateThreeMonthRate(model.pin.id),
+    final model = context.watch<PinScreenModel>();
+    return StreamBuilder(
+      stream: DatabasePin.calculateThreeMonthRate(model.pin.id),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           model.threeMonthStats = snapshot.data as List<double>;
@@ -433,7 +434,7 @@ class _CategoryChipWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<PinModel>();
+    final model = context.watch<PinScreenModel>();
     return Chip(
       label: Text(model.pin.category.text),
       labelStyle: const TextStyle(color: Colors.white),

@@ -56,47 +56,26 @@ class DatabasePin {
     });
   }
 
-  static Future updateRateOfPin(String? pinID) async {
-    double rating = 0;
-    return await FirebaseFirestore.instance
-        .collection("reviews")
-        .where("pinID", isEqualTo: pinID)
-        .get()
-        .then((query) {
-      for (DocumentSnapshot documentSnapshot in query.docs) {
-        Map<String, dynamic> reviewMap =
-            documentSnapshot.data() as Map<String, dynamic>;
-        Review review = Review.fromMap(documentSnapshot.id, reviewMap);
-        rating = rating + review.totalRate;
-      }
-      rating = rating / query.docs.length;
-      DocumentReference docRef =
-          FirebaseFirestore.instance.collection("pins").doc(pinID);
-      docRef.update(<String, dynamic>{"rating": rating});
-      rating = double.parse(rating.toStringAsFixed(2));
-      print("RATING " + rating.toString());
-      return rating;
-    });
-  }
-
-  static Future calculateThreeMonthRate(String pinID) async {
-    var threeMonth = <double>[];
-    double rating = 0.0;
-    double isFood = 0.0;
-    double isFree = 0.0;
-    double isRazors = 0.0;
-    double isWiFi = 0.0;
-    return await FirebaseFirestore.instance
+  static Stream<List<double>> calculateThreeMonthRate(String pinID) {
+    return FirebaseFirestore.instance
         .collection("reviews")
         .where("pinID", isEqualTo: pinID)
         .where('dateAdded',
             isGreaterThanOrEqualTo:
                 DateTime.now().subtract(const Duration(days: 90)))
-        .get()
-        .then((query) {
+        .snapshots()
+        .asyncMap((query) async {
+      List<double> threeMonth = [];
+      double rating = 0.0;
+      double isFood = 0.0;
+      double isFree = 0.0;
+      double isRazors = 0.0;
+      double isWiFi = 0.0;
+      Completer<List<double>> rateCompleter = Completer<List<double>>();
       for (DocumentSnapshot documentSnapshot in query.docs) {
         Map<String, dynamic> reviewMap =
             documentSnapshot.data() as Map<String, dynamic>;
+
         Review review = Review.fromMap(documentSnapshot.id, reviewMap);
         rating = rating + review.totalRate;
         if (review.isFood) isFood++;
@@ -119,7 +98,31 @@ class DatabasePin {
       threeMonth.add(isFree);
       threeMonth.add(isRazors);
       threeMonth.add(isWiFi);
-      return threeMonth;
+      rateCompleter.complete(threeMonth);
+      return rateCompleter.future;
+    });
+  }
+
+  static Future updateRateOfPin(String? pinID) async {
+    double rating = 0;
+    return await FirebaseFirestore.instance
+        .collection("reviews")
+        .where("pinID", isEqualTo: pinID)
+        .get()
+        .then((query) {
+      for (DocumentSnapshot documentSnapshot in query.docs) {
+        Map<String, dynamic> reviewMap =
+            documentSnapshot.data() as Map<String, dynamic>;
+        Review review = Review.fromMap(documentSnapshot.id, reviewMap);
+        rating = rating + review.totalRate;
+      }
+      rating = rating / query.docs.length;
+      DocumentReference docRef =
+          FirebaseFirestore.instance.collection("pins").doc(pinID);
+      docRef.update(<String, dynamic>{"rating": rating});
+      rating = double.parse(rating.toStringAsFixed(2));
+      print("RATING " + rating.toString());
+      return rating;
     });
   }
 
