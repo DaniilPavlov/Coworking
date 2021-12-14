@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:coworking/domain/services/database_pin.dart';
+import 'package:coworking/domain/services/location_status.dart';
 import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/screens/login/logo_decoration.dart';
 import 'package:coworking/screens/map/bottom_nav_bar.dart';
-import 'package:coworking/services/location_status.dart';
-import 'package:coworking/services/database_pin.dart';
-import 'package:coworking/models/pin.dart';
+import 'package:coworking/domain/entities/pin.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
@@ -110,7 +110,6 @@ class MapScreenState extends State<MapScreen>
     });
   }
 
-  ///кажется что стрим работает стабильно
   void queryPins() {
     pinsStream = DatabasePin.fetchPins(context).listen((pinChangesList) {
       setState(() {

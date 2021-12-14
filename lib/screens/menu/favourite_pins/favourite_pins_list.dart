@@ -1,4 +1,4 @@
-import 'package:coworking/models/pin.dart';
+import 'package:coworking/domain/entities/pin.dart';
 import 'package:coworking/navigation/main_navigation.dart';
 import 'package:flutter/material.dart';
 

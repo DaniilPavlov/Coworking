@@ -1,8 +1,8 @@
-import 'package:coworking/models/review.dart';
+import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/screens/menu/user_reviews/user_reviews_list.dart';
-import 'package:coworking/services/database_review.dart';
+import 'package:coworking/domain/services/database_review.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/models/account.dart';
+import 'package:coworking/domain/entities/account.dart';
 
 class UserReviewsScreen extends StatelessWidget {
   const UserReviewsScreen({Key? key}) : super(key: key);
@@ -51,7 +51,8 @@ class BodyLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Review>>(
-        stream: DatabaseReview.fetchReviewsOfUser(Account.currentAccount!, context),
+        stream:
+            DatabaseReview.fetchReviewsOfUser(Account.currentAccount!, context),
         builder: (context, snapshot) {
           if (!snapshot.hasData ||
               snapshot.connectionState == ConnectionState.waiting) {

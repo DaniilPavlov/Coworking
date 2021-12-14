@@ -2,7 +2,7 @@
 // import 'package:flutter_test/flutter_test.dart';
 // import 'package:coworking/widgets/image_picker_box.dart';
 // import 'package:coworking/widgets/radio_button_picker.dart';
-// import 'package:coworking/models/category.dart';
+// import 'package:coworking/domain/entities/category.dart';
 // import 'dart:io';
 
 // class PinWidget extends StatefulWidget {

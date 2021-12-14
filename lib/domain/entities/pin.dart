@@ -1,13 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:coworking/models/review.dart';
+import 'package:coworking/domain/entities/account.dart';
+import 'package:coworking/domain/entities/review.dart';
+import 'package:coworking/domain/services/database_review.dart';
 import 'package:coworking/navigation/main_navigation.dart';
-
-import 'package:coworking/services/database_review.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:coworking/models/account.dart';
-import 'package:coworking/models/category.dart';
+import 'package:coworking/domain/entities/category.dart';
 
 class Pin {
   String id;

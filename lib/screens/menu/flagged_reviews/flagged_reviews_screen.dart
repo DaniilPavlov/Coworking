@@ -1,6 +1,6 @@
-import 'package:coworking/models/review.dart';
+import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/screens/menu/flagged_reviews/flagged_reviews_list.dart';
-import 'package:coworking/services/database_review.dart';
+import 'package:coworking/domain/services/database_review.dart';
 import 'package:flutter/material.dart';
 
 class FlaggedReviewsScreen extends StatelessWidget {

@@ -1,10 +1,10 @@
+import 'package:coworking/domain/entities/account.dart';
+import 'package:coworking/domain/services/database_meeting.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/models/account.dart';
-import 'package:coworking/models/meeting.dart';
+import 'package:coworking/domain/entities/meeting.dart';
 import 'package:coworking/screens/meetings/new_meeting_form.dart';
 import 'package:coworking/widgets/toast.dart';
 import 'package:coworking/utils/time_left.dart';
-import 'package:coworking/services/database_meeting.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:coworking/widgets/meetings_background.dart';

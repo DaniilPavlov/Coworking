@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:coworking/models/option.dart';
+import 'package:coworking/domain/entities/option.dart';
 
 class RadioButtonPicker extends FormField<Option> {
   final List<Option>? options;

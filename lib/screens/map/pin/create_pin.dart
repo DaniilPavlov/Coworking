@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:coworking/models/pin.dart';
-import 'package:coworking/models/review.dart';
+import 'package:coworking/domain/entities/pin.dart';
+import 'package:coworking/domain/entities/review.dart';
 
 import 'package:coworking/screens/map/pin/review/review_form.dart';
 import 'package:coworking/screens/map/pin/pin_form.dart';

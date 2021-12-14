@@ -1,5 +1,5 @@
+import 'package:coworking/domain/services/sign_in.dart';
 import 'package:coworking/navigation/main_navigation.dart';
-import 'package:coworking/services/sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

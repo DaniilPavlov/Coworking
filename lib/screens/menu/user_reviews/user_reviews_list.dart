@@ -1,4 +1,4 @@
-import 'package:coworking/models/review.dart';
+import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/utils/format_date.dart';
 import 'package:flutter/material.dart';

@@ -1,7 +1,7 @@
-import 'package:coworking/models/category.dart';
-import 'package:coworking/models/pin.dart';
+import 'package:coworking/domain/entities/category.dart';
+import 'package:coworking/domain/entities/pin.dart';
+import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/screens/map/pin/review/review_form.dart';
-import 'package:coworking/services/database_pin.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

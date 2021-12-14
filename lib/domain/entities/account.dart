@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:coworking/services/database_account.dart';
+import 'package:coworking/domain/services/database_account.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Account {

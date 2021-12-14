@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:coworking/models/option.dart';
+import 'package:coworking/domain/entities/option.dart';
 
 class Category extends Option {
   Category(String name, Color colour) : super(text: name, colour: colour);

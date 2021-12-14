@@ -1,16 +1,14 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:coworking/models/pin.dart';
-import 'package:coworking/models/review.dart';
-import 'package:coworking/services/database_review.dart';
+import 'package:coworking/domain/entities/account.dart';
+import 'package:coworking/domain/entities/category.dart';
+import 'package:coworking/domain/entities/pin.dart';
+import 'package:coworking/domain/entities/review.dart';
+import 'package:coworking/domain/services/database_review.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-import 'package:coworking/models/account.dart';
-import 'package:coworking/models/category.dart';
 
 class PinChange {
   DocumentChangeType type;

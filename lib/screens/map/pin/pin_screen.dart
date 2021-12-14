@@ -1,12 +1,12 @@
+import 'package:coworking/domain/services/database_pin.dart';
+import 'package:coworking/domain/services/database_review.dart';
 import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/screens/map/pin/pin_screen_model.dart';
-import 'package:coworking/services/database_review.dart';
 import 'package:coworking/widgets/google_map_button.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/models/category.dart';
-import 'package:coworking/services/database_pin.dart';
-import 'package:coworking/models/pin.dart';
-import 'package:coworking/models/review.dart';
+import 'package:coworking/domain/entities/category.dart';
+import 'package:coworking/domain/entities/pin.dart';
+import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/screens/map/pin/review/review_list_widget.dart';
 import 'package:coworking/screens/map/pin/review/review_form.dart';
 import 'package:coworking/widgets/image_picker_box.dart';
@@ -31,6 +31,13 @@ class _PinView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<PinScreenModel>();
+
+    Widget progressIndicator = Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(24),
+      child: const CircularProgressIndicator(),
+    );
+
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: FloatingActionButton(
@@ -62,97 +69,91 @@ class _PinView extends StatelessWidget {
           ),
         ),
       ),
-      body: StreamBuilder<List<Review>>(
-        stream: DatabaseReview.fetchReviewsForPin(model.pin.id),
-        builder: (context, snapshot) {
-          Widget progressIndicator = Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(24),
-            child: const CircularProgressIndicator(),
-          );
-          return CustomScrollView(
-            physics: const ClampingScrollPhysics(),
-            slivers: <Widget>[
-              const _PinAppBar(),
-              SliverToBoxAdapter(
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        model.pin.name,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 22, fontStyle: FontStyle.italic),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Row(children: <Widget>[
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text("Категория:"),
-                      ),
-                      const _CategoryChipWidget(),
-                      FutureBuilder(
-                          future: DatabasePin.updateRateOfPin(model.pin.id),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              model.pin.rating = snapshot.data as double;
-                              return (snapshot.hasData)
-                                  ? Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16.0),
-                                      child: Text(
-                                        "Рейтинг: " +
-                                            model.pin.rating.toString() +
-                                            " / 10",
-                                      ),
-                                    )
-                                  : Container();
-                            } else {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            }
-                          })
-                    ]),
-                    GoogleMapButton(location: model.pin.location),
-                    Container(
-                      alignment: Alignment.center,
-                      child: const Text(
-                        "Статистика за последние 3 месяца",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const _ThreeMonthRateWidget(),
-                    Container(
-                      alignment: Alignment.center,
-                      child: const Text(
-                        "Отзывы",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
+      body: CustomScrollView(
+        physics: const ClampingScrollPhysics(),
+        slivers: <Widget>[
+          const _PinAppBar(),
+          SliverToBoxAdapter(
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    model.pin.name,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 22, fontStyle: FontStyle.italic),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-              ),
-              snapshot.hasData
-                  ? SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, i) => ReviewListWidget(snapshot.data![i]),
-                        childCount: snapshot.data!.length,
-                      ),
-                    )
-                  : SliverFillRemaining(
-                      child: progressIndicator,
-                      hasScrollBody: false,
-                    ),
-              const SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 100,
+                Row(children: <Widget>[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text("Категория:"),
+                  ),
+                  const _CategoryChipWidget(),
+                  FutureBuilder(
+                      future: DatabasePin.updateRateOfPin(model.pin.id),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          model.pin.rating = snapshot.data as double;
+                          return (snapshot.hasData)
+                              ? Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0),
+                                  child: Text(
+                                    "Рейтинг: " +
+                                        model.pin.rating.toString() +
+                                        " / 10",
+                                  ),
+                                )
+                              : Container();
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                      })
+                ]),
+                GoogleMapButton(location: model.pin.location),
+                Container(
+                  alignment: Alignment.center,
+                  child: const Text(
+                    "Статистика за последние 3 месяца",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+                const _ThreeMonthRateWidget(),
+                Container(
+                  alignment: Alignment.center,
+                  child: const Text(
+                    "Отзывы",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          StreamBuilder<List<Review>>(
+              stream: DatabaseReview.fetchReviewsForPin(model.pin.id),
+              builder: (context, snapshot) {
+                return snapshot.hasData
+                    ? SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, i) => ReviewListWidget(snapshot.data![i]),
+                          childCount: snapshot.data!.length,
+                        ),
+                      )
+                    : SliverFillRemaining(
+                        child: progressIndicator,
+                        hasScrollBody: false,
+                      );
+              }),
+          const SliverToBoxAdapter(
+            child: SizedBox(
+              height: 100,
+            ),
+          ),
+        ],
       ),
     );
   }

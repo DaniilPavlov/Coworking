@@ -1,6 +1,6 @@
-import 'package:coworking/services/database_pin.dart';
-import 'package:coworking/models/review.dart';
-import 'package:coworking/services/database_review.dart';
+import 'package:coworking/domain/services/database_pin.dart';
+import 'package:coworking/domain/services/database_review.dart';
+import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/utils/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -67,38 +67,41 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
         onTap: () => showModalBottomSheet(
           context: context,
           builder: (_) => FutureBuilder(
-              future: DatabaseReview.isReviewOwner(widget.review),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return (snapshot.data == true)
-                      ? AuthorsReviewWidget(review: widget.review)
-                      : OthersReviewWidget(review: widget.review);
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              }),
+            future: DatabaseReview.isReviewOwner(widget.review),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return (snapshot.data == true)
+                    ? _AuthorsReviewWidget(review: widget.review)
+                    : _OthersReviewWidget(review: widget.review);
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
         ),
-        child: ReviewTileWidget(review: widget.review),
+        child: _ReviewTileWidget(review: widget.review),
       ),
     );
   }
 }
 
-class AuthorsReviewWidget extends StatefulWidget {
+class _AuthorsReviewWidget extends StatefulWidget {
   final Review review;
-  const AuthorsReviewWidget({Key? key, required this.review}) : super(key: key);
+  const _AuthorsReviewWidget({Key? key, required this.review})
+      : super(key: key);
 
   @override
-  State<AuthorsReviewWidget> createState() => _AuthorsReviewWidgetState();
+  State<_AuthorsReviewWidget> createState() => _AuthorsReviewWidgetState();
 }
 
-class _AuthorsReviewWidgetState extends State<AuthorsReviewWidget> {
+class _AuthorsReviewWidgetState extends State<_AuthorsReviewWidget> {
   ///нужно поднять ошибки при неудачном сохранении
   void _saveReview() async {
     final RegExp shutterSpeedRegEx =
         RegExp("[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)");
 
-    //можно оставить оценку без отзыва, возможно есть смысл оставить, иначе меняем бади на контроллер
+    //можно оставить оценку без отзыва, возможно есть смысл оставить,
+    //иначе меняем бади на контроллер
     if (widget.review.body != "" &&
         widget.review.userRate.toString() != "" &&
         shutterSpeedRegEx.hasMatch(widget.review.userRate.toString()) &&
@@ -112,8 +115,7 @@ class _AuthorsReviewWidgetState extends State<AuthorsReviewWidget> {
           widget.review.isRazors,
           widget.review.isWiFi,
           widget.review.userRate / 2);
-      print("NEW TOTAL");
-      print(widget.review.totalRate);
+      print("NEW TOTAL ${widget.review.totalRate}");
       await DatabaseReview.editReview(widget.review);
       oldComment = widget.review.body;
       oldRazors = widget.review.isRazors;
@@ -310,9 +312,9 @@ class _AuthorsReviewWidgetState extends State<AuthorsReviewWidget> {
   }
 }
 
-class OthersReviewWidget extends StatelessWidget {
+class _OthersReviewWidget extends StatelessWidget {
   final Review review;
-  const OthersReviewWidget({Key? key, required this.review}) : super(key: key);
+  const _OthersReviewWidget({Key? key, required this.review}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -397,16 +399,16 @@ class OthersReviewWidget extends StatelessWidget {
   }
 }
 
-class ReviewTileWidget extends StatefulWidget {
+class _ReviewTileWidget extends StatefulWidget {
   final Review review;
 
-  const ReviewTileWidget({Key? key, required this.review}) : super(key: key);
+  const _ReviewTileWidget({Key? key, required this.review}) : super(key: key);
 
   @override
-  State<ReviewTileWidget> createState() => _ReviewTileWidgetState();
+  State<_ReviewTileWidget> createState() => _ReviewTileWidgetState();
 }
 
-class _ReviewTileWidgetState extends State<ReviewTileWidget> {
+class _ReviewTileWidgetState extends State<_ReviewTileWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -417,47 +419,96 @@ class _ReviewTileWidgetState extends State<ReviewTileWidget> {
           color: Colors.orange,
           thickness: 2,
         ),
-        Text(
-          widget.review.body,
-          textScaleFactor: 1.1,
-        ),
+        _ReviewBodyWidget(reviewBody: widget.review.body),
         Row(children: <Widget>[
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              FutureBuilder(
-                future: widget.review.author.userName,
-                builder: (_, snapshot) => Text(
-                  (snapshot.hasData) ? snapshot.data.toString() : "Anonymous",
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              Text(
-                FormatDate.formatDate(widget.review.timestamp),
-                style: TextStyle(color: Theme.of(context).primaryColor),
-              ),
+            children: [
+              _ReviewAuthorWidget(review: widget.review),
+              _ReviewDateWidget(reviewDate: widget.review.timestamp)
             ],
           ),
           const Spacer(),
-          IconButton(
-            padding: EdgeInsets.zero,
-            icon: Icon(
-              isFlagged ? Icons.flag : Icons.outlined_flag,
-              semanticLabel: "Flagged",
-            ),
-            onPressed: () {
-              if (isFlagged) {
-                DatabaseReview.removeFlag(widget.review.id!);
-              } else {
-                DatabaseReview.addFlag(widget.review.id!);
-              }
-              setState(() {
-                isFlagged = !isFlagged;
-              });
-            },
-          ),
+          _FlagIconButton(reviewId: widget.review.id!)
         ])
       ],
+    );
+  }
+}
+
+class _ReviewBodyWidget extends StatelessWidget {
+  final String reviewBody;
+  const _ReviewBodyWidget({Key? key, required this.reviewBody})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      reviewBody,
+      textScaleFactor: 1.1,
+    );
+  }
+}
+
+class _ReviewAuthorWidget extends StatelessWidget {
+  final Review review;
+  const _ReviewAuthorWidget({Key? key, required this.review}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: review.author.userName,
+      builder: (_, snapshot) => Text(
+        (snapshot.hasData) ? snapshot.data.toString() : "Anonymous",
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+}
+
+class _ReviewDateWidget extends StatelessWidget {
+  final DateTime reviewDate;
+  const _ReviewDateWidget({Key? key, required this.reviewDate})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      FormatDate.formatDate(reviewDate),
+      style: TextStyle(color: Theme.of(context).primaryColor),
+    );
+  }
+}
+
+class _FlagIconButton extends StatefulWidget {
+  final String reviewId;
+  const _FlagIconButton({Key? key, required this.reviewId}) : super(key: key);
+
+  @override
+  __FlagIconButtonState createState() => __FlagIconButtonState();
+}
+
+class __FlagIconButtonState extends State<_FlagIconButton> {
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      padding: EdgeInsets.zero,
+      icon: Icon(
+        isFlagged ? Icons.flag : Icons.outlined_flag,
+        semanticLabel: "Flagged",
+      ),
+      onPressed: () {
+        if (isFlagged) {
+          DatabaseReview.removeFlag(widget.reviewId);
+        } else {
+          DatabaseReview.addFlag(widget.reviewId);
+        }
+        setState(
+          () {
+            isFlagged = !isFlagged;
+          },
+        );
+      },
     );
   }
 }

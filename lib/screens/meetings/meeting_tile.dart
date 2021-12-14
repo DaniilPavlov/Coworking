@@ -1,4 +1,4 @@
-import 'package:coworking/models/meeting.dart';
+import 'package:coworking/domain/entities/meeting.dart';
 import 'package:coworking/utils/time_left.dart';
 import 'package:flutter/material.dart';
 import 'package:coworking/screens/meetings/meeting_info.dart';

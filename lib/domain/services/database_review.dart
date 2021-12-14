@@ -1,9 +1,8 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:coworking/models/account.dart';
-import 'package:coworking/models/review.dart';
-import 'package:coworking/services/database_pin.dart';
+import 'package:coworking/domain/entities/account.dart';
+import 'package:coworking/domain/entities/review.dart';
+import 'package:coworking/domain/services/database_pin.dart';
 import 'package:flutter/material.dart';
 
 class DatabaseReview {

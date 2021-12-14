@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:coworking/services/database_meeting.dart';
+import 'package:coworking/domain/entities/account.dart';
+import 'package:coworking/domain/services/database_meeting.dart';
 import 'package:coworking/widgets/shadow_container.dart';
+import 'package:coworking/widgets/toast.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/models/account.dart';
-import 'package:coworking/models/meeting.dart';
+import 'package:coworking/domain/entities/meeting.dart';
 import 'package:intl/intl.dart';
 import 'package:coworking/widgets/meetings_background.dart';
 
@@ -103,11 +104,7 @@ class NewMeetingFormState extends State<NewMeetingForm>
         Navigator.of(context).pop(widget.meeting);
       }
     } else {
-      addMeetingKey.currentState!.showSnackBar(
-        const SnackBar(
-          content: Text("До начала всего 2 часа, это слишком мало!"),
-        ),
-      );
+      buildToast("До начала всего 2 часа, это слишком мало!");
     }
   }
 
@@ -122,11 +119,7 @@ class NewMeetingFormState extends State<NewMeetingForm>
         Navigator.pop(context);
       }
     } else {
-      addMeetingKey.currentState!.showSnackBar(
-        const SnackBar(
-          content: Text("До начала всего 2 часа, это слишком мало!"),
-        ),
-      );
+      buildToast("До начала всего 2 часа, это слишком мало!");
     }
   }
 
@@ -222,16 +215,9 @@ class NewMeetingFormState extends State<NewMeetingForm>
                               null,
                               false);
                           if (_meetingPlaceController.text == "") {
-                            addMeetingKey.currentState!
-                                .showSnackBar(const SnackBar(
-                              content: Text("Требуется добавить место встречи"),
-                            ));
+                            buildToast("Требуется добавить место встречи");
                           } else if (_meetingDescriptionController.text == "") {
-                            addMeetingKey.currentState!
-                                .showSnackBar(const SnackBar(
-                              content:
-                                  Text("Требуется добавить описание встречи"),
-                            ));
+                            buildToast("Требуется добавить описание встречи");
                           } else {
                             meeting.place = _meetingPlaceController.text;
                             meeting.description =

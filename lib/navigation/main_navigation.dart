@@ -1,5 +1,5 @@
-import 'package:coworking/models/meeting.dart';
-import 'package:coworking/models/pin.dart';
+import 'package:coworking/domain/entities/meeting.dart';
+import 'package:coworking/domain/entities/pin.dart';
 import 'package:coworking/screens/login/login_screen.dart';
 import 'package:coworking/screens/map/map_screen.dart';
 import 'package:coworking/screens/map/pin/pin_screen.dart';

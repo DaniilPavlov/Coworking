@@ -1,6 +1,6 @@
+import 'package:coworking/domain/entities/account.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/models/account.dart';
-import 'package:coworking/models/review.dart';
+import 'package:coworking/domain/entities/review.dart';
 
 late TextEditingController rateController;
 bool isFood = false;

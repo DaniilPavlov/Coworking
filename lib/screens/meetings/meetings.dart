@@ -1,7 +1,7 @@
-import 'package:coworking/services/database_meeting.dart';
+import 'package:coworking/domain/entities/account.dart';
+import 'package:coworking/domain/services/database_meeting.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/models/account.dart';
-import 'package:coworking/models/meeting.dart';
+import 'package:coworking/domain/entities/meeting.dart';
 import 'package:coworking/screens/meetings/new_meeting_form.dart';
 import 'package:coworking/screens/meetings/meeting_tile.dart';
 import 'package:coworking/screens/meetings/join_meeting.dart';

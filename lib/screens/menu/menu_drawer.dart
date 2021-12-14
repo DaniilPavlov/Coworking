@@ -1,9 +1,9 @@
-import 'package:coworking/models/account.dart';
+import 'package:coworking/domain/entities/account.dart';
 import 'package:coworking/navigation/main_navigation.dart';
-import 'package:coworking/services/database_account.dart';
+import 'package:coworking/domain/services/database_account.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/services/sign_in.dart';
+import 'package:coworking/domain/services/sign_in.dart';
 import 'package:coworking/screens/menu/account.dart';
 
 class MenuDrawer extends StatefulWidget {

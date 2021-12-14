@@ -1,11 +1,10 @@
 import 'dart:io';
-
-import 'package:coworking/models/account.dart';
-import 'package:coworking/models/category.dart';
-import 'package:coworking/models/pin.dart';
-import 'package:coworking/models/review.dart';
+import 'package:coworking/domain/entities/account.dart';
+import 'package:coworking/domain/entities/category.dart';
+import 'package:coworking/domain/entities/pin.dart';
+import 'package:coworking/domain/entities/review.dart';
+import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/screens/map/map_screen.dart';
-import 'package:coworking/services/database_pin.dart';
 import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
 import 'package:flutter/material.dart';

@@ -1,8 +1,8 @@
-import 'package:coworking/models/pin.dart';
+import 'package:coworking/domain/entities/pin.dart';
 import 'package:coworking/screens/menu/favourite_pins/favourite_pins_list.dart';
-import 'package:coworking/services/database_pin.dart';
+import 'package:coworking/domain/services/database_pin.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/models/account.dart';
+import 'package:coworking/domain/entities/account.dart';
 
 class FavouritePinsScreen extends StatelessWidget {
   const FavouritePinsScreen({Key? key}) : super(key: key);
@@ -51,8 +51,8 @@ class BodyLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future:
-          DatabasePin.fetchFavouritePinsForUser(Account.currentAccount!, context),
+      future: DatabasePin.fetchFavouritePinsForUser(
+          Account.currentAccount!, context),
       builder: (context, snapshot) => (snapshot.hasData)
           ? StreamBuilder<List<Pin>>(
               stream: snapshot.data as Stream<List<Pin>>?,

@@ -1,5 +1,5 @@
+import 'package:coworking/domain/services/database_meeting.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/services/database_meeting.dart';
 import 'package:coworking/widgets/shadow_container.dart';
 import 'package:coworking/widgets/meetings_background.dart';
 

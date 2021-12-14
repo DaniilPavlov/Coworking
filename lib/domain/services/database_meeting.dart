@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:coworking/models/account.dart';
-import 'package:coworking/models/meeting.dart';
+import 'package:coworking/domain/entities/account.dart';
+import 'package:coworking/domain/entities/meeting.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
