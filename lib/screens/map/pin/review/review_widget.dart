@@ -28,21 +28,25 @@ class _ReviewWidgetView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 16.0),
       child: InkWell(
-        //TODO Provider problem with BottomSheet
         onTap: () => showModalBottomSheet(
           context: context,
-          builder: (_) => FutureBuilder(
-            future: DatabaseReview.isReviewOwner(model.review),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return (snapshot.data == true)
-                    ? const _AuthorsReviewInfoWidget()
-                    : const _OthersReviewInfoWidget();
-              } else {
-                return const Center(child: CircularProgressIndicator());
-              }
-            },
-          ),
+          builder: (_) {
+            return ChangeNotifierProvider.value(
+              value: model,
+              child: FutureBuilder(
+                future: DatabaseReview.isReviewOwner(model.review),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return (snapshot.data == true)
+                        ? const _AuthorsReviewInfoWidget()
+                        : const _OthersReviewInfoWidget();
+                  } else {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                },
+              ),
+            );
+          },
         ),
         child: _ReviewTileWidget(),
       ),
@@ -90,7 +94,7 @@ class _AuthorsReviewInfoWidget extends StatelessWidget {
               ),
             ),
 
-            ///TODO сложности с выносом грид вью
+            ///TODO сложности с выносом грид вью из-за чек боксов
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -301,7 +305,6 @@ class _OthersReviewInfoWidget extends StatelessWidget {
 class _ReviewTileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<ReviewWidgetModel>();
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
