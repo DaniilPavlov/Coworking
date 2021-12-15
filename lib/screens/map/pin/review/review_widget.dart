@@ -30,6 +30,8 @@ class _ReviewWidgetView extends StatelessWidget {
       child: InkWell(
         onTap: () => showModalBottomSheet(
           context: context,
+          //TODO оставить на фул экран или вернуть только в боттом?
+          isScrollControlled: true,
           builder: (_) {
             return ChangeNotifierProvider.value(
               value: model,
@@ -61,26 +63,27 @@ class _AuthorsReviewInfoWidget extends StatelessWidget {
     final model = context.watch<ReviewWidgetModel>();
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Colors.orange,
-          title: const Text("Изменение отзыва", textAlign: TextAlign.center),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.save),
-              onPressed: () async {
-                var errorSave = await model.saveReview();
-                if (errorSave) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("Вы заполнили не всю информацию"),
-                  ));
-                } else {
-                  Navigator.of(context).pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("Информация отзыва изменена"),
-                  ));
-                }
-              },
-            ),
-          ]),
+        backgroundColor: Colors.orange,
+        title: const Text("Изменение отзыва", textAlign: TextAlign.center),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: () async {
+              var errorSave = await model.saveReview();
+              if (errorSave) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Вы заполнили не всю информацию"),
+                ));
+              } else {
+                Navigator.of(context).pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Информация отзыва изменена"),
+                ));
+              }
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -93,123 +96,176 @@ class _AuthorsReviewInfoWidget extends StatelessWidget {
                 contentPadding: EdgeInsets.all(8.0),
               ),
             ),
-
-            ///TODO сложности с выносом грид вью из-за чек боксов
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                children: <Widget>[
-                  Text(
-                    "Раздел оценки места",
-                    style: Theme.of(context).textTheme.subtitle1,
-                    textAlign: TextAlign.left,
-                  ),
-
-                  /// добавляю стейтфул, чтобы чек боксы изменялись. иначе они не обновляются
-                  StatefulBuilder(
-                    builder: (BuildContext context, StateSetter setState) {
-                      return GridView.count(
-                        childAspectRatio: 5,
-                        crossAxisCount: 2,
-                        shrinkWrap: true,
-                        children: <Widget>[
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            child: const Text("Можно приобрести еду"),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            child: Checkbox(
-                              value: model.review.isFood,
-                              onChanged: (value) {
-                                model.review.isFood = value!;
-                              },
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            child: const Text("Можно находиться бесплатно"),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            child: Checkbox(
-                              value: model.review.isFree,
-                              onChanged: (value) {
-                                model.review.isFree = value!;
-                              },
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            child: const Text("Есть розетки"),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            child: Checkbox(
-                              value: model.review.isRazors,
-                              onChanged: (value) {
-                                model.review.isRazors = value!;
-                              },
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            child: const Text("Есть WiFi"),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            child: Checkbox(
-                              value: model.review.isWiFi,
-                              onChanged: (value) {
-                                model.review.isWiFi = value!;
-                              },
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            child: const Text(
-                                "Ваша личная оценка места (введите число от 0 до 10)"),
-                          ),
-                          Container(
-                            alignment: Alignment.center,
-                            child: TextFormField(
-                              textAlign: TextAlign.center,
-                              controller: model.rateController,
-                              validator: (input) =>
-                                  input!.isEmpty ? "Оценка обязательна" : null,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+                children: const <Widget>[
+                  _ReviewCheckBoxes(),
+                  _ReviewersRate(),
                 ],
               ),
             ),
-            ButtonTheme(
-              minWidth: 120.0,
-              height: 50.0,
-              child: ElevatedButton(
-                onPressed: () async {
-                  DatabaseReview.deleteReview(model.review);
-                  Navigator.pop(context);
-                  model.review.pin?.rating =
-                      await DatabasePin.updateRateOfPin(model.review.pin?.id);
+            const _DeleteReviewButton(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReviewCheckBoxes extends StatefulWidget {
+  const _ReviewCheckBoxes({Key? key}) : super(key: key);
+
+  @override
+  __ReviewCheckBoxesState createState() => __ReviewCheckBoxesState();
+}
+
+class __ReviewCheckBoxesState extends State<_ReviewCheckBoxes> {
+  @override
+  Widget build(BuildContext context) {
+    final model = context.watch<ReviewWidgetModel>();
+    return Column(
+      children: [
+        Text(
+          "Раздел оценки места",
+          style: Theme.of(context).textTheme.subtitle1,
+          textAlign: TextAlign.left,
+        ),
+        Row(
+          children: [
+            Container(
+              alignment: Alignment.centerLeft,
+              child: const Text("Можно приобрести еду"),
+            ),
+            const Spacer(),
+            Container(
+              alignment: Alignment.centerRight,
+              child: Checkbox(
+                value: model.review.isFood,
+                onChanged: (value) {
+                  model.review.isFood = value!;
+                  setState(() {});
                 },
-                child: const Text(
-                  'Удалить',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 26.0,
-                  ),
-                ),
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                      Theme.of(context).errorColor),
-                ),
+              ),
+            )
+          ],
+        ),
+        Row(
+          children: [
+            Container(
+              alignment: Alignment.centerLeft,
+              child: const Text("Можно находиться бесплатно"),
+            ),
+            const Spacer(),
+            Container(
+              alignment: Alignment.centerRight,
+              child: Checkbox(
+                value: model.review.isFree,
+                onChanged: (value) {
+                  model.review.isFree = value!;
+                  setState(() {});
+                },
               ),
             ),
           ],
+        ),
+        Row(
+          children: [
+            Container(
+              alignment: Alignment.centerLeft,
+              child: const Text("Есть WiFi"),
+            ),
+            const Spacer(),
+            Container(
+              alignment: Alignment.centerRight,
+              child: Checkbox(
+                value: model.review.isWiFi,
+                onChanged: (value) {
+                  model.review.isWiFi = value!;
+                  setState(() {});
+                },
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            Container(
+              alignment: Alignment.centerLeft,
+              child: const Text("Есть розетки"),
+            ),
+            const Spacer(),
+            Container(
+              alignment: Alignment.centerRight,
+              child: Checkbox(
+                value: model.review.isRazors,
+                onChanged: (value) {
+                  model.review.isRazors = value!;
+                  setState(() {});
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ReviewersRate extends StatelessWidget {
+  const _ReviewersRate({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.watch<ReviewWidgetModel>();
+    return Column(
+      children: [
+        Container(
+          alignment: Alignment.centerLeft,
+          child:
+              const Text("Ваша личная оценка места (введите число от 0 до 10)"),
+        ),
+        Container(
+          alignment: Alignment.center,
+          child: TextFormField(
+            textAlign: TextAlign.center,
+            controller: model.rateController,
+            validator: (input) => input!.isEmpty ? "Оценка обязательна" : null,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DeleteReviewButton extends StatelessWidget {
+  const _DeleteReviewButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.watch<ReviewWidgetModel>();
+    return ButtonTheme(
+      minWidth: 120.0,
+      height: 50.0,
+      child: ElevatedButton(
+        //TODO при удалении change notifier некорректно dispose
+        // (на работу не влияет)
+        onPressed: () async {
+          DatabaseReview.deleteReview(model.review);
+          Navigator.of(context).pop(context);
+          model.review.pin?.rating =
+              await DatabasePin.updateRateOfPin(model.review.pin?.id);
+        },
+        child: const Text(
+          'Удалить',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 26.0,
+          ),
+        ),
+        style: ButtonStyle(
+          backgroundColor:
+              MaterialStateProperty.all<Color>(Theme.of(context).errorColor),
         ),
       ),
     );

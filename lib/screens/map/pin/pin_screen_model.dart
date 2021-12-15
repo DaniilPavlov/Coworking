@@ -8,7 +8,9 @@ import 'package:flutter/material.dart';
 
 class PinScreenModel extends ChangeNotifier {
   Pin pin;
-  PinScreenModel({required this.pin});
+  PinScreenModel({required this.pin}) {
+    _asyncInit();
+  }
 
   var visitedText = "";
   var visitedColor = Colors.orange;
@@ -19,10 +21,10 @@ class PinScreenModel extends ChangeNotifier {
   TextEditingController nameController = TextEditingController();
   List<double> threeMonthStats = [0, 0, 0, 0, 0];
 
-  // void setKeys() {
-  //   nameController.text = pin.name;
-  //   notifyListeners();
-  // }
+//TODO расширить
+  Future _asyncInit() async {
+    nameController.text = pin.name;
+  }
 
   Future<bool> savePin() async {
     try {

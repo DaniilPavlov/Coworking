@@ -41,6 +41,8 @@ class _PinScreenView extends StatelessWidget {
         child: const Icon(Icons.create),
         onPressed: () => showModalBottomSheet(
           context: context,
+          //TODO оставить на фул экран или вернуть только в боттом?
+          isScrollControlled: true,
           builder: (_) => Scaffold(
             appBar: AppBar(
               backgroundColor: Colors.orange,

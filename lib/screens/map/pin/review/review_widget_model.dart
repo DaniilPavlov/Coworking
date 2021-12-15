@@ -8,29 +8,17 @@ import 'package:flutter/material.dart';
 class ReviewWidgetModel extends ChangeNotifier {
   Review review;
   ReviewWidgetModel({required this.review}) {
-    asyncInit();
+    _asyncInit();
   }
 
   bool isFlagged = false;
-  // String oldComment = "";
-  // var oldRazors = false;
-  // var oldFood = false;
-  // var oldFree = false;
-  // var oldWiFi = false;
-  // var oldRate = 0.0;
   var rateController = TextEditingController();
   var reviewTextController = TextEditingController();
 
-  Future asyncInit() async {
+  Future _asyncInit() async {
     await DatabaseReview.isFlagged(review.id).then((value) {
       isFlagged = value;
     });
-    // oldComment = review.body;
-    // oldRazors = review.isRazors;
-    // oldFood = review.isFood;
-    // oldFree = review.isFree;
-    // oldWiFi = review.isWiFi;
-    // oldRate = review.userRate;
     rateController.text = review.userRate.toString();
     reviewTextController.text = review.body;
   }
@@ -50,26 +38,11 @@ class ReviewWidgetModel extends ChangeNotifier {
           review.isFree, review.isRazors, review.isWiFi, review.userRate / 2);
       print("NEW TOTAL ${review.totalRate}");
       await DatabaseReview.editReview(review);
-      // oldComment = review.body;
-      // oldRazors = review.isRazors;
-      // oldFood = review.isFood;
-      // oldFree = review.isFree;
-      // oldWiFi = review.isWiFi;
-      // oldRate = review.userRate;
-
       //TODO заменил ! на ?
       review.pin?.rating = await DatabasePin.updateRateOfPin(review.pin?.id);
       notifyListeners();
       return false;
     } else {
-      // review.body = oldComment;
-      // review.isRazors = oldRazors;
-      // review.isFood = oldFood;
-      // review.isFree = oldFree;
-      // review.isWiFi = oldWiFi;
-      // review.userRate = oldRate;
-      // rateController.text = oldRate.toString();
-      // reviewController.text = oldComment;
       notifyListeners();
       return true;
     }
