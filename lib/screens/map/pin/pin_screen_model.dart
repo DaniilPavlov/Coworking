@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 class PinScreenModel extends ChangeNotifier {
   Pin pin;
-  PinScreenModel(this.pin);
+  PinScreenModel({required this.pin});
 
   var visitedText = "";
   var visitedColor = Colors.orange;
@@ -63,7 +63,7 @@ class PinScreenModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setUnFavourite() {
+  void setUnfavourite() {
     visitedText = "В избранном";
     visitedColor = Colors.yellow;
     DatabasePin.removeFavourite(pin.id);

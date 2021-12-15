@@ -2,12 +2,13 @@ import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/domain/services/database_review.dart';
 import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/screens/map/pin/pin_screen_model.dart';
+import 'package:coworking/widgets/custom_progress_indicator.dart';
 import 'package:coworking/widgets/google_map_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coworking/domain/entities/category.dart';
 import 'package:coworking/domain/entities/pin.dart';
 import 'package:coworking/domain/entities/review.dart';
-import 'package:coworking/screens/map/pin/review/review_list_widget.dart';
+import 'package:coworking/screens/map/pin/review/review_widget.dart';
 import 'package:coworking/screens/map/pin/review/review_form.dart';
 import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
@@ -19,24 +20,18 @@ class PinScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
-        create: (context) => PinScreenModel(pin),
+        create: (context) => PinScreenModel(pin: pin),
         lazy: true,
-        child: const _PinView(),
+        child: const _PinScreenView(),
       );
 }
 
-class _PinView extends StatelessWidget {
-  const _PinView({Key? key}) : super(key: key);
+class _PinScreenView extends StatelessWidget {
+  const _PinScreenView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final model = context.watch<PinScreenModel>();
-
-    Widget progressIndicator = Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(24),
-      child: const CircularProgressIndicator(),
-    );
 
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -139,12 +134,13 @@ class _PinView extends StatelessWidget {
                 return snapshot.hasData
                     ? SliverList(
                         delegate: SliverChildBuilderDelegate(
-                          (context, i) => ReviewListWidget(snapshot.data![i]),
+                          (context, i) =>
+                              ReviewWidget(review: snapshot.data![i]),
                           childCount: snapshot.data!.length,
                         ),
                       )
-                    : SliverFillRemaining(
-                        child: progressIndicator,
+                    : const SliverFillRemaining(
+                        child: CustomProgressIndicator(),
                         hasScrollBody: false,
                       );
               }),
@@ -210,7 +206,7 @@ class _FavouriteButton extends StatelessWidget {
               if (snapshot.data == false) {
                 model.setFavourite();
               } else {
-                model.setUnFavourite();
+                model.setUnfavourite();
               }
             },
             style: ButtonStyle(
