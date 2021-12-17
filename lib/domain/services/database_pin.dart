@@ -54,6 +54,19 @@ class DatabasePin {
     });
   }
 
+  static Stream<double> fetchPin(String pinID) {
+    return FirebaseFirestore.instance
+        .collection("pins")
+        .doc(pinID)
+        .snapshots()
+        .asyncMap((query) async {
+      Completer<double> ratingCompleter = Completer<double>();
+      Map<String, dynamic> pinMap = query.data() as Map<String, dynamic>;
+      ratingCompleter.complete(pinMap["rating"]);
+      return ratingCompleter.future;
+    });
+  }
+
   static Stream<List<double>> calculateThreeMonthRate(String pinID) {
     return FirebaseFirestore.instance
         .collection("reviews")

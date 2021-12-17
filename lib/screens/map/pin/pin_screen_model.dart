@@ -1,5 +1,6 @@
 import 'package:coworking/domain/entities/category.dart';
 import 'package:coworking/domain/entities/pin.dart';
+import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/screens/map/pin/review/review_form.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -24,6 +25,16 @@ class PinScreenModel extends ChangeNotifier {
 //TODO расширить
   Future _asyncInit() async {
     nameController.text = pin.name;
+  }
+
+  Future<void> createReview(BuildContext context) async {
+    if (reviewFormKey.currentState!.isValid) {
+      Review review = reviewFormKey.currentState!.getReview();
+      pin.addReview(review);
+      pin.rating = await DatabasePin.updateRateOfPin(pin.id);
+      notifyListeners();
+      Navigator.pop(context);
+    }
   }
 
   Future<bool> savePin() async {

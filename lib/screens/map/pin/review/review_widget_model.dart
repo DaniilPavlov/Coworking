@@ -26,7 +26,6 @@ class ReviewWidgetModel extends ChangeNotifier {
   Future<bool> saveReview() async {
     final RegExp shutterSpeedRegEx =
         RegExp("[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)");
-
     if (review.body != "" &&
         review.userRate.toString() != "" &&
         shutterSpeedRegEx.hasMatch(review.userRate.toString()) &&
@@ -38,7 +37,10 @@ class ReviewWidgetModel extends ChangeNotifier {
           review.isFree, review.isRazors, review.isWiFi, review.userRate / 2);
       print("NEW TOTAL ${review.totalRate}");
       await DatabaseReview.editReview(review);
-      //TODO заменил ! на ?
+      print("rrrrr ${review.pin?.id}");
+
+      ///TODO разобраться с этим местом, что-то не так с ! и ?
+      ///TODO в ревью не попадает информация о пине
       review.pin?.rating = await DatabasePin.updateRateOfPin(review.pin?.id);
       notifyListeners();
       return false;

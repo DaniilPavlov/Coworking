@@ -250,9 +250,14 @@ class _DeleteReviewButton extends StatelessWidget {
       child: ElevatedButton(
         //TODO при удалении change notifier некорректно dispose
         // (на работу не влияет)
+
         onPressed: () async {
           DatabaseReview.deleteReview(model.review);
           Navigator.of(context).pop(context);
+
+          ///TODO разобраться с этим местом, что-то не так с ! и ?
+          ///TODO в ревью не попадает информация о пине
+          print("rrrrr ${model.review.pin?.id}");
           model.review.pin?.rating =
               await DatabasePin.updateRateOfPin(model.review.pin?.id);
         },
@@ -403,7 +408,7 @@ class _ReviewAuthorWidget extends StatelessWidget {
     return FutureBuilder(
       future: model.review.author.userName,
       builder: (_, snapshot) => Text(
-        (snapshot.hasData) ? snapshot.data.toString() : "Anonymous",
+        (snapshot.hasData) ? snapshot.data.toString() : "Аноним",
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );

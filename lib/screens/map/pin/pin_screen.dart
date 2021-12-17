@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/domain/services/database_review.dart';
 import 'package:coworking/navigation/main_navigation.dart';
@@ -34,38 +35,9 @@ class _PinScreenView extends StatelessWidget {
     final model = context.watch<PinScreenModel>();
 
     return Scaffold(
+      // appBar: AppBar(backgroundColor: Colors.orange,),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.orange,
-        tooltip: "Write review",
-        child: const Icon(Icons.create),
-        onPressed: () => showModalBottomSheet(
-          context: context,
-          //TODO оставить на фул экран или вернуть только в боттом?
-          isScrollControlled: true,
-          builder: (_) => Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.orange,
-              actions: <Widget>[
-                IconButton(
-                  icon: const Icon(Icons.save),
-                  onPressed: () async {
-                    if (model.reviewFormKey.currentState!.isValid) {
-                      Review review =
-                          model.reviewFormKey.currentState!.getReview();
-                      model.pin.addReview(review);
-                      model.pin.rating =
-                          await DatabasePin.updateRateOfPin(model.pin.id);
-                      Navigator.pop(context);
-                    }
-                  },
-                )
-              ],
-            ),
-            body: ReviewForm(key: model.reviewFormKey),
-          ),
-        ),
-      ),
+      floatingActionButton: const _FloatingReviewButton(),
       body: CustomScrollView(
         physics: const ClampingScrollPhysics(),
         slivers: <Widget>[
@@ -83,33 +55,9 @@ class _PinScreenView extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                Row(children: <Widget>[
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text("Категория:"),
-                  ),
-                  const _CategoryChipWidget(),
-                  FutureBuilder(
-                      future: DatabasePin.updateRateOfPin(model.pin.id),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          model.pin.rating = snapshot.data as double;
-                          return (snapshot.hasData)
-                              ? Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0),
-                                  child: Text(
-                                    "Рейтинг: " +
-                                        model.pin.rating.toString() +
-                                        " / 10",
-                                  ),
-                                )
-                              : Container();
-                        } else {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                      })
+                Row(children: const <Widget>[
+                  _CategoryChipWidget(),
+                  _WholeTimeRateWidget(),
                 ]),
                 GoogleMapButton(location: model.pin.location),
                 Container(
@@ -157,6 +105,64 @@ class _PinScreenView extends StatelessWidget {
   }
 }
 
+class _WholeTimeRateWidget extends StatelessWidget {
+  const _WholeTimeRateWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.watch<PinScreenModel>();
+    return StreamBuilder(
+      stream: DatabasePin.fetchPin(model.pin.id),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          model.pin.rating = snapshot.data as double;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              "Рейтинг: " + model.pin.rating.toString() + " / 10",
+            ),
+          );
+        } else {
+          return const CustomProgressIndicator();
+        }
+      },
+    );
+  }
+}
+
+class _FloatingReviewButton extends StatelessWidget {
+  const _FloatingReviewButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.watch<PinScreenModel>();
+    return FloatingActionButton(
+      backgroundColor: Colors.orange,
+      tooltip: "Write review",
+      child: const Icon(Icons.create),
+      onPressed: () => showModalBottomSheet(
+        context: context,
+        //TODO оставить на фул экран или вернуть только в боттом?
+        isScrollControlled: true,
+        builder: (_) => Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.orange,
+            actions: <Widget>[
+              IconButton(
+                icon: const Icon(Icons.save),
+                onPressed: () async {
+                  await model.createReview(context);
+                },
+              )
+            ],
+          ),
+          body: ReviewForm(key: model.reviewFormKey),
+        ),
+      ),
+    );
+  }
+}
+
 class _PinAppBar extends StatelessWidget {
   const _PinAppBar({Key? key}) : super(key: key);
 
@@ -168,9 +174,19 @@ class _PinAppBar extends StatelessWidget {
       floating: false,
       backgroundColor: Colors.orange,
       expandedHeight: 350,
-      actions: const <Widget>[
-        _FavouriteButton(),
-        _EditPinButton(),
+      actions: <Widget>[
+        Container(
+          decoration: const BoxDecoration(
+            color: Colors.orange,
+            borderRadius: BorderRadius.all(
+              Radius.circular(18),
+            ),
+          ),
+          child: Row(children: const [
+            _FavouriteButton(),
+            _EditPinButton(),
+          ]),
+        )
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: Image.network(
@@ -328,7 +344,7 @@ class _EditPinButton extends StatelessWidget {
                   child: IconButton(
                     icon: const Icon(
                       Icons.edit_location_rounded,
-                      color: Colors.white,
+                      color: Colors.black,
                       semanticLabel: "Edit Pin",
                       size: 35,
                     ),
@@ -343,6 +359,28 @@ class _EditPinButton extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
       },
+    );
+  }
+}
+
+class _CategoryChipWidget extends StatelessWidget {
+  const _CategoryChipWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.watch<PinScreenModel>();
+    return Row(
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text("Категория:"),
+        ),
+        Chip(
+          label: Text(model.pin.category.text),
+          labelStyle: const TextStyle(color: Colors.white),
+          backgroundColor: model.pin.category.colour,
+        ),
+      ],
     );
   }
 }
@@ -424,20 +462,6 @@ class _ThreeMonthRateWidget extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
       },
-    );
-  }
-}
-
-class _CategoryChipWidget extends StatelessWidget {
-  const _CategoryChipWidget({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final model = context.watch<PinScreenModel>();
-    return Chip(
-      label: Text(model.pin.category.text),
-      labelStyle: const TextStyle(color: Colors.white),
-      backgroundColor: model.pin.category.colour,
     );
   }
 }
