@@ -1,4 +1,3 @@
-import 'package:coworking/domain/entities/pin.dart';
 import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/domain/services/database_review.dart';
@@ -8,8 +7,7 @@ import 'package:flutter/material.dart';
 
 class ReviewWidgetModel extends ChangeNotifier {
   Review review;
-  Pin pin;
-  ReviewWidgetModel({required this.review, required this.pin}) {
+  ReviewWidgetModel({required this.review}) {
     _asyncInit();
   }
 

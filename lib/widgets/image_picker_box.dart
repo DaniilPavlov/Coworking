@@ -30,10 +30,13 @@ class ImagePickerBoxState extends StatelessWidget {
           child: OutlinedButton(
             clipBehavior: Clip.antiAlias,
             onPressed: () async {
-              var pickedFile =
-                  await _picker.pickImage(source: ImageSource.gallery);
-//TODO ошибка если не выбрали фотографию
-              state.didChange(File(pickedFile!.path));
+              try {
+                var pickedFile =
+                    await _picker.pickImage(source: ImageSource.gallery);
+                state.didChange(File(pickedFile!.path));
+              } catch (e) {
+                print(e);
+              }
             },
             child: state.value == null
                 ? const Icon(

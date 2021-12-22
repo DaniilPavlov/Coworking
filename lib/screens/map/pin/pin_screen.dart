@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/domain/services/database_review.dart';
 import 'package:coworking/navigation/main_navigation.dart';
@@ -12,6 +14,7 @@ import 'package:coworking/screens/map/pin/review/review_widget.dart';
 import 'package:coworking/screens/map/pin/review/review_form.dart';
 import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class PinScreen extends StatelessWidget {
@@ -44,28 +47,12 @@ class _PinScreenView extends StatelessWidget {
           SliverToBoxAdapter(
             child: Column(
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    model.pin.name,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 22, fontStyle: FontStyle.italic),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+                const PinNameWidget(),
                 Row(children: const <Widget>[
                   _CategoryChipWidget(),
                   _WholeTimeRateWidget(),
                 ]),
                 GoogleMapButton(location: model.pin.location),
-                Container(
-                  alignment: Alignment.center,
-                  child: const Text(
-                    "Статистика за последние 3 месяца",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
                 const _ThreeMonthRateWidget(),
                 Container(
                   alignment: Alignment.center,
@@ -83,8 +70,7 @@ class _PinScreenView extends StatelessWidget {
               return snapshot.hasData
                   ? SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, i) => ReviewWidget(
-                            review: snapshot.data![i], pin: model.pin),
+                        (context, i) => ReviewWidget(review: snapshot.data![i]),
                         childCount: snapshot.data!.length,
                       ),
                     )
@@ -100,6 +86,24 @@ class _PinScreenView extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class PinNameWidget extends StatelessWidget {
+  const PinNameWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.watch<PinScreenModel>();
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Text(
+        model.pin.name,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontSize: 22, fontStyle: FontStyle.italic),
+        textAlign: TextAlign.center,
       ),
     );
   }
@@ -249,26 +253,28 @@ class _EditPinButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<PinScreenModel>();
 
+    Widget _saveButton() {
+      return IconButton(
+        icon: const Icon(Icons.save),
+        onPressed: () async {
+          var errorSave = await model.savePin();
+          if (errorSave) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text("Вы заполнили не всю информацию"),
+            ));
+          } else {
+            Navigator.of(context).pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text("Информация о месте изменена"),
+            ));
+          }
+        },
+      );
+    }
+
     _editPinForm() {
       return Scaffold(
-        appBar: AppBar(actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: () async {
-              var errorSave = await model.savePin();
-              if (errorSave) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Вы заполнили не всю информацию"),
-                ));
-              } else {
-                Navigator.of(context).pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Информация о месте изменена"),
-                ));
-              }
-            },
-          )
-        ]),
+        appBar: AppBar(actions: <Widget>[_saveButton()]),
         body: SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.all(10),
@@ -276,10 +282,25 @@ class _EditPinButton extends StatelessWidget {
               key: model.formKey,
               child: Column(
                 children: <Widget>[
-                  ImagePickerBox(
-                    key: model.imagePickerKey,
-                    validator: (image) =>
-                        image == null ? "Необходима фотография места" : null,
+                  GestureDetector(
+                    onTap: () async {
+                      await model.setNewPhoto();
+                    },
+                    //TODO переключение виджетов не работает
+                    //при смене фотографии, настроить
+                    child: model.newPhotoPath == ""
+                        ? Image.network(
+                            model.pin.imageUrl,
+                            height: MediaQuery.of(context).size.width,
+                            width: MediaQuery.of(context).size.width,
+                            fit: BoxFit.fill,
+                          )
+                        : Image.file(
+                            File(model.newPhotoPath),
+                            height: MediaQuery.of(context).size.width,
+                            width: MediaQuery.of(context).size.width,
+                            fit: BoxFit.fill,
+                          ),
                   ),
                   RadioButtonPicker(
                     key: model.categoryPickerKey,
@@ -313,7 +334,7 @@ class _EditPinButton extends StatelessWidget {
                         'Удалить',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 26.0,
+                          fontSize: 16.0,
                         ),
                       ),
                       style: ButtonStyle(
@@ -350,6 +371,8 @@ class _EditPinButton extends StatelessWidget {
                     ),
                     onPressed: () => showModalBottomSheet(
                       context: context,
+                      //TODO оставить на фул экран или вернуть только в боттом?
+                      isScrollControlled: true,
                       builder: (_) => _editPinForm(),
                     ),
                   ),
@@ -391,76 +414,87 @@ class _ThreeMonthRateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<PinScreenModel>();
-    return StreamBuilder(
-      stream: DatabasePin.calculateThreeMonthRate(model.pin.id),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          model.threeMonthStats = snapshot.data as List<double>;
-          return (snapshot.hasData)
-              ? GridView.count(
-                  physics: const NeverScrollableScrollPhysics(),
-                  childAspectRatio: 6,
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.only(left: 16, right: 16),
-                  children: <Widget>[
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      child: const Text("Можно приобрести еду"),
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                          model.threeMonthStats.elementAt(1).toString() +
-                              "% ответили да"),
-                    ),
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      child: const Text("Можно находиться бесплатно"),
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                          model.threeMonthStats.elementAt(2).toString() +
-                              "% ответили да"),
-                    ),
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      child: const Text("Есть розетки"),
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                          model.threeMonthStats.elementAt(3).toString() +
-                              "% ответили да"),
-                    ),
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      child: const Text("Есть WiFi"),
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                          model.threeMonthStats.elementAt(4).toString() +
-                              "% ответили да"),
-                    ),
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      child: const Text("Оценка"),
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                          model.threeMonthStats.elementAt(0).toString() +
-                              "/10"),
-                    ),
-                  ],
-                )
-              : Container();
-        } else {
-          return const Center(child: CircularProgressIndicator());
-        }
-      },
+    return Column(
+      children: [
+        Container(
+          alignment: Alignment.center,
+          child: const Text(
+            "Статистика за последние 3 месяца",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        StreamBuilder(
+          stream: DatabasePin.calculateThreeMonthRate(model.pin.id),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              model.threeMonthStats = snapshot.data as List<double>;
+              return (snapshot.hasData)
+                  ? GridView.count(
+                      physics: const NeverScrollableScrollPhysics(),
+                      childAspectRatio: 6,
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.only(left: 16, right: 16),
+                      children: <Widget>[
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: const Text("Можно приобрести еду"),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          child: Text(
+                              model.threeMonthStats.elementAt(1).toString() +
+                                  "% ответили да"),
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: const Text("Можно находиться бесплатно"),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          child: Text(
+                              model.threeMonthStats.elementAt(2).toString() +
+                                  "% ответили да"),
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: const Text("Есть розетки"),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          child: Text(
+                              model.threeMonthStats.elementAt(3).toString() +
+                                  "% ответили да"),
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: const Text("Есть WiFi"),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          child: Text(
+                              model.threeMonthStats.elementAt(4).toString() +
+                                  "% ответили да"),
+                        ),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: const Text("Оценка"),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          child: Text(
+                              model.threeMonthStats.elementAt(0).toString() +
+                                  "/10"),
+                        ),
+                      ],
+                    )
+                  : Container();
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ),
+      ],
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:coworking/domain/entities/category.dart';
 import 'package:coworking/domain/entities/pin.dart';
 import 'package:coworking/domain/entities/review.dart';
@@ -6,6 +8,7 @@ import 'package:coworking/screens/map/pin/review/review_form.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class PinScreenModel extends ChangeNotifier {
   Pin pin;
@@ -15,9 +18,9 @@ class PinScreenModel extends ChangeNotifier {
 
   var visitedText = "";
   var visitedColor = Colors.orange;
+  String newPhotoPath = "";
   GlobalKey<ReviewFormState> reviewFormKey = GlobalKey<ReviewFormState>();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  GlobalKey<FormFieldState> imagePickerKey = GlobalKey<FormFieldState>();
   GlobalKey<FormFieldState> categoryPickerKey = GlobalKey<FormFieldState>();
   TextEditingController nameController = TextEditingController();
   List<double> threeMonthStats = [0, 0, 0, 0, 0];
@@ -37,9 +40,11 @@ class PinScreenModel extends ChangeNotifier {
     }
   }
 
+//TODO при неудачном сохранении фотография все равно загружается в базу, нужно
+//разобраться
   Future<bool> savePin() async {
     try {
-      var newImage = imagePickerKey.currentState!.value;
+      var newImage = File(newPhotoPath);
       var timeKey = DateTime.now();
 
       final Reference postImageRef =
@@ -67,6 +72,17 @@ class PinScreenModel extends ChangeNotifier {
     }
     notifyListeners();
     return true;
+  }
+
+  Future<void> setNewPhoto() async {
+    final ImagePicker _picker = ImagePicker();
+    try {
+      var pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      newPhotoPath = pickedFile!.path;
+      notifyListeners();
+    } catch (e) {
+      print(e);
+    }
   }
 
   void setFavourite() {

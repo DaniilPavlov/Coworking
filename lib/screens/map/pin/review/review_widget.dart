@@ -1,4 +1,3 @@
-import 'package:coworking/domain/entities/pin.dart';
 import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/domain/services/database_review.dart';
 import 'package:coworking/domain/entities/review.dart';
@@ -9,14 +8,12 @@ import 'package:provider/provider.dart';
 
 class ReviewWidget extends StatelessWidget {
   final Review review;
-  final Pin pin;
 
-  const ReviewWidget({Key? key, required this.review, required this.pin})
-      : super(key: key);
+  const ReviewWidget({Key? key, required this.review}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
-        create: (context) => ReviewWidgetModel(review: review, pin: pin),
+        create: (context) => ReviewWidgetModel(review: review),
         lazy: true,
         child: const _ReviewWidgetView(),
       );

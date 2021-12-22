@@ -104,8 +104,12 @@ class AccountScreen extends StatelessWidget {
                     ]),
                   ]),
               const Spacer(),
-              OutlinedButton(
+              ElevatedButton(
                 onPressed: () => signOut(context),
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.orange),
+                ),
                 child: const Text("Выйти из профиля"),
               ),
               ElevatedButton(
