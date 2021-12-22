@@ -122,7 +122,6 @@ class MapScreenState extends State<MapScreen>
             print("1 ИЗ МАРКЕРОВ БЫЛ УДАЛЕН");
             MapBodyState.markers.remove(pinChange.pin.marker);
             pins.remove(pinChange.pin);
-            print(pinChange.pin.name);
           } else if (pinChange.type == DocumentChangeType.modified) {
             print("1 ИЗ МАРКЕРОВ БЫЛ ИЗМЕНЕН");
             for (var element in pins) {
@@ -137,7 +136,6 @@ class MapScreenState extends State<MapScreen>
                 element.marker = pinChange.pin.marker;
               }
             }
-            print(pinChange.pin.name);
           }
         }
       });
@@ -218,7 +216,6 @@ class MapScreenState extends State<MapScreen>
 
   @override
   Widget build(BuildContext context) {
-    print("main LOCATION" + currentMapPosition.toString());
     shouldMoveLocation();
     return FutureBuilder(
         future: getLocation,
@@ -298,7 +295,6 @@ class MapScreenState extends State<MapScreen>
   @override
   void dispose() {
     drawerAnimator.dispose();
-    print("DISPOSE LOCATION STREAM");
     locationStream.cancel();
     pinsStream.cancel();
     LocationStatus.locationEnabled = false;
@@ -329,7 +325,6 @@ class MapBodyState extends State<MapBody> {
   //отписываемся от стрима с пинами
   @override
   void dispose() {
-    print("DISPOSE MapController");
     mapController!.dispose();
     markers.clear();
     super.dispose();

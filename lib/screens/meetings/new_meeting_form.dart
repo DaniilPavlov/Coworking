@@ -60,7 +60,6 @@ class NewMeetingFormState extends State<NewMeetingForm>
       setState(() {
         _selectedDate = DateTime(picked.year, picked.month, picked.day,
             _selectedTime.hour, _selectedTime.minute, 0, 0, 0);
-        print(_selectedDate.minute);
       });
     }
   }
@@ -125,7 +124,6 @@ class NewMeetingFormState extends State<NewMeetingForm>
 
   @override
   Widget build(BuildContext context) {
-    //TODO этого не было
     super.build(context);
     return Scaffold(
       key: addMeetingKey,

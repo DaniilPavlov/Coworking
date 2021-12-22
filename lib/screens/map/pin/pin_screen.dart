@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/domain/services/database_review.dart';
 import 'package:coworking/navigation/main_navigation.dart';
@@ -79,21 +78,22 @@ class _PinScreenView extends StatelessWidget {
             ),
           ),
           StreamBuilder<List<Review>>(
-              stream: DatabaseReview.fetchReviewsForPin(model.pin.id),
-              builder: (context, snapshot) {
-                return snapshot.hasData
-                    ? SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, i) =>
-                              ReviewWidget(review: snapshot.data![i]),
-                          childCount: snapshot.data!.length,
-                        ),
-                      )
-                    : const SliverFillRemaining(
-                        child: CustomProgressIndicator(),
-                        hasScrollBody: false,
-                      );
-              }),
+            stream: DatabaseReview.fetchReviewsForPin(model.pin),
+            builder: (context, snapshot) {
+              return snapshot.hasData
+                  ? SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, i) => ReviewWidget(
+                            review: snapshot.data![i], pin: model.pin),
+                        childCount: snapshot.data!.length,
+                      ),
+                    )
+                  : const SliverFillRemaining(
+                      child: CustomProgressIndicator(),
+                      hasScrollBody: false,
+                    );
+            },
+          ),
           const SliverToBoxAdapter(
             child: SizedBox(
               height: 100,
@@ -385,7 +385,6 @@ class _CategoryChipWidget extends StatelessWidget {
   }
 }
 
-///TODO при изменении отзыва не обновляется эта часть
 class _ThreeMonthRateWidget extends StatelessWidget {
   const _ThreeMonthRateWidget({Key? key}) : super(key: key);
 

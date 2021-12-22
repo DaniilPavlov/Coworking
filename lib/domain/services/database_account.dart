@@ -25,7 +25,6 @@ class DatabaseAccount {
         .get()
         .then((query) {
       for (var document in query.docs) {
-        print(document.id);
         FirebaseFirestore.instance
             .collection("meetings")
             .doc(document.id)
@@ -78,7 +77,6 @@ class DatabaseAccount {
         return snapshot.docs.first["name"];
       });
     } catch (e) {
-      print(e);
       return null;
     }
   }

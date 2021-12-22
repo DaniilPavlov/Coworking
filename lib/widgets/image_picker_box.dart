@@ -29,10 +29,6 @@ class ImagePickerBoxState extends StatelessWidget {
           padding: const EdgeInsets.all(4.0),
           child: OutlinedButton(
             clipBehavior: Clip.antiAlias,
-            // padding: EdgeInsets.zero,
-            // shape: RoundedRectangleBorder(
-            //   borderRadius: BorderRadius.circular(4.0),
-            // ),
             onPressed: () async {
               var pickedFile =
                   await _picker.pickImage(source: ImageSource.gallery);

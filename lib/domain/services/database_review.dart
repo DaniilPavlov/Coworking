@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/domain/entities/account.dart';
+import 'package:coworking/domain/entities/pin.dart';
 import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/domain/services/database_pin.dart';
 import 'package:flutter/material.dart';
@@ -12,10 +13,10 @@ class DatabaseReview {
     FirebaseFirestore.instance.collection("reviews").add(review.asMap());
   }
 
-  static Stream<List<Review>> fetchReviewsForPin(String pinID) {
+  static Stream<List<Review>> fetchReviewsForPin(Pin pin) {
     return FirebaseFirestore.instance
         .collection("reviews")
-        .where("pinID", isEqualTo: pinID)
+        .where("pinID", isEqualTo: pin.id)
         //сначала выведем последние комментарии
         //TODO разобраться как сменить на true, для этого посмотреть review_tile
         .orderBy("dateAdded", descending: false)
@@ -25,6 +26,7 @@ class DatabaseReview {
       for (DocumentSnapshot document in snapshot.docs) {
         Review review = Review.fromMap(
             document.id, document.data() as Map<String, dynamic>);
+        review.pin = pin;
         reviews.add(review);
       }
       return reviews;
@@ -108,8 +110,6 @@ class DatabaseReview {
     DocumentReference docRef =
         FirebaseFirestore.instance.collection("reviews").doc(review.id);
     return docRef.get().then((datasnapshot) {
-      print(datasnapshot['author'].toString());
-      print(datasnapshot['author'].toString() == Account.currentAccount!.id);
       if (datasnapshot['author'].toString() == Account.currentAccount!.id) {
         return true;
       } else {

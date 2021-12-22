@@ -53,7 +53,7 @@ class Pin {
 
   void incVisitorCount() {
     _visitorCount++;
-    // TODO: update DB
+    // TODO внедрить визиты
   }
 
   Marker _createMarker(BuildContext context) {

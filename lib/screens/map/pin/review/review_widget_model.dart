@@ -1,3 +1,4 @@
+import 'package:coworking/domain/entities/pin.dart';
 import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/domain/services/database_review.dart';
@@ -7,7 +8,8 @@ import 'package:flutter/material.dart';
 
 class ReviewWidgetModel extends ChangeNotifier {
   Review review;
-  ReviewWidgetModel({required this.review}) {
+  Pin pin;
+  ReviewWidgetModel({required this.review, required this.pin}) {
     _asyncInit();
   }
 
@@ -37,10 +39,6 @@ class ReviewWidgetModel extends ChangeNotifier {
           review.isFree, review.isRazors, review.isWiFi, review.userRate / 2);
       print("NEW TOTAL ${review.totalRate}");
       await DatabaseReview.editReview(review);
-      print("rrrrr ${review.pin?.id}");
-
-      ///TODO разобраться с этим местом, что-то не так с ! и ?
-      ///TODO в ревью не попадает информация о пине
       review.pin?.rating = await DatabasePin.updateRateOfPin(review.pin?.id);
       notifyListeners();
       return false;

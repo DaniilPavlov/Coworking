@@ -34,10 +34,7 @@ class _LoginView extends StatelessWidget {
     final model = context.read<LoginModel>();
     if (model.canStartAuth == true) {
       model.auth(context);
-      print('can start auth');
-    } else {
-      print('cant start auth');
-    }
+    } 
   }
 
   @override

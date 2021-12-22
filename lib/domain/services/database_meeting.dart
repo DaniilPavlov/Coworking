@@ -73,7 +73,6 @@ class DatabaseMeeting {
     } else {
       meeting.notify = true;
     }
-    print(meeting.notify);
     try {
       FirebaseFirestore.instance.collection("meetings").doc(meeting.id).update(
         {"notify": meeting.notify},
@@ -89,8 +88,6 @@ class DatabaseMeeting {
     DocumentReference docRef =
         FirebaseFirestore.instance.collection("meetings").doc(meeting.id);
     return docRef.get().then((datasnapshot) {
-      print(datasnapshot['author'].toString());
-      print(datasnapshot['author'].toString() == Account.currentAccount!.id);
       if (datasnapshot['author'].toString() == Account.currentAccount!.id) {
         return true;
       } else {

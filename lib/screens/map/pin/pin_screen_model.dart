@@ -22,7 +22,7 @@ class PinScreenModel extends ChangeNotifier {
   TextEditingController nameController = TextEditingController();
   List<double> threeMonthStats = [0, 0, 0, 0, 0];
 
-//TODO расширить
+//TODO добавить подгрузку фотографии и категории
   Future _asyncInit() async {
     nameController.text = pin.name;
   }

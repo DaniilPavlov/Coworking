@@ -40,7 +40,9 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
         if (pin.id.hashCode == int.parse(query)) {
           results.add(pin);
         }
-      } catch (e) {}
+      } catch (e) {
+        print(e);
+      }
     }
     return ListView.separated(
       padding: const EdgeInsets.all(8),
