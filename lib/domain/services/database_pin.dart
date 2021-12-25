@@ -130,8 +130,8 @@ class DatabasePin {
       rating = rating / query.docs.length;
       DocumentReference docRef =
           FirebaseFirestore.instance.collection("pins").doc(pinID);
-      docRef.update(<String, dynamic>{"rating": rating});
       rating = double.parse(rating.toStringAsFixed(2));
+      docRef.update(<String, dynamic>{"rating": rating});
       print("RATING " + rating.toString());
       return rating;
     });

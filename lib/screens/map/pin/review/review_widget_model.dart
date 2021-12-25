@@ -31,6 +31,7 @@ class ReviewWidgetModel extends ChangeNotifier {
         shutterSpeedRegEx.hasMatch(review.userRate.toString()) &&
         (double.parse(rateController.text) <= 10 ||
             double.parse(rateController.text) > 0)) {
+      review.timestamp = DateTime.now();
       review.body = reviewTextController.text;
       review.userRate = double.parse(rateController.text);
       review.totalRate = ReviewFormState().countRate(review.isFood,

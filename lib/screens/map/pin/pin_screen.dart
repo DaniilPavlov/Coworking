@@ -12,9 +12,7 @@ import 'package:coworking/domain/entities/pin.dart';
 import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/screens/map/pin/review/review_widget.dart';
 import 'package:coworking/screens/map/pin/review/review_form.dart';
-import 'package:coworking/widgets/image_picker_box.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class PinScreen extends StatelessWidget {
@@ -47,7 +45,7 @@ class _PinScreenView extends StatelessWidget {
           SliverToBoxAdapter(
             child: Column(
               children: <Widget>[
-                const PinNameWidget(),
+                const _PinNameWidget(),
                 Row(children: const <Widget>[
                   _CategoryChipWidget(),
                   _WholeTimeRateWidget(),
@@ -64,22 +62,7 @@ class _PinScreenView extends StatelessWidget {
               ],
             ),
           ),
-          StreamBuilder<List<Review>>(
-            stream: DatabaseReview.fetchReviewsForPin(model.pin),
-            builder: (context, snapshot) {
-              return snapshot.hasData
-                  ? SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, i) => ReviewWidget(review: snapshot.data![i]),
-                        childCount: snapshot.data!.length,
-                      ),
-                    )
-                  : const SliverFillRemaining(
-                      child: CustomProgressIndicator(),
-                      hasScrollBody: false,
-                    );
-            },
-          ),
+          const _ReviewsList(),
           const SliverToBoxAdapter(
             child: SizedBox(
               height: 100,
@@ -91,8 +74,38 @@ class _PinScreenView extends StatelessWidget {
   }
 }
 
-class PinNameWidget extends StatelessWidget {
-  const PinNameWidget({Key? key}) : super(key: key);
+class _ReviewsList extends StatelessWidget {
+  const _ReviewsList({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.watch<PinScreenModel>();
+    //TODO только последние отзывы удаляются корректно
+    //отзывы в начале и середине обновляются только при
+    //перезаходе в пин
+
+    //TODO при изменении отзыв тоже должен перемещаться ниже в списке
+    return StreamBuilder<List<Review>>(
+      stream: DatabaseReview.fetchReviewsForPin(model.pin),
+      builder: (context, snapshot) {
+        return snapshot.hasData
+            ? SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, i) => ReviewWidget(review: snapshot.data![i]),
+                  childCount: snapshot.data!.length,
+                ),
+              )
+            : const SliverFillRemaining(
+                child: CustomProgressIndicator(),
+                hasScrollBody: false,
+              );
+      },
+    );
+  }
+}
+
+class _PinNameWidget extends StatelessWidget {
+  const _PinNameWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -355,7 +368,6 @@ class _EditPinButton extends StatelessWidget {
     return FutureBuilder(
       future: DatabasePin.isPinOwner(model.pin),
       builder: (context, snapshot) {
-        // model.setKeys();
         if (snapshot.hasData) {
           return (snapshot.data == true)
               ? WillPopScope(

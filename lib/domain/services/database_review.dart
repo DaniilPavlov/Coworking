@@ -17,8 +17,6 @@ class DatabaseReview {
     return FirebaseFirestore.instance
         .collection("reviews")
         .where("pinID", isEqualTo: pin.id)
-        //сначала выведем последние комментарии
-        //TODO разобраться как сменить на true, для этого посмотреть review_tile
         .orderBy("dateAdded", descending: false)
         .snapshots()
         .map((snapshot) {
@@ -27,7 +25,7 @@ class DatabaseReview {
         Review review = Review.fromMap(
             document.id, document.data() as Map<String, dynamic>);
         review.pin = pin;
-        reviews.add(review);
+        reviews.insert(0, review);
       }
       return reviews;
     });
@@ -187,7 +185,8 @@ class DatabaseReview {
       "isRazors": review.isRazors,
       "isWiFi": review.isWiFi,
       "userRate": review.userRate,
-      "totalRate": review.totalRate
+      "totalRate": review.totalRate,
+      "dateAdded": review.timestamp
     }, SetOptions(merge: true));
   }
 

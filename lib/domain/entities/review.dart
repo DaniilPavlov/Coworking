@@ -5,7 +5,7 @@ import 'package:coworking/domain/entities/pin.dart';
 class Review {
   String? id;
   final Account author;
-  final DateTime timestamp;
+  DateTime timestamp;
   Pin? pin;
   String body;
   bool isFood;

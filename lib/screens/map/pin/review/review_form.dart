@@ -79,7 +79,7 @@ class ReviewFormState extends State<ReviewForm>
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  PlaceRateSection(),
+                  _PlaceRateSection(),
                 ],
               ),
             ),
@@ -107,7 +107,6 @@ class ReviewFormState extends State<ReviewForm>
   Review getReview() {
     formKey.currentState!.save();
     return Review(
-      //tODO проверить
       "null",
       Account.currentAccount!,
       reviewController.text,
@@ -128,8 +127,8 @@ class ReviewFormState extends State<ReviewForm>
   }
 }
 
-class PlaceRateSection extends StatefulWidget {
-  const PlaceRateSection({
+class _PlaceRateSection extends StatefulWidget {
+  const _PlaceRateSection({
     Key? key,
   }) : super(key: key);
 
@@ -137,7 +136,7 @@ class PlaceRateSection extends StatefulWidget {
   _PlaceRateSectionState createState() => _PlaceRateSectionState();
 }
 
-class _PlaceRateSectionState extends State<PlaceRateSection> {
+class _PlaceRateSectionState extends State<_PlaceRateSection> {
   @override
   Widget build(BuildContext context) {
     return Column(
