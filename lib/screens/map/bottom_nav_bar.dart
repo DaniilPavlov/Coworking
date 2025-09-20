@@ -6,8 +6,18 @@ import 'package:coworking/screens/map/pin/create_pin.dart';
 import 'package:flutter/material.dart';
 
 class BottomBar extends StatelessWidget {
+  const BottomBar(
+    this.pinFormKey,
+    this.closeBarCallback,
+    this.barHeightCallback,
+    this.drawerHeight,
+    this.openAnimation,
+    this.drawerOpen,
+    this.openPinFromSearch, {
+    super.key,
+  });
   final GlobalKey<CreatePinState> pinFormKey;
-  final Function closeBarCallback;
+  final VoidCallback closeBarCallback;
 
   final Function(double) barHeightCallback;
   final double drawerHeight;
@@ -15,20 +25,9 @@ class BottomBar extends StatelessWidget {
   final bool drawerOpen;
   final Function(Pin) openPinFromSearch;
 
-  const BottomBar(
-      this.pinFormKey,
-      this.closeBarCallback,
-      this.barHeightCallback,
-      this.drawerHeight,
-      this.openAnimation,
-      this.drawerOpen,
-      this.openPinFromSearch,
-      {Key? key})
-      : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       barHeightCallback(context.size!.height);
     });
 
@@ -50,6 +49,14 @@ class BottomBar extends StatelessWidget {
             children: <Widget>[
               Visibility(
                 visible: !drawerOpen,
+                replacement: IconButton(
+                  iconSize: 40,
+                  onPressed: closeBarCallback,
+                  icon: const Icon(
+                    Icons.arrow_back,
+                    semanticLabel: 'Cancel',
+                  ),
+                ),
                 child: IconButton(
                   iconSize: 40,
                   onPressed: () {
@@ -57,24 +64,14 @@ class BottomBar extends StatelessWidget {
                   },
                   icon: const Icon(
                     Icons.menu,
-                    semanticLabel: "Menu",
-                  ),
-                ),
-                replacement: IconButton(
-                  iconSize: 40,
-                  onPressed: () {
-                    closeBarCallback();
-                  },
-                  icon: const Icon(
-                    Icons.arrow_back,
-                    semanticLabel: "Cancel",
+                    semanticLabel: 'Menu',
                   ),
                 ),
               ),
               SearchButton(
-                  drawerOpen: drawerOpen,
-                  updateCameraPosition: openPinFromSearch),
-  
+                drawerOpen: drawerOpen,
+                updateCameraPosition: openPinFromSearch,
+              ),
               const Spacer(),
               MeetingsButton(drawerOpen: drawerOpen),
               const HintButton(),
@@ -90,7 +87,7 @@ class BottomBar extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.only(bottom: keyboardPadding),
                 //добавил 15, при изменении drawerHeight ничего не происходило
-                child: CreatePin(drawerHeight , key: pinFormKey),
+                child: CreatePin(drawerHeight, key: pinFormKey),
               ),
             ),
           ),
@@ -101,12 +98,13 @@ class BottomBar extends StatelessWidget {
 }
 
 class SearchButton extends StatelessWidget {
+  const SearchButton({
+    super.key,
+    required this.drawerOpen,
+    required this.updateCameraPosition,
+  });
   final bool drawerOpen;
   final Function(Pin) updateCameraPosition;
-
-  const SearchButton(
-      {Key? key, required this.drawerOpen, required this.updateCameraPosition})
-      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +115,9 @@ class SearchButton extends StatelessWidget {
         iconSize: 40,
         onPressed: () async {
           Pin? pin = await showSearch(
-              context: context, delegate: MapSearchDelegate(pins));
+            context: context,
+            delegate: MapSearchDelegate(pins),
+          );
           if (pin != null) {
             updateCameraPosition(pin);
           }
@@ -125,7 +125,7 @@ class SearchButton extends StatelessWidget {
         icon: const Icon(
           Icons.search,
           color: Colors.orange,
-          semanticLabel: "Search",
+          semanticLabel: 'Search',
         ),
       ),
     );
@@ -133,8 +133,8 @@ class SearchButton extends StatelessWidget {
 }
 
 class MeetingsButton extends StatelessWidget {
+  const MeetingsButton({super.key, required this.drawerOpen});
   final bool drawerOpen;
-  const MeetingsButton({Key? key, required this.drawerOpen}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -143,13 +143,12 @@ class MeetingsButton extends StatelessWidget {
       child: IconButton(
         iconSize: 40,
         onPressed: () {
-          Navigator.of(context)
-              .pushNamed(MainNavigationRouteNames.meetingsScreen);
+          Navigator.of(context).pushNamed(MainNavigationRouteNames.meetingsScreen);
         },
         icon: const Icon(
           Icons.emoji_people,
           color: Colors.orange,
-          semanticLabel: "Meetings",
+          semanticLabel: 'Meetings',
         ),
       ),
     );
@@ -157,12 +156,12 @@ class MeetingsButton extends StatelessWidget {
 }
 
 class HintButton extends StatelessWidget {
-  const HintButton({Key? key}) : super(key: key);
+  const HintButton({super.key});
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
-      tooltip: "Help",
+      tooltip: 'Help',
       icon: const Icon(
         Icons.help,
         color: Colors.black,
@@ -170,10 +169,11 @@ class HintButton extends StatelessWidget {
       itemBuilder: (BuildContext context) => <PopupMenuEntry>[
         const PopupMenuItem(
           child: Text(
-              "\nЭто наша карта. Здесь можно свободно перемещаться и узнавать информацию о местах кликнув по ним.\n"
-              "\nВы можете добавить свой собственный пин, нажав кнопку с плюсом и центрируя экран в нужном месте.\n"
-              "\nВы также можете найти пин по названию с помощью значка поиска.\n",
-              textAlign: TextAlign.justify),
+            '\nЭто наша карта. Здесь можно свободно перемещаться и узнавать информацию о местах кликнув по ним.\n'
+            '\nВы можете добавить свой собственный пин, нажав кнопку с плюсом и центрируя экран в нужном месте.\n'
+            '\nВы также можете найти пин по названию с помощью значка поиска.\n',
+            textAlign: TextAlign.justify,
+          ),
         ),
       ],
     );

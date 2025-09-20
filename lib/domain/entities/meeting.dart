@@ -3,16 +3,6 @@ import 'package:coworking/domain/entities/account.dart';
 import 'package:coworking/domain/entities/pin.dart';
 
 class Meeting {
-  String? id;
-  String place;
-  String description;
-  Account author;
-  Pin? pin;
-  bool notify;
-  List<String> members;
-  List<String> tokens;
-  Timestamp? dateCompleted;
-
   Meeting(
     this.id,
     this.place,
@@ -23,6 +13,15 @@ class Meeting {
     this.dateCompleted,
     this.notify,
   );
+  String? id;
+  String place;
+  String description;
+  Account author;
+  Pin? pin;
+  bool notify;
+  List<String> members;
+  List<String> tokens;
+  Timestamp? dateCompleted;
 
   Meeting copy() {
     return Meeting(
@@ -39,27 +38,27 @@ class Meeting {
 
   Map<String, dynamic> asMap() {
     Map<String, dynamic> meeting = {};
-    meeting["place"] = place;
-    meeting["description"] = description;
-    meeting["author"] = author.id;
-    meeting["members"] = members;
-    meeting["tokens"] = tokens;
+    meeting['place'] = place;
+    meeting['description'] = description;
+    meeting['author'] = author.id;
+    meeting['members'] = members;
+    meeting['tokens'] = tokens;
     // meeting["pinID"] = pin?.id;
-    meeting["dateCompleted"] = dateCompleted;
-    meeting["notify"] = notify;
+    meeting['dateCompleted'] = dateCompleted;
+    meeting['notify'] = notify;
     return meeting;
   }
 
   static Meeting fromMap(String id, Map<String, dynamic> data) {
     return Meeting(
       id,
-      data["place"],
-      data["description"],
-      Account(data["author"]),
-      List<String>.from(data["members"]),
-      List<String>.from(data["tokens"]),
-      data["dateCompleted"],
-      data["notify"],
+      data['place'],
+      data['description'],
+      Account(data['author']),
+      List<String>.from(data['members']),
+      List<String>.from(data['tokens']),
+      data['dateCompleted'],
+      data['notify'],
     );
   }
 }

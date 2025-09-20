@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:coworking/domain/entities/account.dart';
 
 class UserReviewsScreen extends StatelessWidget {
-  const UserReviewsScreen({Key? key}) : super(key: key);
+  const UserReviewsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +17,13 @@ class UserReviewsScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios,
-            semanticLabel: "Back",
+            semanticLabel: 'Back',
           ),
           onPressed: () => Navigator.pop(context, false),
         ),
         actions: <Widget>[
           PopupMenuButton(
-            tooltip: "Help",
+            tooltip: 'Help',
             icon: const Icon(
               Icons.help,
               color: Colors.black,
@@ -31,13 +31,13 @@ class UserReviewsScreen extends StatelessWidget {
             itemBuilder: (BuildContext context) => <PopupMenuEntry>[
               const PopupMenuItem(
                 child: Text(
-                  "\nЗдесь будут отображаться все отзывы, написанные Вами.\n"
-                  "\nПо нажатию Вы можете переместиться к месту.\n",
+                  '\nЗдесь будут отображаться все отзывы, написанные Вами.\n'
+                  '\nПо нажатию Вы можете переместиться к месту.\n',
                   textAlign: TextAlign.justify,
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
       body: const BodyLayout(),
@@ -46,36 +46,33 @@ class UserReviewsScreen extends StatelessWidget {
 }
 
 class BodyLayout extends StatelessWidget {
-  const BodyLayout({Key? key}) : super(key: key);
+  const BodyLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Review>>(
-        stream:
-            DatabaseReview.fetchReviewsOfUser(Account.currentAccount!, context),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData ||
-              snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
+      stream: DatabaseReview.fetchReviewsOfUser(Account.currentAccount!, context),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else {
+          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                Review review = snapshot.data![index];
+                return UserReviewsListItem(review);
+              },
             );
           } else {
-            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-              return ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  Review review = snapshot.data![index];
-                  return UserReviewsListItem(review);
-                },
-              );
-            } else {
-              return const Center(
-                child: Text("Пока здесь пусто :( \n",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 20)),
-              );
-            }
+            return const Center(
+              child: Text('Пока здесь пусто :( \n', textAlign: TextAlign.center, style: TextStyle(fontSize: 20)),
+            );
           }
-        });
+        }
+      },
+    );
   }
 }

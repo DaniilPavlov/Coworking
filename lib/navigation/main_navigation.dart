@@ -26,20 +26,14 @@ abstract class MainNavigationRouteNames {
 }
 
 class MainNavigation {
-  String initialRoute(bool isAuth) => isAuth
-      ? MainNavigationRouteNames.auth
-      : MainNavigationRouteNames.mapScreen;
+  String initialRoute(bool isAuth) => isAuth ? MainNavigationRouteNames.auth : MainNavigationRouteNames.mapScreen;
   final routes = <String, Widget Function(BuildContext)>{
     MainNavigationRouteNames.auth: (context) => const LoginScreen(),
-    MainNavigationRouteNames.favouriteReviews: (context) =>
-        const FavouritePinsScreen(),
-    MainNavigationRouteNames.userReviews: (context) =>
-        const UserReviewsScreen(),
-    MainNavigationRouteNames.flaggedReviews: (context) =>
-        const FlaggedReviewsScreen(),
+    MainNavigationRouteNames.favouriteReviews: (context) => const FavouritePinsScreen(),
+    MainNavigationRouteNames.userReviews: (context) => const UserReviewsScreen(),
+    MainNavigationRouteNames.flaggedReviews: (context) => const FlaggedReviewsScreen(),
     // MainNavigationRouteNames.account: (context) => AccountScreen(),
-    MainNavigationRouteNames.meetingsScreen: (context) =>
-        const UserMeetingsPage(),
+    MainNavigationRouteNames.meetingsScreen: (context) => const UserMeetingsPage(),
     MainNavigationRouteNames.meetingCreate: (context) => const NewMeetingForm(),
   };
 
@@ -47,31 +41,35 @@ class MainNavigation {
     switch (settings.name) {
       case MainNavigationRouteNames.mapScreen:
         final arguments = settings.arguments;
-       
+
         if (arguments == null) {
           return MaterialPageRoute(builder: (context) => MapScreen());
         }
         final map = arguments as LatLng;
         return MaterialPageRoute(
-            builder: (context) => MapScreen(
-                  currentMapPosition: map,
-                ));
+          builder: (context) => MapScreen(
+            currentMapPosition: map,
+          ),
+        );
       case MainNavigationRouteNames.meetingCreate:
         final arguments = settings.arguments;
         if (arguments == null) {
           return MaterialPageRoute(
-              builder: (context) => const NewMeetingForm());
+            builder: (context) => const NewMeetingForm(),
+          );
         }
         final meeting = arguments as Meeting;
         return MaterialPageRoute(
-            builder: (context) => NewMeetingForm(
-                  meeting: meeting,
-                ));
+          builder: (context) => NewMeetingForm(
+            meeting: meeting,
+          ),
+        );
       case MainNavigationRouteNames.meetingDetails:
         final arguments = settings.arguments;
         final meeting = arguments is Meeting ? arguments : '' as Meeting;
         return MaterialPageRoute(
-            builder: (context) => MeetingInfo(meeting: meeting));
+          builder: (context) => MeetingInfo(meeting: meeting),
+        );
       case MainNavigationRouteNames.pinDetails:
         final arguments = settings.arguments;
         final pin = arguments is Pin ? arguments : '' as Pin;

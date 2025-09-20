@@ -7,16 +7,14 @@ import 'package:coworking/screens/map/pin/review/review_form.dart';
 import 'package:coworking/screens/map/pin/pin_form.dart';
 
 class CreatePin extends StatefulWidget {
+  const CreatePin(this.drawerHeight, {super.key});
   final double drawerHeight;
-
-  const CreatePin(this.drawerHeight, {Key? key}) : super(key: key);
 
   @override
   State<CreatePin> createState() => CreatePinState();
 }
 
-class CreatePinState extends State<CreatePin>
-    with SingleTickerProviderStateMixin {
+class CreatePinState extends State<CreatePin> with SingleTickerProviderStateMixin {
   late TabController tabController;
 
   late GlobalKey<PinFormState> pinFormKey;
@@ -30,8 +28,7 @@ class CreatePinState extends State<CreatePin>
       return false;
     }
 
-    if (reviewFormKey.currentState == null ||
-        !reviewFormKey.currentState!.isValid) {
+    if (reviewFormKey.currentState == null || !reviewFormKey.currentState!.isValid) {
       tabController.animateTo(1);
       tabController.addListener(() => reviewFormKey.currentState!.isValid);
       return false;
@@ -59,10 +56,13 @@ class CreatePinState extends State<CreatePin>
   Widget build(BuildContext context) {
     return SizedBox(
       height: widget.drawerHeight,
-      child: TabBarView(controller: tabController, children: [
-        pinForm,
-        reviewForm,
-      ]),
+      child: TabBarView(
+        controller: tabController,
+        children: [
+          pinForm,
+          reviewForm,
+        ],
+      ),
     );
   }
 }

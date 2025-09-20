@@ -11,14 +11,13 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class PinForm extends StatefulWidget {
-  const PinForm({Key? key}) : super(key: key);
+  const PinForm({super.key});
 
   @override
   PinFormState createState() => PinFormState();
 }
 
-class PinFormState extends State<PinForm>
-    with AutomaticKeepAliveClientMixin<PinForm> {
+class PinFormState extends State<PinForm> with AutomaticKeepAliveClientMixin<PinForm> {
   late GlobalKey<FormState> formKey;
   late GlobalKey<FormFieldState> imagePickerKey;
   late GlobalKey<FormFieldState> categoryPickerKey;
@@ -44,33 +43,32 @@ class PinFormState extends State<PinForm>
 
     return Form(
       key: formKey,
-      child: Column(children: <Widget>[
-        ImagePickerBox(
-          key: imagePickerKey,
-          validator: (image) =>
-              image == null ? "Необходима фотография места" : null,
-        ),
-        RadioButtonPicker(
-          key: categoryPickerKey,
-          validator: (option) =>
-              option == null ? "Необходима категория места" : null,
-          options: Category.all(),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 40.0, left: 20.0, right: 20.0),
-          child: TextFormField(
-            controller: nameController,
-            validator: (text) =>
-                text!.isEmpty ? "Необходимо название места" : null,
-            maxLines: 2,
-            decoration: const InputDecoration(
-              hintText: "Название места",
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.all(8.0),
+      child: Column(
+        children: <Widget>[
+          ImagePickerBox(
+            key: imagePickerKey,
+            validator: (image) => image == null ? 'Необходима фотография места' : null,
+          ),
+          RadioButtonPicker(
+            key: categoryPickerKey,
+            validator: (option) => option == null ? 'Необходима категория места' : null,
+            options: Category.all(),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 40.0, left: 20.0, right: 20.0),
+            child: TextFormField(
+              controller: nameController,
+              validator: (text) => text!.isEmpty ? 'Необходимо название места' : null,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                hintText: 'Название места',
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.all(8.0),
+              ),
             ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 
@@ -82,8 +80,7 @@ class PinFormState extends State<PinForm>
 
     Category category = categoryPickerKey.currentState!.value;
 
-    CameraPosition position =
-        context.findAncestorStateOfType<MapScreenState>()!.currentMapPosition;
+    CameraPosition position = context.findAncestorStateOfType<MapScreenState>()!.currentMapPosition;
     return DatabasePin.newPin(
       position.target,
       name,

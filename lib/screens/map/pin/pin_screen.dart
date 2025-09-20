@@ -16,8 +16,8 @@ import 'package:coworking/widgets/radio_button_picker.dart';
 import 'package:provider/provider.dart';
 
 class PinScreen extends StatelessWidget {
+  const PinScreen({super.key, required this.pin});
   final Pin pin;
-  const PinScreen({Key? key, required this.pin}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
@@ -28,7 +28,7 @@ class PinScreen extends StatelessWidget {
 }
 
 class _PinScreenView extends StatelessWidget {
-  const _PinScreenView({Key? key}) : super(key: key);
+  const _PinScreenView();
 
   @override
   Widget build(BuildContext context) {
@@ -46,16 +46,18 @@ class _PinScreenView extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 const _PinNameWidget(),
-                Row(children: const <Widget>[
-                  _CategoryChipWidget(),
-                  _WholeTimeRateWidget(),
-                ]),
+                Row(
+                  children: const <Widget>[
+                    _CategoryChipWidget(),
+                    _WholeTimeRateWidget(),
+                  ],
+                ),
                 GoogleMapButton(location: model.pin.location),
                 const _ThreeMonthRateWidget(),
                 Container(
                   alignment: Alignment.center,
                   child: const Text(
-                    "Отзывы",
+                    'Отзывы',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -75,16 +77,16 @@ class _PinScreenView extends StatelessWidget {
 }
 
 class _ReviewsList extends StatelessWidget {
-  const _ReviewsList({Key? key}) : super(key: key);
+  const _ReviewsList();
 
   @override
   Widget build(BuildContext context) {
     final model = context.watch<PinScreenModel>();
-    //TODO только последние отзывы удаляются корректно
-    //отзывы в начале и середине обновляются только при
-    //перезаходе в пин
+    // TODO только последние отзывы удаляются корректно
+    // отзывы в начале и середине обновляются только при
+    // перезаходе в пин
 
-    //TODO при изменении отзыв тоже должен перемещаться ниже в списке
+    // TODO при изменении отзыв тоже должен перемещаться ниже в списке
     return StreamBuilder<List<Review>>(
       stream: DatabaseReview.fetchReviewsForPin(model.pin),
       builder: (context, snapshot) {
@@ -96,8 +98,8 @@ class _ReviewsList extends StatelessWidget {
                 ),
               )
             : const SliverFillRemaining(
-                child: CustomProgressIndicator(),
                 hasScrollBody: false,
+                child: CustomProgressIndicator(),
               );
       },
     );
@@ -105,7 +107,7 @@ class _ReviewsList extends StatelessWidget {
 }
 
 class _PinNameWidget extends StatelessWidget {
-  const _PinNameWidget({Key? key}) : super(key: key);
+  const _PinNameWidget();
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +125,7 @@ class _PinNameWidget extends StatelessWidget {
 }
 
 class _WholeTimeRateWidget extends StatelessWidget {
-  const _WholeTimeRateWidget({Key? key}) : super(key: key);
+  const _WholeTimeRateWidget();
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +138,7 @@ class _WholeTimeRateWidget extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
-              "Рейтинг: " + model.pin.rating.toString() + " / 10",
+              'Рейтинг: ${model.pin.rating} / 10',
             ),
           );
         } else {
@@ -148,14 +150,14 @@ class _WholeTimeRateWidget extends StatelessWidget {
 }
 
 class _FloatingReviewButton extends StatelessWidget {
-  const _FloatingReviewButton({Key? key}) : super(key: key);
+  const _FloatingReviewButton();
 
   @override
   Widget build(BuildContext context) {
     final model = context.watch<PinScreenModel>();
     return FloatingActionButton(
       backgroundColor: Colors.orange,
-      tooltip: "Write review",
+      tooltip: 'Write review',
       child: const Icon(Icons.create),
       onPressed: () => showModalBottomSheet(
         context: context,
@@ -170,7 +172,7 @@ class _FloatingReviewButton extends StatelessWidget {
                 onPressed: () async {
                   await model.createReview(context);
                 },
-              )
+              ),
             ],
           ),
           body: ReviewForm(key: model.reviewFormKey),
@@ -181,7 +183,7 @@ class _FloatingReviewButton extends StatelessWidget {
 }
 
 class _PinAppBar extends StatelessWidget {
-  const _PinAppBar({Key? key}) : super(key: key);
+  const _PinAppBar();
 
   @override
   Widget build(BuildContext context) {
@@ -199,11 +201,13 @@ class _PinAppBar extends StatelessWidget {
               Radius.circular(18),
             ),
           ),
-          child: Row(children: const [
-            _FavouriteButton(),
-            _EditPinButton(),
-          ]),
-        )
+          child: Row(
+            children: const [
+              _FavouriteButton(),
+              _EditPinButton(),
+            ],
+          ),
+        ),
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: Image.network(
@@ -216,7 +220,7 @@ class _PinAppBar extends StatelessWidget {
 }
 
 class _FavouriteButton extends StatelessWidget {
-  const _FavouriteButton({Key? key}) : super(key: key);
+  const _FavouriteButton();
 
   @override
   Widget build(BuildContext context) {
@@ -227,16 +231,15 @@ class _FavouriteButton extends StatelessWidget {
         if (!snapshot.hasData) {
           return Container();
         } else if (snapshot.data == true) {
-          model.visitedText = "В избранном";
+          model.visitedText = 'В избранном';
           model.visitedColor = Colors.yellow;
         } else {
-          model.visitedText = "Добавить в избранное";
+          model.visitedText = 'Добавить в избранное';
           model.visitedColor = Colors.grey;
         }
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: ElevatedButton(
-            child: Text(model.visitedText),
             onPressed: () {
               if (snapshot.data == false) {
                 model.setFavourite();
@@ -245,13 +248,14 @@ class _FavouriteButton extends StatelessWidget {
               }
             },
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(model.visitedColor),
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              backgroundColor: WidgetStateProperty.all(model.visitedColor),
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18.0),
                 ),
               ),
             ),
+            child: Text(model.visitedText),
           ),
         );
       },
@@ -260,34 +264,38 @@ class _FavouriteButton extends StatelessWidget {
 }
 
 class _EditPinButton extends StatelessWidget {
-  const _EditPinButton({Key? key}) : super(key: key);
+  const _EditPinButton();
 
   @override
   Widget build(BuildContext context) {
     final model = context.watch<PinScreenModel>();
 
-    Widget _saveButton() {
+    Widget saveButton() {
       return IconButton(
         icon: const Icon(Icons.save),
         onPressed: () async {
           var errorSave = await model.savePin();
-          if (errorSave) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Вы заполнили не всю информацию"),
-            ));
-          } else {
+          if (errorSave && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Вы заполнили не всю информацию'),
+              ),
+            );
+          } else if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Информация о месте изменена'),
+              ),
+            );
             Navigator.of(context).pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Информация о месте изменена"),
-            ));
           }
         },
       );
     }
 
-    _editPinForm() {
+    Scaffold editPinForm() {
       return Scaffold(
-        appBar: AppBar(actions: <Widget>[_saveButton()]),
+        appBar: AppBar(actions: <Widget>[saveButton()]),
         body: SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.all(10),
@@ -299,9 +307,9 @@ class _EditPinButton extends StatelessWidget {
                     onTap: () async {
                       await model.setNewPhoto();
                     },
-                    //TODO переключение виджетов не работает
-                    //при смене фотографии, настроить
-                    child: model.newPhotoPath == ""
+                    // TODO переключение виджетов не работает
+                    // при смене фотографии, настроить
+                    child: model.newPhotoPath == ''
                         ? Image.network(
                             model.pin.imageUrl,
                             height: MediaQuery.of(context).size.width,
@@ -317,8 +325,7 @@ class _EditPinButton extends StatelessWidget {
                   ),
                   RadioButtonPicker(
                     key: model.categoryPickerKey,
-                    validator: (option) =>
-                        option == null ? "Необходима категория места" : null,
+                    validator: (option) => option == null ? 'Необходима категория места' : null,
                     options: Category.all(),
                   ),
                   const SizedBox(
@@ -326,10 +333,9 @@ class _EditPinButton extends StatelessWidget {
                   ),
                   TextFormField(
                     controller: model.nameController,
-                    validator: (text) =>
-                        text!.isEmpty ? "Необходимо название места" : null,
+                    validator: (text) => text!.isEmpty ? 'Необходимо название места' : null,
                     decoration: const InputDecoration(
-                      hintText: "Название места",
+                      hintText: 'Название места',
                       contentPadding: EdgeInsets.all(8.0),
                     ),
                   ),
@@ -338,11 +344,18 @@ class _EditPinButton extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pushReplacementNamed(
-                            MainNavigationRouteNames.mapScreen,
-                            arguments: model.pin.location);
+                          MainNavigationRouteNames.mapScreen,
+                          arguments: model.pin.location,
+                        );
 
                         DatabasePin.deletePin(model.pin);
                       },
+                      style: ButtonStyle(
+                        padding: WidgetStateProperty.all(
+                          const EdgeInsets.all(10),
+                        ),
+                        backgroundColor: WidgetStateProperty.all<Color>(Colors.red),
+                      ),
                       child: const Text(
                         'Удалить',
                         style: TextStyle(
@@ -350,11 +363,6 @@ class _EditPinButton extends StatelessWidget {
                           fontSize: 16.0,
                         ),
                       ),
-                      style: ButtonStyle(
-                          padding: MaterialStateProperty.all(
-                              const EdgeInsets.all(10)),
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.red)),
                     ),
                   ),
                 ],
@@ -378,14 +386,14 @@ class _EditPinButton extends StatelessWidget {
                     icon: const Icon(
                       Icons.edit_location_rounded,
                       color: Colors.black,
-                      semanticLabel: "Edit Pin",
+                      semanticLabel: 'Edit Pin',
                       size: 35,
                     ),
                     onPressed: () => showModalBottomSheet(
                       context: context,
-                      //TODO оставить на фул экран или вернуть только в боттом?
+                      // TODO оставить на фул экран или вернуть только в боттом?
                       isScrollControlled: true,
-                      builder: (_) => _editPinForm(),
+                      builder: (_) => editPinForm(),
                     ),
                   ),
                 )
@@ -399,7 +407,7 @@ class _EditPinButton extends StatelessWidget {
 }
 
 class _CategoryChipWidget extends StatelessWidget {
-  const _CategoryChipWidget({Key? key}) : super(key: key);
+  const _CategoryChipWidget();
 
   @override
   Widget build(BuildContext context) {
@@ -408,7 +416,7 @@ class _CategoryChipWidget extends StatelessWidget {
       children: [
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text("Категория:"),
+          child: Text('Категория:'),
         ),
         Chip(
           label: Text(model.pin.category.text),
@@ -421,7 +429,7 @@ class _CategoryChipWidget extends StatelessWidget {
 }
 
 class _ThreeMonthRateWidget extends StatelessWidget {
-  const _ThreeMonthRateWidget({Key? key}) : super(key: key);
+  const _ThreeMonthRateWidget();
 
   @override
   Widget build(BuildContext context) {
@@ -431,7 +439,7 @@ class _ThreeMonthRateWidget extends StatelessWidget {
         Container(
           alignment: Alignment.center,
           child: const Text(
-            "Статистика за последние 3 месяца",
+            'Статистика за последние 3 месяца',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -450,53 +458,53 @@ class _ThreeMonthRateWidget extends StatelessWidget {
                       children: <Widget>[
                         Container(
                           alignment: Alignment.centerLeft,
-                          child: const Text("Можно приобрести еду"),
+                          child: const Text('Можно приобрести еду'),
                         ),
                         Container(
                           alignment: Alignment.center,
                           child: Text(
-                              model.threeMonthStats.elementAt(1).toString() +
-                                  "% ответили да"),
+                            '${model.threeMonthStats.elementAt(1)}% ответили да',
+                          ),
                         ),
                         Container(
                           alignment: Alignment.centerLeft,
-                          child: const Text("Можно находиться бесплатно"),
+                          child: const Text('Можно находиться бесплатно'),
                         ),
                         Container(
                           alignment: Alignment.center,
                           child: Text(
-                              model.threeMonthStats.elementAt(2).toString() +
-                                  "% ответили да"),
+                            '${model.threeMonthStats.elementAt(2)}% ответили да',
+                          ),
                         ),
                         Container(
                           alignment: Alignment.centerLeft,
-                          child: const Text("Есть розетки"),
+                          child: const Text('Есть розетки'),
                         ),
                         Container(
                           alignment: Alignment.center,
                           child: Text(
-                              model.threeMonthStats.elementAt(3).toString() +
-                                  "% ответили да"),
+                            '${model.threeMonthStats.elementAt(3)}% ответили да',
+                          ),
                         ),
                         Container(
                           alignment: Alignment.centerLeft,
-                          child: const Text("Есть WiFi"),
+                          child: const Text('Есть WiFi'),
                         ),
                         Container(
                           alignment: Alignment.center,
                           child: Text(
-                              model.threeMonthStats.elementAt(4).toString() +
-                                  "% ответили да"),
+                            '${model.threeMonthStats.elementAt(4)}% ответили да',
+                          ),
                         ),
                         Container(
                           alignment: Alignment.centerLeft,
-                          child: const Text("Оценка"),
+                          child: const Text('Оценка'),
                         ),
                         Container(
                           alignment: Alignment.center,
                           child: Text(
-                              model.threeMonthStats.elementAt(0).toString() +
-                                  "/10"),
+                            '${model.threeMonthStats.elementAt(0)}/10',
+                          ),
                         ),
                       ],
                     )

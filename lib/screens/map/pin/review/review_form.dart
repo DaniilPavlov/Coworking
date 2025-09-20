@@ -9,14 +9,13 @@ bool isRazors = false;
 bool isWiFi = false;
 
 class ReviewForm extends StatefulWidget {
-  const ReviewForm({Key? key}) : super(key: key);
+  const ReviewForm({super.key});
 
   @override
   State<ReviewForm> createState() => ReviewFormState();
 }
 
-class ReviewFormState extends State<ReviewForm>
-    with AutomaticKeepAliveClientMixin<ReviewForm> {
+class ReviewFormState extends State<ReviewForm> with AutomaticKeepAliveClientMixin<ReviewForm> {
   late GlobalKey<FormState> formKey;
 
   late TextEditingController reviewController;
@@ -58,10 +57,10 @@ class ReviewFormState extends State<ReviewForm>
               padding: const EdgeInsets.only(left: 20.0, right: 20.0),
               child: TextFormField(
                 controller: reviewController,
-                validator: (text) => text!.isEmpty ? "Отзыв обязателен" : null,
+                validator: (text) => text!.isEmpty ? 'Отзыв обязателен' : null,
                 maxLines: 3,
                 decoration: const InputDecoration(
-                  hintText: "Отзыв",
+                  hintText: 'Отзыв',
                   border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.all(8.0),
                 ),
@@ -74,9 +73,8 @@ class ReviewFormState extends State<ReviewForm>
                   Padding(
                     padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
                     child: Text(
-                      "Раздел оценки места",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      'Раздел оценки места',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
                   _PlaceRateSection(),
@@ -91,8 +89,7 @@ class ReviewFormState extends State<ReviewForm>
 
   bool get isValid => formKey.currentState!.validate();
 
-  double countRate(
-      bool isFood, bool isFree, bool isRazors, bool isWiFi, double userRate) {
+  double countRate(bool isFood, bool isFree, bool isRazors, bool isWiFi, double userRate) {
     double totalRate = 1;
     if (isFood) totalRate++;
     if (isFree) totalRate++;
@@ -100,14 +97,14 @@ class ReviewFormState extends State<ReviewForm>
     if (isWiFi) totalRate++;
     totalRate = totalRate + userRate;
     totalRate = double.parse(totalRate.toStringAsFixed(2));
-    print(totalRate);
+    debugPrint(totalRate.toString());
     return totalRate;
   }
 
   Review getReview() {
     formKey.currentState!.save();
     return Review(
-      "null",
+      'null',
       Account.currentAccount!,
       reviewController.text,
       DateTime.now(),
@@ -128,9 +125,7 @@ class ReviewFormState extends State<ReviewForm>
 }
 
 class _PlaceRateSection extends StatefulWidget {
-  const _PlaceRateSection({
-    Key? key,
-  }) : super(key: key);
+  const _PlaceRateSection();
 
   @override
   _PlaceRateSectionState createState() => _PlaceRateSectionState();
@@ -149,7 +144,7 @@ class _PlaceRateSectionState extends State<_PlaceRateSection> {
           children: <Widget>[
             Container(
               alignment: Alignment.centerLeft,
-              child: const Text("Можно приобрести еду"),
+              child: const Text('Можно приобрести еду'),
             ),
             Container(
               alignment: Alignment.center,
@@ -166,7 +161,7 @@ class _PlaceRateSectionState extends State<_PlaceRateSection> {
             ),
             Container(
               alignment: Alignment.centerLeft,
-              child: const Text("Можно находиться бесплатно"),
+              child: const Text('Можно находиться бесплатно'),
             ),
             Container(
               alignment: Alignment.center,
@@ -183,7 +178,7 @@ class _PlaceRateSectionState extends State<_PlaceRateSection> {
             ),
             Container(
               alignment: Alignment.centerLeft,
-              child: const Text("Есть розетки"),
+              child: const Text('Есть розетки'),
             ),
             Container(
               alignment: Alignment.center,
@@ -200,7 +195,7 @@ class _PlaceRateSectionState extends State<_PlaceRateSection> {
             ),
             Container(
               alignment: Alignment.centerLeft,
-              child: const Text("Есть WiFi"),
+              child: const Text('Есть WiFi'),
             ),
             Container(
               alignment: Alignment.center,
@@ -221,8 +216,7 @@ class _PlaceRateSectionState extends State<_PlaceRateSection> {
         Container(
           padding: const EdgeInsets.only(top: 10),
           alignment: Alignment.centerLeft,
-          child:
-              const Text("Ваша личная оценка места (введите число от 0 до 10)"),
+          child: const Text('Ваша личная оценка места (введите число от 0 до 10)'),
         ),
         Container(
           alignment: Alignment.center,
@@ -231,15 +225,13 @@ class _PlaceRateSectionState extends State<_PlaceRateSection> {
             controller: rateController,
             maxLength: 4,
             validator: (input) {
-              final RegExp shutterSpeedRegEx =
-                  RegExp("[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)");
+              final RegExp shutterSpeedRegEx = RegExp('[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)');
               if (input!.isEmpty) {
-                return "Вы не ввели оценку";
+                return 'Вы не ввели оценку';
               } else if (!shutterSpeedRegEx.hasMatch(input)) {
-                return "Введите число";
-              } else if (double.parse(rateController.text) > 10 ||
-                  double.parse(rateController.text) < 0) {
-                return "От 0 до 10";
+                return 'Введите число';
+              } else if (double.parse(rateController.text) > 10 || double.parse(rateController.text) < 0) {
+                return 'От 0 до 10';
               } else {
                 return null;
               }
@@ -248,7 +240,7 @@ class _PlaceRateSectionState extends State<_PlaceRateSection> {
         ),
         const SizedBox(
           height: 10,
-        )
+        ),
       ],
     );
   }

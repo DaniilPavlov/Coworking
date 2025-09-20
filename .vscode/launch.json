@@ -8,12 +8,6 @@
             "name": "coworking",
             "request": "launch",
             "type": "dart"
-        },
-        {
-            "name": "coworking (profile mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
         }
     ]
 }

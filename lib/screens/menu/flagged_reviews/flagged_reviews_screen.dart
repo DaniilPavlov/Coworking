@@ -4,28 +4,29 @@ import 'package:coworking/domain/services/database_review.dart';
 import 'package:flutter/material.dart';
 
 class FlaggedReviewsScreen extends StatelessWidget {
-  const FlaggedReviewsScreen({Key? key}) : super(key: key);
+  const FlaggedReviewsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          automaticallyImplyLeading: true,
-          title: const Text('Жалобы на отзывы'),
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              semanticLabel: "Back",
-            ),
-            onPressed: () => Navigator.pop(context, false),
-          )),
+        automaticallyImplyLeading: true,
+        title: const Text('Жалобы на отзывы'),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            semanticLabel: 'Back',
+          ),
+          onPressed: () => Navigator.pop(context, false),
+        ),
+      ),
       body: const BodyLayout(),
     );
   }
 }
 
 class BodyLayout extends StatelessWidget {
-  const BodyLayout({Key? key}) : super(key: key);
+  const BodyLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +52,7 @@ class BodyLayout extends StatelessWidget {
             );
           } else {
             return const Center(
-              child: Text("Жалоб на отзывы нет!"),
+              child: Text('Жалоб на отзывы нет!'),
             );
           }
         }

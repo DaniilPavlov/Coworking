@@ -4,18 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImagePickerBox extends FormField<File> {
-  ImagePickerBox({Key? key, String? Function(File?)? validator})
+  const ImagePickerBox({super.key, super.validator})
       : super(
-          key: key,
-          builder: (state) => ImagePickerBoxState(state),
-          validator: validator,
+          builder: ImagePickerBoxState.new,
         );
 }
 
 class ImagePickerBoxState extends StatelessWidget {
+  ImagePickerBoxState(this.state, {super.key});
   final FormFieldState<File> state;
-
-  ImagePickerBoxState(this.state, {Key? key}) : super(key: key);
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -31,23 +28,22 @@ class ImagePickerBoxState extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             onPressed: () async {
               try {
-                var pickedFile =
-                    await _picker.pickImage(source: ImageSource.gallery);
+                var pickedFile = await _picker.pickImage(source: ImageSource.gallery);
                 state.didChange(File(pickedFile!.path));
               } catch (e) {
-                print(e);
+                debugPrint(e.toString());
               }
             },
             child: state.value == null
                 ? const Icon(
                     Icons.add_photo_alternate,
-                    semanticLabel: "Add image",
+                    semanticLabel: 'Add image',
                   )
                 : Image.file(
                     state.value!,
                     width: 100.0,
                     height: 100.0,
-                    semanticLabel: "Uploaded image",
+                    semanticLabel: 'Uploaded image',
                     fit: BoxFit.cover,
                   ),
           ),
@@ -58,8 +54,8 @@ class ImagePickerBoxState extends StatelessWidget {
                 child: Text(
                   state.errorText!,
                   style: TextStyle(
-                    color: Theme.of(context).errorColor,
-                    fontSize: Theme.of(context).textTheme.caption!.fontSize,
+                    color: Colors.red,
+                    fontSize: Theme.of(context).textTheme.bodyMedium!.fontSize,
                   ),
                 ),
               )

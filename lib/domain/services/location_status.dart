@@ -9,15 +9,18 @@ class LocationStatus {
 
   static bool locationStatusChanged = false;
 
-  static Position currentPosition = const Position(
-      longitude: 30.359357,
-      latitude: 59.933895,
-      accuracy: 0.0,
-      altitude: 0.0,
-      heading: 0.0,
-      speed: 0.0,
-      speedAccuracy: 0.0,
-      timestamp: null);
+  static Position currentPosition = Position(
+    longitude: 30.359357,
+    latitude: 59.933895,
+    accuracy: 0.0,
+    altitude: 0.0,
+    heading: 0.0,
+    speed: 0.0,
+    speedAccuracy: 0.0,
+    timestamp: DateTime.now(),
+    altitudeAccuracy: 0.0,
+    headingAccuracy: 0.0,
+  );
 
   static Future<Position> checkLocationPermission() async {
     isStarted = true;
@@ -39,8 +42,7 @@ class LocationStatus {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      buildToast(
-          'Доступ к геолокации запрещен навсегда. Вы всегда можете изменить это в настройках приложения');
+      buildToast('Доступ к геолокации запрещен навсегда. Вы всегда можете изменить это в настройках приложения');
       return currentPosition;
     }
 
@@ -50,7 +52,10 @@ class LocationStatus {
     if (locationEnabled == true) {
       try {
         currentPosition = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high);
+          locationSettings: LocationSettings(
+            accuracy: LocationAccuracy.high,
+          ),
+        );
       } catch (e) {
         locationEnabled = false;
         buildToast('Пожалуйста, включите GPS для вашего удобства');

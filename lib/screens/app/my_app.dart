@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
   static final mainNavigation = MainNavigation();
-
-  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +21,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
         primaryColor: Colors.orange,
         primarySwatch: Colors.orange,
-        textSelectionTheme:
-            const TextSelectionThemeData(cursorColor: Colors.orange),
+        textSelectionTheme: const TextSelectionThemeData(cursorColor: Colors.orange),
       ),
       darkTheme: ThemeData(
         /* dark theme settings */
@@ -31,8 +29,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.orange,
         primarySwatch: Colors.orange,
         canvasColor: Colors.black,
-        textSelectionTheme:
-            const TextSelectionThemeData(cursorColor: Colors.orange),
+        textSelectionTheme: const TextSelectionThemeData(cursorColor: Colors.orange),
       ),
       themeMode: ThemeMode.dark,
       /* ThemeMode.system to follow system theme, 

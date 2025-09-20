@@ -1,29 +1,20 @@
 class TimeLeft {
   String timeLeft(DateTime due) {
     String retVal;
-    Duration _timeUntilDue = due.difference(DateTime.now());
-    int _daysUntil = _timeUntilDue.inDays;
-    int _hoursUntil = _timeUntilDue.inHours - (_daysUntil * 24);
-    int _minUntil =
-        _timeUntilDue.inMinutes - (_daysUntil * 24 * 60) - (_hoursUntil * 60);
-    if (_daysUntil > 0) {
-      retVal = "дней: " +
-          _daysUntil.toString() +
-          ", часов: " +
-          _hoursUntil.toString() +
-          ", минут: " +
-          _minUntil.toString();
-    } else if (_hoursUntil > 0) {
-      retVal = " часов: " +
-          _hoursUntil.toString() +
-          ", минут: " +
-          _minUntil.toString();
-    } else if (_minUntil > 0) {
-      retVal = ", минут: " + _minUntil.toString();
-    } else if (_minUntil == 0) {
-      retVal = "До встречи осталось менее минуты";
+    Duration timeUntilDue = due.difference(DateTime.now());
+    int daysUntil = timeUntilDue.inDays;
+    int hoursUntil = timeUntilDue.inHours - (daysUntil * 24);
+    int minUntil = timeUntilDue.inMinutes - (daysUntil * 24 * 60) - (hoursUntil * 60);
+    if (daysUntil > 0) {
+      retVal = 'дней: $daysUntil, часов: $hoursUntil, минут: $minUntil';
+    } else if (hoursUntil > 0) {
+      retVal = ' часов: $hoursUntil, минут: $minUntil';
+    } else if (minUntil > 0) {
+      retVal = ', минут: $minUntil';
+    } else if (minUntil == 0) {
+      retVal = 'До встречи осталось менее минуты';
     } else {
-      retVal = "Встреча уже началась!";
+      retVal = 'Встреча уже началась!';
     }
     return retVal;
   }

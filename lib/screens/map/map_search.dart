@@ -3,10 +3,9 @@ import 'package:edit_distance/edit_distance.dart';
 import 'package:flutter/material.dart';
 
 class MapSearchDelegate extends SearchDelegate<Pin> {
+  MapSearchDelegate(this.pins);
   final Levenshtein distance = Levenshtein();
   final Set<Pin> pins;
-
-  MapSearchDelegate(this.pins);
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -15,12 +14,12 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
       IconButton(
         icon: const Icon(
           Icons.clear,
-          semanticLabel: "Clear",
+          semanticLabel: 'Clear',
         ),
         onPressed: () {
           query = '';
         },
-      )
+      ),
     ];
   }
 
@@ -41,7 +40,7 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
           results.add(pin);
         }
       } catch (e) {
-        print(e);
+        debugPrint(e.toString());
       }
     }
     return ListView.separated(
@@ -55,11 +54,11 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
           child: SizedBox(
             height: 50,
             child: Align(
+              alignment: Alignment.centerLeft,
               child: Text(
                 results[i].name,
-                textScaleFactor: 1.2,
+                textScaler: const TextScaler.linear(1.2),
               ),
-              alignment: Alignment.centerLeft,
             ),
           ),
         );
@@ -76,11 +75,10 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
 
     for (Pin pin in pins) {
       // если в названии пина есть заданный набор букв - выводим
-      if (pin.name.contains(RegExp(query, caseSensitive: false)) ||
-          distance.distance(pin.name, query) < 4) {
+      if (pin.name.contains(RegExp(query, caseSensitive: false)) || distance.distance(pin.name, query) < 4) {
         suggestions.add(pin);
       }
     }
-    return Column();
+    return const Column();
   }
 }

@@ -7,7 +7,6 @@ import 'package:coworking/screens/login/logo_decoration.dart';
 import 'package:coworking/screens/map/bottom_nav_bar.dart';
 import 'package:coworking/domain/entities/pin.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -27,21 +26,17 @@ late AnimationController drawerAnimator;
 const double drawerHeight = 315;
 
 class MapScreen extends StatefulWidget {
+  MapScreen({super.key, LatLng? currentMapPosition})
+      : currentMapPosition =
+            (currentMapPosition == null) ? null : CameraPosition(target: currentMapPosition, zoom: kDefaultZoom);
   static const kDefaultZoom = 10.0;
   final CameraPosition? currentMapPosition;
-
-  MapScreen({Key? key, LatLng? currentMapPosition})
-      : currentMapPosition = (currentMapPosition == null)
-            ? null
-            : CameraPosition(target: currentMapPosition, zoom: kDefaultZoom),
-        super(key: key);
 
   @override
   State<MapScreen> createState() => MapScreenState();
 }
 
-class MapScreenState extends State<MapScreen>
-    with SingleTickerProviderStateMixin {
+class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixin {
   //используется для анимации состояния перехода нового пина
   bool showDrawer = false;
 
@@ -77,35 +72,32 @@ class MapScreenState extends State<MapScreen>
 
   // открываем пин из серча
   void openPinFromSearch(Pin pin) {
-    currentMapPosition =
-        CameraPosition(target: pin.location, zoom: MapScreen.kDefaultZoom);
-    mapController!
-        .moveCamera(CameraUpdate.newCameraPosition(currentMapPosition));
-    Navigator.of(context)
-        .pushNamed(MainNavigationRouteNames.pinDetails, arguments: pin);
+    currentMapPosition = CameraPosition(target: pin.location, zoom: MapScreen.kDefaultZoom);
+    mapController!.moveCamera(CameraUpdate.newCameraPosition(currentMapPosition));
+    Navigator.of(context).pushNamed(MainNavigationRouteNames.pinDetails, arguments: pin);
   }
 
   void barHeightChange(double height) {
     setState(() {
-      mapOverlap =
-          MediaQuery.of(context).padding + EdgeInsets.only(bottom: height);
+      mapOverlap = MediaQuery.of(context).padding + EdgeInsets.only(bottom: height);
     });
   }
 
-//TODO разобраться с тостом, говорящем что нет соединения
+// TODO разобраться с тостом, говорящем что нет соединения
   void watchLocationStatus() {
-    locationStream = Geolocator.getServiceStatusStream()
-        .listen((ServiceStatus status) async {
+    locationStream = Geolocator.getServiceStatusStream().listen((ServiceStatus status) async {
       await LocationStatus.checkLocationPermission();
 
       if (LocationStatus.locationEnabled) {
         while (mapController == null) {}
         currentMapPosition = CameraPosition(
-            target: LatLng(LocationStatus.currentPosition.latitude,
-                LocationStatus.currentPosition.longitude),
-            zoom: MapScreen.kDefaultZoom);
-        mapController!
-            .moveCamera(CameraUpdate.newCameraPosition(currentMapPosition));
+          target: LatLng(
+            LocationStatus.currentPosition.latitude,
+            LocationStatus.currentPosition.longitude,
+          ),
+          zoom: MapScreen.kDefaultZoom,
+        );
+        mapController!.moveCamera(CameraUpdate.newCameraPosition(currentMapPosition));
       }
     });
   }
@@ -115,23 +107,20 @@ class MapScreenState extends State<MapScreen>
       setState(() {
         for (PinChange pinChange in pinChangesList) {
           if (pinChange.type == DocumentChangeType.added) {
-            print("БЫЛ ДОБАВЛЕН МАРКЕР");
+            debugPrint('БЫЛ ДОБАВЛЕН МАРКЕР');
             pins.add(pinChange.pin);
             MapBodyState.markers.add(pinChange.pin.marker!);
           } else if (pinChange.type == DocumentChangeType.removed) {
-            print("1 ИЗ МАРКЕРОВ БЫЛ УДАЛЕН");
+            debugPrint('1 ИЗ МАРКЕРОВ БЫЛ УДАЛЕН');
             MapBodyState.markers.remove(pinChange.pin.marker);
             pins.remove(pinChange.pin);
           } else if (pinChange.type == DocumentChangeType.modified) {
-            print("1 ИЗ МАРКЕРОВ БЫЛ ИЗМЕНЕН");
+            debugPrint('1 ИЗ МАРКЕРОВ БЫЛ ИЗМЕНЕН');
             for (var element in pins) {
-              if (element.author.toString() ==
-                      pinChange.pin.author.toString() &&
+              if (element.author.toString() == pinChange.pin.author.toString() &&
                   element.name.toString() == pinChange.pin.name.toString() &&
-                  element.imageUrl.toString() ==
-                      pinChange.pin.imageUrl.toString() &&
-                  element.category.toString() ==
-                      pinChange.pin.category.toString() &&
+                  element.imageUrl.toString() == pinChange.pin.imageUrl.toString() &&
+                  element.category.toString() == pinChange.pin.category.toString() &&
                   element.marker != pinChange.pin.marker) {
                 element.marker = pinChange.pin.marker;
               }
@@ -155,7 +144,7 @@ class MapScreenState extends State<MapScreen>
     pinFormKey = GlobalKey<CreatePinState>();
 
     fabAddPin = FloatingActionButton(
-      tooltip: "Add pin",
+      tooltip: 'Add pin',
       onPressed: openDrawer,
       backgroundColor: Colors.orange,
       child: const Icon(
@@ -164,7 +153,7 @@ class MapScreenState extends State<MapScreen>
     );
 
     fabConfirmPin = FloatingActionButton(
-      tooltip: "Confirm",
+      tooltip: 'Confirm',
       onPressed: () {
         if (pinFormKey.currentState!.validate()) {
           pinFormKey.currentState!.createPin().then((pin) {
@@ -174,8 +163,8 @@ class MapScreenState extends State<MapScreen>
           closeDrawer();
         }
       },
-      child: const Icon(Icons.check),
       backgroundColor: Colors.green,
+      child: const Icon(Icons.check),
     );
 
     currentFab = fabAddPin;
@@ -186,31 +175,35 @@ class MapScreenState extends State<MapScreen>
 
     watchLocationStatus();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("onMessage: $message");
+      debugPrint('onMessage: $message');
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("onLaunch: $message");
-      Navigator.of(context).pushNamed(MainNavigationRouteNames.meetingsScreen);
+      debugPrint('onLaunch: $message');
+      if (mounted) {
+        Navigator.of(context).pushNamed(MainNavigationRouteNames.meetingsScreen);
+      }
     });
     currentMapPosition = CameraPosition(
-        target: LatLng(LocationStatus.currentPosition.latitude,
-            LocationStatus.currentPosition.longitude),
-        zoom: MapScreen.kDefaultZoom);
+      target: LatLng(
+        LocationStatus.currentPosition.latitude,
+        LocationStatus.currentPosition.longitude,
+      ),
+      zoom: MapScreen.kDefaultZoom,
+    );
   }
 
   void shouldMoveLocation() {
-    if (LocationStatus.locationEnabled &&
-        LocationStatus.isMapControllerConnected == false &&
-        mapController != null) {
-      LocationStatus.isMapControllerConnected =
-          !LocationStatus.isMapControllerConnected;
+    if (LocationStatus.locationEnabled && LocationStatus.isMapControllerConnected == false && mapController != null) {
+      LocationStatus.isMapControllerConnected = !LocationStatus.isMapControllerConnected;
       currentMapPosition = CameraPosition(
-          target: LatLng(LocationStatus.currentPosition.latitude,
-              LocationStatus.currentPosition.longitude),
-          zoom: MapScreen.kDefaultZoom);
-      mapController!
-          .moveCamera(CameraUpdate.newCameraPosition(currentMapPosition));
+        target: LatLng(
+          LocationStatus.currentPosition.latitude,
+          LocationStatus.currentPosition.longitude,
+        ),
+        zoom: MapScreen.kDefaultZoom,
+      );
+      mapController!.moveCamera(CameraUpdate.newCameraPosition(currentMapPosition));
     }
   }
 
@@ -218,78 +211,84 @@ class MapScreenState extends State<MapScreen>
   Widget build(BuildContext context) {
     shouldMoveLocation();
     return FutureBuilder(
-        future: getLocation,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return WillPopScope(
-              onWillPop: () {
-                showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                            title: const Text(
-                              "Вы действительно хотите выйти?",
-                              style: TextStyle(color: Colors.orange),
-                            ),
-                            actions: <Widget>[
-                              ElevatedButton(
-                                  child: const Text(
-                                    "Да",
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
-                                        Colors.orange),
-                                  ),
-                                  onPressed: () {
-                                    exit(0);
-                                  }),
-                              const SizedBox(
-                                width: 100,
-                              ),
-                              TextButton(
-                                child: const Text("Нет",
-                                    style: TextStyle(color: Colors.white)),
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all(Colors.orange),
-                                ),
-                                onPressed: () => Navigator.pop(context, false),
-                              ),
-                            ]));
-                return true as Future<bool>;
-              },
-              child: Scaffold(
-                body: MapBody(
-                  mapMoveCallback: (value) => currentMapPosition = value,
-                  initialPosition: currentMapPosition,
-                  mapOverlap: mapOverlap,
+      future: getLocation,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return WillPopScope(
+            onWillPop: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text(
+                    'Вы действительно хотите выйти?',
+                    style: TextStyle(color: Colors.orange),
+                  ),
+                  actions: <Widget>[
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(
+                          Colors.orange,
+                        ),
+                      ),
+                      onPressed: () {
+                        exit(0);
+                      },
+                      child: const Text(
+                        'Да',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 100,
+                    ),
+                    TextButton(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.orange),
+                      ),
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text(
+                        'Нет',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
-                drawer: const MenuDrawer(),
-                floatingActionButtonLocation:
-                    FloatingActionButtonLocation.centerDocked,
-                floatingActionButton: currentFab,
-                resizeToAvoidBottomInset: false,
-                // сделанно для того, чтобы при открытии клавиатуры карта не изменяла размер
-                extendBody: true,
-                // сверху над картой помещаем боттом бар
-                bottomNavigationBar: BottomBar(
-                  pinFormKey,
-                  closeDrawer,
-                  mapOverlap == EdgeInsets.zero ? barHeightChange : (_) {},
-                  drawerHeight,
-                  drawerAnimator,
-                  showDrawer,
-                  openPinFromSearch,
-                ),
+              );
+              return true as Future<bool>;
+            },
+            child: Scaffold(
+              body: MapBody(
+                mapMoveCallback: (value) => currentMapPosition = value,
+                initialPosition: currentMapPosition,
+                mapOverlap: mapOverlap,
               ),
-            );
-          } else {
-            return const Scaffold(
-                body: LogoDecoration(
+              drawer: const MenuDrawer(),
+              floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+              floatingActionButton: currentFab,
+              resizeToAvoidBottomInset: false,
+              // сделанно для того, чтобы при открытии клавиатуры карта не изменяла размер
+              extendBody: true,
+              // сверху над картой помещаем боттом бар
+              bottomNavigationBar: BottomBar(
+                pinFormKey,
+                closeDrawer,
+                mapOverlap == EdgeInsets.zero ? barHeightChange : (_) {},
+                drawerHeight,
+                drawerAnimator,
+                showDrawer,
+                openPinFromSearch,
+              ),
+            ),
+          );
+        } else {
+          return const Scaffold(
+            body: LogoDecoration(
               child: Center(child: CircularProgressIndicator()),
-            ));
-          }
-        });
+            ),
+          );
+        }
+      },
+    );
   }
 
   @override
@@ -306,12 +305,12 @@ class MapScreenState extends State<MapScreen>
 }
 
 class MapBody extends StatefulWidget {
-  MapBody({
-    Key? key,
+  const MapBody({
+    super.key,
     required this.mapMoveCallback,
     required this.initialPosition,
     required this.mapOverlap,
-  }) : super(key: key);
+  });
 
   final Function(CameraPosition) mapMoveCallback;
   final CameraPosition initialPosition;
@@ -333,7 +332,7 @@ class MapBodyState extends State<MapBody> {
   final Animation<double> pinAnimation = drawerAnimator;
   static Set<Marker> markers = <Marker>{};
 
-  onMapCreated(GoogleMapController controller) {
+  void onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
 
@@ -347,43 +346,51 @@ class MapBodyState extends State<MapBody> {
 
           ///Была ошибка с жестом 3 пальцев, добавил ListView с itemExtent
           builder: (context, _) => ListView(
-              itemExtent: MediaQuery.of(context).size.height -
-                  widget.mapOverlap.bottom +
-                  20,
-              children: <Widget>[
-                GoogleMap(
-                  initialCameraPosition: widget.initialPosition,
-                  onMapCreated: onMapCreated,
-                  padding: widget.mapOverlap +
-                      EdgeInsets.only(
-                          bottom: drawerHeight * pinAnimation.value),
-                  // поднимаем +- и надпись гугл
-                  markers: markers,
-                  myLocationEnabled: LocationStatus.locationEnabled,
-                  myLocationButtonEnabled: LocationStatus.locationEnabled,
-                  onCameraMove: widget.mapMoveCallback,
-                  gestureRecognizers: {}
-                    ..add(Factory<PanGestureRecognizer>(
-                        () => PanGestureRecognizer()))
-                    ..add(Factory<ScaleGestureRecognizer>(
-                        () => ScaleGestureRecognizer()))
-                    ..add(Factory<TapGestureRecognizer>(
-                        () => TapGestureRecognizer()))
-                    ..add(Factory<VerticalDragGestureRecognizer>(
-                        () => VerticalDragGestureRecognizer())),
-                )
-              ]),
+            itemExtent: MediaQuery.of(context).size.height - widget.mapOverlap.bottom + 20,
+            children: <Widget>[
+              GoogleMap(
+                initialCameraPosition: widget.initialPosition,
+                onMapCreated: onMapCreated,
+                padding: widget.mapOverlap +
+                    EdgeInsets.only(
+                      bottom: drawerHeight * pinAnimation.value,
+                    ),
+                // поднимаем +- и надпись гугл
+                markers: markers,
+                myLocationEnabled: LocationStatus.locationEnabled,
+                myLocationButtonEnabled: LocationStatus.locationEnabled,
+                onCameraMove: widget.mapMoveCallback,
+                gestureRecognizers: {}
+                  ..add(
+                    Factory<PanGestureRecognizer>(
+                      PanGestureRecognizer.new,
+                    ),
+                  )
+                  ..add(
+                    Factory<ScaleGestureRecognizer>(
+                      ScaleGestureRecognizer.new,
+                    ),
+                  )
+                  ..add(
+                    Factory<TapGestureRecognizer>(
+                      TapGestureRecognizer.new,
+                    ),
+                  )
+                  ..add(
+                    Factory<VerticalDragGestureRecognizer>(
+                      VerticalDragGestureRecognizer.new,
+                    ),
+                  ),
+              ),
+            ],
+          ),
         ),
         Align(
           child: Transform.translate(
             // настройка положения пина
             offset: Offset(
               0.0,
-              (widget.mapOverlap.top -
-                      drawerHeight -
-                      widget.mapOverlap.bottom +
-                      20) /
-                  2,
+              (widget.mapOverlap.top - drawerHeight - widget.mapOverlap.bottom + 20) / 2,
             ),
 
             //тут наводимся куда поставить наш пин

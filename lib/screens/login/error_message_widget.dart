@@ -4,9 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:coworking/screens/login/login_model.dart';
 
 class ErrorMessageWidget extends StatelessWidget {
-  const ErrorMessageWidget({
-    Key? key,
-  }) : super(key: key);
+  const ErrorMessageWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,15 +25,17 @@ class ErrorMessageWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Container(
           decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(30)),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black45,
-                    offset: Offset(-5, 5),
-                    blurRadius: 10,
-                    spreadRadius: 1),
-              ]),
+            borderRadius: BorderRadius.all(Radius.circular(30)),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black45,
+                offset: Offset(-5, 5),
+                blurRadius: 10,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
           padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
           child: Center(
             child: Text(

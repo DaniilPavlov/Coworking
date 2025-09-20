@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-//TODO побаловаться с ним и внедрить вместо обычного CircularProgressIndicator
+// TODO побаловаться с ним и внедрить вместо обычного CircularProgressIndicator
 class CustomProgressIndicator extends StatelessWidget {
-  const CustomProgressIndicator({Key? key}) : super(key: key);
+  const CustomProgressIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {

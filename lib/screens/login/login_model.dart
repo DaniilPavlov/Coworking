@@ -3,7 +3,6 @@ import 'package:coworking/navigation/main_navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-
 class LoginModel extends ChangeNotifier {
   String? _errorMessage;
 
@@ -15,25 +14,25 @@ class LoginModel extends ChangeNotifier {
 
   bool get isAuthProgress => _isAuthProgress;
 
-
   Future<void> auth(BuildContext context) async {
     _isAuthProgress = true;
     notifyListeners();
     User? user = await SignIn().signInWithGoogle();
-
     if (user == null) {
-      print('Ошибка подключения');
-      _errorMessage = "Ошибка подключения, попробуйте снова";
+      debugPrint('Ошибка подключения');
+      _errorMessage = 'Ошибка подключения, попробуйте снова';
       _isAuthProgress = false;
-      Scaffold.of(context).showBodyScrim(false, 0.5);
+      if (context.mounted) {
+        Scaffold.of(context).showBodyScrim(false, 0.5);
+      }
       notifyListeners();
       return;
     }
     _errorMessage = null;
     _isAuthProgress = false;
     notifyListeners();
-    Navigator.of(context)
-        .pushNamed(MainNavigationRouteNames.mapScreen);
+    if (context.mounted) {
+      Navigator.of(context).pushNamed(MainNavigationRouteNames.mapScreen);
+    }
   }
-
 }

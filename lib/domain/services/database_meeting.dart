@@ -9,13 +9,13 @@ class DatabaseMeeting {
   final _firestore = FirebaseFirestore.instance;
 
   Future addMeeting(Meeting meeting) async {
-    String retVal = "error";
+    String retVal = 'error';
     List<String?> members = [];
     List<String?> tokens = [];
     try {
       members.add(Account.currentAccount?.id);
       tokens.add(Account.currentAccount?.notifyToken);
-      await _firestore.collection("meetings").add({
+      await _firestore.collection('meetings').add({
         'place': meeting.place.trim(),
         'description': meeting.description,
         'author': meeting.author.id,
@@ -25,68 +25,63 @@ class DatabaseMeeting {
         'notify': false,
         // 'pinId': meeting.pin
       });
-      retVal = "success";
+      retVal = 'success';
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
     return retVal;
   }
 
   Future editMeeting(Meeting meeting) async {
-    String retVal = "error";
+    String retVal = 'error';
     try {
-      FirebaseFirestore.instance.collection("meetings").doc(meeting.id).update(
-        {
-          "place": meeting.place,
-          "description": meeting.description,
-          "dateCompleted": meeting.dateCompleted
-        },
+      FirebaseFirestore.instance.collection('meetings').doc(meeting.id).update(
+        {'place': meeting.place, 'description': meeting.description, 'dateCompleted': meeting.dateCompleted},
       );
-      retVal = "success";
+      retVal = 'success';
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
 
     return retVal;
   }
 
   Future changeInfoNotify(Meeting meeting) async {
-    String retVal = "error";
+    String retVal = 'error';
     try {
-      FirebaseFirestore.instance.collection("meetings").doc(meeting.id).update(
+      FirebaseFirestore.instance.collection('meetings').doc(meeting.id).update(
         {
-          "dateCompleted": meeting.dateCompleted,
+          'dateCompleted': meeting.dateCompleted,
         },
       );
-      retVal = "success";
+      retVal = 'success';
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
 
     return retVal;
   }
 
   Future timeNotify(Meeting meeting) async {
-    String retVal = "error";
+    String retVal = 'error';
     if (meeting.notify) {
       meeting.notify = false;
     } else {
       meeting.notify = true;
     }
     try {
-      FirebaseFirestore.instance.collection("meetings").doc(meeting.id).update(
-        {"notify": meeting.notify},
+      FirebaseFirestore.instance.collection('meetings').doc(meeting.id).update(
+        {'notify': meeting.notify},
       );
-      retVal = "success";
+      retVal = 'success';
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
     return retVal;
   }
 
   Future<bool> isMeetingOwner(Meeting meeting) {
-    DocumentReference docRef =
-        FirebaseFirestore.instance.collection("meetings").doc(meeting.id);
+    DocumentReference docRef = FirebaseFirestore.instance.collection('meetings').doc(meeting.id);
     return docRef.get().then((datasnapshot) {
       if (datasnapshot['author'].toString() == Account.currentAccount!.id) {
         return true;
@@ -97,22 +92,20 @@ class DatabaseMeeting {
   }
 
   static void deleteMeeting(Meeting meeting) {
-    FirebaseFirestore.instance.collection("meetings").doc(meeting.id).delete();
+    FirebaseFirestore.instance.collection('meetings').doc(meeting.id).delete();
   }
 
-  static Stream<List<Meeting>> meetingsOfUser(
-      Account account, BuildContext context) {
+  static Stream<List<Meeting>> meetingsOfUser(Account account, BuildContext context) {
     return FirebaseFirestore.instance
-        .collection("meetings")
-        .where("members", arrayContains: account.id)
+        .collection('meetings')
+        .where('members', arrayContains: account.id)
         //сначала выводим ближайшие встречи
-        .orderBy("dateCompleted", descending: false)
+        .orderBy('dateCompleted', descending: false)
         .snapshots()
         .map((querySnapshot) {
       List<Meeting> meetings = [];
       for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
-        Map<String, dynamic>? meetingMap =
-            documentSnapshot.data() as Map<String, dynamic>?;
+        Map<String, dynamic>? meetingMap = documentSnapshot.data() as Map<String, dynamic>?;
         Meeting meeting = Meeting.fromMap(documentSnapshot.id, meetingMap!);
         // meeting.pin = await getPinByID(meetingMap["pinID"], context);
         meetings.add(meeting);
@@ -122,22 +115,21 @@ class DatabaseMeeting {
   }
 
   Future<String> joinMeeting(String meetingId) async {
-    String retVal = "error";
+    String retVal = 'error';
     List<String?> members = [];
     List<String?> tokens = [];
     try {
       members.add(Account.currentAccount?.id);
       tokens.add(Account.currentAccount?.notifyToken);
-      await _firestore.collection("meetings").doc(meetingId).update({
+      await _firestore.collection('meetings').doc(meetingId).update({
         'members': FieldValue.arrayUnion(members),
         'tokens': FieldValue.arrayUnion(tokens),
       });
-      retVal = "success";
-    } on PlatformException catch (e) {
-      retVal = "Убедитесь, что вы получили верный id встречи!";
-      print(e);
+      retVal = 'success';
+    } on PlatformException {
+      retVal = 'Убедитесь, что вы получили верный id встречи!';
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
     return retVal;
   }
@@ -148,15 +140,12 @@ class DatabaseMeeting {
     try {
       members.add(Account.currentAccount?.id);
       tokens.add(Account.currentAccount?.notifyToken);
-      await FirebaseFirestore.instance
-          .collection("meetings")
-          .doc(meetingId)
-          .update({
+      await FirebaseFirestore.instance.collection('meetings').doc(meetingId).update({
         'members': FieldValue.arrayRemove(members),
         'tokens': FieldValue.arrayRemove(tokens),
       });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 }

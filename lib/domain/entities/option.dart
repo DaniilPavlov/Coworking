@@ -1,10 +1,9 @@
 import 'package:flutter/widgets.dart';
 
 class Option {
+  Option({required this.text, required this.colour});
   String text;
   Color colour;
-
-  Option({required this.text, required this.colour});
 
   @override
   bool operator ==(Object other) => other is Option && other.text == text;

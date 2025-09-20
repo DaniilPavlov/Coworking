@@ -6,19 +6,18 @@ import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/screens/map/pin/review/review_form.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class PinScreenModel extends ChangeNotifier {
-  Pin pin;
   PinScreenModel({required this.pin}) {
     _asyncInit();
   }
+  Pin pin;
 
-  var visitedText = "";
+  var visitedText = '';
   var visitedColor = Colors.orange;
-  String newPhotoPath = "";
+  String newPhotoPath = '';
   GlobalKey<ReviewFormState> reviewFormKey = GlobalKey<ReviewFormState>();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   GlobalKey<FormFieldState> categoryPickerKey = GlobalKey<FormFieldState>();
@@ -36,27 +35,26 @@ class PinScreenModel extends ChangeNotifier {
       pin.addReview(review);
       pin.rating = await DatabasePin.updateRateOfPin(pin.id);
       notifyListeners();
-      Navigator.pop(context);
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 
-//TODO при неудачном сохранении фотография все равно загружается в базу, нужно
-//разобраться
+  // TODO при неудачном сохранении фотография все равно загружается в базу, нужно разобраться
   Future<bool> savePin() async {
     try {
       var newImage = File(newPhotoPath);
       var timeKey = DateTime.now();
 
-      final Reference postImageRef =
-          FirebaseStorage.instance.ref().child("Pin Images");
-      final UploadTask uploadTask =
-          postImageRef.child(timeKey.toString() + ".jpg").putFile(newImage);
+      final Reference postImageRef = FirebaseStorage.instance.ref().child('Pin Images');
+      final UploadTask uploadTask = postImageRef.child('$timeKey.jpg').putFile(newImage);
       String stringUrl = await (await uploadTask).ref.getDownloadURL();
 
       Category category = categoryPickerKey.currentState!.value;
       if (formKey.currentState!.validate() &&
-          nameController.text != "" &&
-          category.text != "" &&
+          nameController.text != '' &&
+          category.text != '' &&
           stringUrl.isNotEmpty) {
         await FirebaseStorage.instance.refFromURL(pin.imageUrl).delete();
         pin.imageUrl = stringUrl;
@@ -75,25 +73,25 @@ class PinScreenModel extends ChangeNotifier {
   }
 
   Future<void> setNewPhoto() async {
-    final ImagePicker _picker = ImagePicker();
+    final ImagePicker picker = ImagePicker();
     try {
-      var pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      var pickedFile = await picker.pickImage(source: ImageSource.gallery);
       newPhotoPath = pickedFile!.path;
       notifyListeners();
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
   void setFavourite() {
-    visitedText = "Добавить в избранное";
+    visitedText = 'Добавить в избранное';
     visitedColor = Colors.grey;
     DatabasePin.addFavourite(pin.id);
     notifyListeners();
   }
 
   void setUnfavourite() {
-    visitedText = "В избранном";
+    visitedText = 'В избранном';
     visitedColor = Colors.yellow;
     DatabasePin.removeFavourite(pin.id);
     notifyListeners();

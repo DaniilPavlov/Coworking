@@ -7,9 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ReviewWidget extends StatelessWidget {
+  const ReviewWidget({super.key, required this.review});
   final Review review;
-
-  const ReviewWidget({Key? key, required this.review}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
@@ -20,7 +19,7 @@ class ReviewWidget extends StatelessWidget {
 }
 
 class _ReviewWidgetView extends StatelessWidget {
-  const _ReviewWidgetView({Key? key}) : super(key: key);
+  const _ReviewWidgetView();
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,7 @@ class _ReviewWidgetView extends StatelessWidget {
       child: InkWell(
         onTap: () => showModalBottomSheet(
           context: context,
-          //TODO оставить на фул экран или вернуть только в боттом?
+          // TODO оставить на фул экран или вернуть только в боттом?
           isScrollControlled: true,
           builder: (_) {
             return ChangeNotifierProvider.value(
@@ -39,9 +38,7 @@ class _ReviewWidgetView extends StatelessWidget {
                 future: DatabaseReview.isReviewOwner(model.review),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return (snapshot.data == true)
-                        ? const _AuthorsReviewInfoWidget()
-                        : const _OthersReviewInfoWidget();
+                    return (snapshot.data == true) ? const _AuthorsReviewInfoWidget() : const _OthersReviewInfoWidget();
                   } else {
                     return const Center(child: CircularProgressIndicator());
                   }
@@ -57,28 +54,32 @@ class _ReviewWidgetView extends StatelessWidget {
 }
 
 class _AuthorsReviewInfoWidget extends StatelessWidget {
-  const _AuthorsReviewInfoWidget({Key? key}) : super(key: key);
+  const _AuthorsReviewInfoWidget();
   @override
   Widget build(BuildContext context) {
     final model = context.watch<ReviewWidgetModel>();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.orange,
-        title: const Text("Изменение отзыва", textAlign: TextAlign.center),
+        title: const Text('Изменение отзыва', textAlign: TextAlign.center),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () async {
               var errorSave = await model.saveReview();
-              if (errorSave) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Вы заполнили не всю информацию"),
-                ));
-              } else {
+              if (errorSave && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Вы заполнили не всю информацию'),
+                  ),
+                );
+              } else if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Информация отзыва изменена'),
+                  ),
+                );
                 Navigator.of(context).pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Информация отзыва изменена"),
-                ));
               }
             },
           ),
@@ -89,10 +90,10 @@ class _AuthorsReviewInfoWidget extends StatelessWidget {
           children: <Widget>[
             TextFormField(
               controller: model.reviewTextController,
-              validator: (text) => text!.isEmpty ? "Отзыв обязателен" : null,
+              validator: (text) => text!.isEmpty ? 'Отзыв обязателен' : null,
               maxLines: 3,
               decoration: const InputDecoration(
-                hintText: "Отзыв",
+                hintText: 'Отзыв',
                 contentPadding: EdgeInsets.all(8.0),
               ),
             ),
@@ -114,7 +115,7 @@ class _AuthorsReviewInfoWidget extends StatelessWidget {
 }
 
 class _ReviewCheckBoxes extends StatefulWidget {
-  const _ReviewCheckBoxes({Key? key}) : super(key: key);
+  const _ReviewCheckBoxes();
 
   @override
   __ReviewCheckBoxesState createState() => __ReviewCheckBoxesState();
@@ -127,15 +128,15 @@ class __ReviewCheckBoxesState extends State<_ReviewCheckBoxes> {
     return Column(
       children: [
         Text(
-          "Раздел оценки места",
-          style: Theme.of(context).textTheme.subtitle1,
+          'Раздел оценки места',
+          style: Theme.of(context).textTheme.bodyMedium,
           textAlign: TextAlign.left,
         ),
         Row(
           children: [
             Container(
               alignment: Alignment.centerLeft,
-              child: const Text("Можно приобрести еду"),
+              child: const Text('Можно приобрести еду'),
             ),
             const Spacer(),
             Container(
@@ -147,14 +148,14 @@ class __ReviewCheckBoxesState extends State<_ReviewCheckBoxes> {
                   setState(() {});
                 },
               ),
-            )
+            ),
           ],
         ),
         Row(
           children: [
             Container(
               alignment: Alignment.centerLeft,
-              child: const Text("Можно находиться бесплатно"),
+              child: const Text('Можно находиться бесплатно'),
             ),
             const Spacer(),
             Container(
@@ -173,7 +174,7 @@ class __ReviewCheckBoxesState extends State<_ReviewCheckBoxes> {
           children: [
             Container(
               alignment: Alignment.centerLeft,
-              child: const Text("Есть WiFi"),
+              child: const Text('Есть WiFi'),
             ),
             const Spacer(),
             Container(
@@ -192,7 +193,7 @@ class __ReviewCheckBoxesState extends State<_ReviewCheckBoxes> {
           children: [
             Container(
               alignment: Alignment.centerLeft,
-              child: const Text("Есть розетки"),
+              child: const Text('Есть розетки'),
             ),
             const Spacer(),
             Container(
@@ -213,7 +214,7 @@ class __ReviewCheckBoxesState extends State<_ReviewCheckBoxes> {
 }
 
 class _ReviewersRate extends StatelessWidget {
-  const _ReviewersRate({Key? key}) : super(key: key);
+  const _ReviewersRate();
 
   @override
   Widget build(BuildContext context) {
@@ -222,15 +223,14 @@ class _ReviewersRate extends StatelessWidget {
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          child:
-              const Text("Ваша личная оценка места (введите число от 0 до 10)"),
+          child: const Text('Ваша личная оценка места (введите число от 0 до 10)'),
         ),
         Container(
           alignment: Alignment.center,
           child: TextFormField(
             textAlign: TextAlign.center,
             controller: model.rateController,
-            validator: (input) => input!.isEmpty ? "Оценка обязательна" : null,
+            validator: (input) => input!.isEmpty ? 'Оценка обязательна' : null,
           ),
         ),
       ],
@@ -239,7 +239,7 @@ class _ReviewersRate extends StatelessWidget {
 }
 
 class _DeleteReviewButton extends StatelessWidget {
-  const _DeleteReviewButton({Key? key}) : super(key: key);
+  const _DeleteReviewButton();
 
   @override
   Widget build(BuildContext context) {
@@ -248,16 +248,16 @@ class _DeleteReviewButton extends StatelessWidget {
       minWidth: 120.0,
       height: 50.0,
       child: ElevatedButton(
-        //TODO при удалении change notifier некорректно dispose
-        // (на работу не влияет)
-
+        // TODO при удалении change notifier некорректно dispose (на работу не влияет)
         onPressed: () async {
           DatabaseReview.deleteReview(model.review);
           Navigator.of(context).pop(context);
 
-          model.review.pin?.rating =
-              await DatabasePin.updateRateOfPin(model.review.pin?.id);
+          model.review.pin?.rating = await DatabasePin.updateRateOfPin(model.review.pin?.id);
         },
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.all<Color>(Colors.red),
+        ),
         child: const Text(
           'Удалить',
           style: TextStyle(
@@ -265,17 +265,13 @@ class _DeleteReviewButton extends StatelessWidget {
             fontSize: 26.0,
           ),
         ),
-        style: ButtonStyle(
-          backgroundColor:
-              MaterialStateProperty.all<Color>(Theme.of(context).errorColor),
-        ),
       ),
     );
   }
 }
 
 class _OthersReviewInfoWidget extends StatelessWidget {
-  const _OthersReviewInfoWidget({Key? key}) : super(key: key);
+  const _OthersReviewInfoWidget();
   @override
   Widget build(BuildContext context) {
     final model = context.watch<ReviewWidgetModel>();
@@ -284,9 +280,7 @@ class _OthersReviewInfoWidget extends StatelessWidget {
         title: FutureBuilder(
           future: model.review.author.userName,
           builder: (context, snapshot) {
-            return (snapshot.hasData)
-                ? Text(snapshot.data.toString(), textAlign: TextAlign.center)
-                : Container();
+            return (snapshot.hasData) ? Text(snapshot.data.toString(), textAlign: TextAlign.center) : Container();
           },
         ),
         backgroundColor: Colors.orange,
@@ -308,16 +302,15 @@ class _OthersReviewInfoWidget extends StatelessWidget {
                       children: const <Widget>[
                         Expanded(
                           child: Text(
-                            "Информация об отзыве:",
+                            'Информация об отзыве:',
                             style: TextStyle(fontSize: 30, color: Colors.black),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
                   Padding(
-                    padding:
-                        const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
+                    padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
                     child: Row(
                       children: <Widget>[
                         Expanded(
@@ -333,7 +326,7 @@ class _OthersReviewInfoWidget extends StatelessWidget {
                         Expanded(
                           child: Text(
                             FormatDate.formatDate(model.review.timestamp),
-                            style: Theme.of(context).textTheme.caption,
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ),
                       ],
@@ -344,9 +337,8 @@ class _OthersReviewInfoWidget extends StatelessWidget {
                     child: Container(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Личная оценка пользователя: " +
-                            model.review.userRate.toString(),
-                        style: Theme.of(context).textTheme.subtitle1,
+                        'Личная оценка пользователя: ${model.review.userRate}',
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   ),
@@ -379,9 +371,9 @@ class _ReviewTileWidget extends StatelessWidget {
               children: [_ReviewAuthorWidget(), _ReviewDateWidget()],
             ),
             const Spacer(),
-            _FlagIconButton()
+            _FlagIconButton(),
           ],
-        )
+        ),
       ],
     );
   }
@@ -393,7 +385,7 @@ class _ReviewBodyWidget extends StatelessWidget {
     final model = context.watch<ReviewWidgetModel>();
     return Text(
       model.review.body,
-      textScaleFactor: 1.1,
+      textScaler: const TextScaler.linear(1.1),
     );
   }
 }
@@ -405,7 +397,7 @@ class _ReviewAuthorWidget extends StatelessWidget {
     return FutureBuilder(
       future: model.review.author.userName,
       builder: (_, snapshot) => Text(
-        (snapshot.hasData) ? snapshot.data.toString() : "Аноним",
+        (snapshot.hasData) ? snapshot.data.toString() : 'Аноним',
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
@@ -431,7 +423,7 @@ class _FlagIconButton extends StatelessWidget {
       padding: EdgeInsets.zero,
       icon: Icon(
         model.isFlagged ? Icons.flag : Icons.outlined_flag,
-        semanticLabel: "Flagged",
+        semanticLabel: 'Flagged',
       ),
       onPressed: () {
         if (model.isFlagged) {

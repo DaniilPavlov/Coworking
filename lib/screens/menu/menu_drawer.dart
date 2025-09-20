@@ -7,13 +7,13 @@ import 'package:coworking/domain/services/sign_in.dart';
 import 'package:coworking/screens/menu/account.dart';
 
 class MenuDrawer extends StatefulWidget {
-  const MenuDrawer({Key? key}) : super(key: key);
+  const MenuDrawer({super.key});
 
   @override
-  _MenuDrawerState createState() => _MenuDrawerState();
+  MenuDrawerState createState() => MenuDrawerState();
 }
 
-class _MenuDrawerState extends State<MenuDrawer> {
+class MenuDrawerState extends State<MenuDrawer> {
   late User? _user;
 
   @override
@@ -35,67 +35,61 @@ class _MenuDrawerState extends State<MenuDrawer> {
             currentAccountPicture: (_user == null || _user!.photoURL == null)
                 ? CircleAvatar(
                     child: Text(
-                      (_user == null)
-                          ? "X"
-                          : _user!.displayName!.substring(0, 1),
+                      (_user == null) ? 'X' : _user!.displayName!.substring(0, 1),
                     ),
                   )
                 : CircleAvatar(
                     backgroundImage: NetworkImage(_user!.photoURL!),
                   ),
             accountName: Text(
-              (_user == null) ? "Username" : _user!.displayName!,
+              (_user == null) ? 'Username' : _user!.displayName!,
             ),
             accountEmail: Text(
-              (_user == null) ? "Email" : _user!.email!,
+              (_user == null) ? 'Email' : _user!.email!,
             ),
           ),
           ListTile(
-            title: const Text("Понравившиеся места"),
+            title: const Text('Понравившиеся места'),
             onTap: () {
-              Navigator.pushNamed(
-                  context, MainNavigationRouteNames.favouriteReviews);
+              Navigator.pushNamed(context, MainNavigationRouteNames.favouriteReviews);
             },
           ),
           ListTile(
-            title: const Text("Ваши отзывы"),
+            title: const Text('Ваши отзывы'),
             onTap: () {
-              Navigator.pushNamed(
-                  context, MainNavigationRouteNames.userReviews);
+              Navigator.pushNamed(context, MainNavigationRouteNames.userReviews);
             },
           ),
           ListTile(
-            title: const Text("Профиль"),
+            title: const Text('Профиль'),
             onTap: () {
-              Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AccountScreen()))
-                  .then((value) {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => AccountScreen())).then((value) {
                 if (Account.hasUpdated != null) {
                   Account.hasUpdated!.future.then((_) {
                     setState(() {
                       _user = SignIn.auth.currentUser;
                     });
-                    print(_user!.displayName);
+                    debugPrint(_user!.displayName);
                   });
                 }
               });
             },
           ),
           FutureBuilder(
-              future: DatabaseAccount.isAdmin(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return ListTile(
-                    title: const Text("Жалобы на отзывы"),
-                    onTap: () {
-                      Navigator.pushNamed(
-                          context, MainNavigationRouteNames.flaggedReviews);
-                    },
-                  );
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              }),
+            future: DatabaseAccount.isAdmin(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return ListTile(
+                  title: const Text('Жалобы на отзывы'),
+                  onTap: () {
+                    Navigator.pushNamed(context, MainNavigationRouteNames.flaggedReviews);
+                  },
+                );
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
         ],
       ),
     );

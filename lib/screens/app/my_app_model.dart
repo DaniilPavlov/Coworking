@@ -9,7 +9,7 @@ class MyAppModel extends ChangeNotifier {
   static Future<bool> doFirebaseConnection() async {
     await Firebase.initializeApp();
     try {
-      await FirebaseFirestore.instance.collection("users").doc("docID").get();
+      await FirebaseFirestore.instance.collection('users').doc('docID').get();
       isAuth = await SignIn().googleSignIn.isSignedIn();
       if (isAuth) {
         await SignIn().signInWithGoogle();
@@ -21,6 +21,6 @@ class MyAppModel extends ChangeNotifier {
     }
   }
 
-//TODO возможно здесь настроить выход из аккаунта
+// TODO возможно здесь настроить выход из аккаунта
   Future<void> resetSession(BuildContext context) async {}
 }

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:coworking/domain/entities/account.dart';
 
 class FavouritePinsScreen extends StatelessWidget {
-  const FavouritePinsScreen({Key? key}) : super(key: key);
+  const FavouritePinsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +17,13 @@ class FavouritePinsScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios,
-            semanticLabel: "Back",
+            semanticLabel: 'Back',
           ),
           onPressed: () => Navigator.pop(context, false),
         ),
         actions: <Widget>[
           PopupMenuButton(
-            tooltip: "Help",
+            tooltip: 'Help',
             icon: const Icon(
               Icons.help,
               color: Colors.black,
@@ -31,13 +31,13 @@ class FavouritePinsScreen extends StatelessWidget {
             itemBuilder: (BuildContext context) => <PopupMenuEntry>[
               const PopupMenuItem(
                 child: Text(
-                  "\nЗдесь будут отображаться все места, которые вам понравились.\n"
-                  "\nПо нажатию вы можете переместиться к месту.\n",
+                  '\nЗдесь будут отображаться все места, которые вам понравились.\n'
+                  '\nПо нажатию вы можете переместиться к месту.\n',
                   textAlign: TextAlign.justify,
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
       body: const BodyLayout(),
@@ -46,16 +46,18 @@ class FavouritePinsScreen extends StatelessWidget {
 }
 
 class BodyLayout extends StatelessWidget {
-  const BodyLayout({Key? key}) : super(key: key);
+  const BodyLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: DatabasePin.fetchFavouritePinsForUser(
-          Account.currentAccount!, context),
+        Account.currentAccount!,
+        context,
+      ),
       builder: (context, snapshot) => (snapshot.hasData)
           ? StreamBuilder<List<Pin>>(
-              stream: snapshot.data as Stream<List<Pin>>?,
+              stream: snapshot.data,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -72,9 +74,11 @@ class BodyLayout extends StatelessWidget {
                     );
                   } else {
                     return const Center(
-                      child: Text("Пока здесь пусто :( \n",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 20)),
+                      child: Text(
+                        'Пока здесь пусто :( \n',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20),
+                      ),
                     );
                   }
                 }
@@ -83,7 +87,7 @@ class BodyLayout extends StatelessWidget {
           : Center(
               child: Column(
                 children: const <Widget>[
-                  Text("Загружаем данные"),
+                  Text('Загружаем данные'),
                   CircularProgressIndicator(),
                 ],
               ),

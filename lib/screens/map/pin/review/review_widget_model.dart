@@ -6,10 +6,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ReviewWidgetModel extends ChangeNotifier {
-  Review review;
   ReviewWidgetModel({required this.review}) {
     _asyncInit();
   }
+  Review review;
 
   bool isFlagged = false;
   var rateController = TextEditingController();
@@ -24,19 +24,17 @@ class ReviewWidgetModel extends ChangeNotifier {
   }
 
   Future<bool> saveReview() async {
-    final RegExp shutterSpeedRegEx =
-        RegExp("[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)");
-    if (review.body != "" &&
-        review.userRate.toString() != "" &&
+    final RegExp shutterSpeedRegEx = RegExp('[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)');
+    if (review.body != '' &&
+        review.userRate.toString() != '' &&
         shutterSpeedRegEx.hasMatch(review.userRate.toString()) &&
-        (double.parse(rateController.text) <= 10 ||
-            double.parse(rateController.text) > 0)) {
+        (double.parse(rateController.text) <= 10 || double.parse(rateController.text) > 0)) {
       review.timestamp = DateTime.now();
       review.body = reviewTextController.text;
       review.userRate = double.parse(rateController.text);
-      review.totalRate = ReviewFormState().countRate(review.isFood,
-          review.isFree, review.isRazors, review.isWiFi, review.userRate / 2);
-      print("NEW TOTAL ${review.totalRate}");
+      review.totalRate = ReviewFormState()
+          .countRate(review.isFood, review.isFree, review.isRazors, review.isWiFi, review.userRate / 2);
+      debugPrint('NEW TOTAL ${review.totalRate}');
       await DatabaseReview.editReview(review);
       review.pin?.rating = await DatabasePin.updateRateOfPin(review.pin?.id);
       notifyListeners();

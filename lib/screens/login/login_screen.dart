@@ -1,15 +1,12 @@
 import 'package:coworking/screens/login/error_message_widget.dart';
 import 'package:coworking/screens/login/login_model.dart';
 import 'package:coworking/screens/login/logo_decoration.dart';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:auth_buttons/auth_buttons.dart';
-
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   //в инхерит передается значение и может использоваться лишь стейтфул виджет.
@@ -28,13 +25,13 @@ class LoginScreen extends StatelessWidget {
 }
 
 class _LoginView extends StatelessWidget {
-  const _LoginView({Key? key}) : super(key: key);
+  const _LoginView();
 
   void startAuth(BuildContext context) {
     final model = context.read<LoginModel>();
     if (model.canStartAuth == true) {
       model.auth(context);
-    } 
+    }
   }
 
   @override
@@ -42,34 +39,33 @@ class _LoginView extends StatelessWidget {
     return LogoDecoration(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Column(children: <Widget>[
-          const Padding(
-            padding: EdgeInsets.only(top: 140, left: 20, right: 20),
-            child: Align(
-              child: Text(
-                'Добро пожаловать в Work Space!',
-                style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-                textAlign: TextAlign.center,
+        body: Column(
+          children: <Widget>[
+            const Padding(
+              padding: EdgeInsets.only(top: 140, left: 20, right: 20),
+              child: Align(
+                child: Text(
+                  'Добро пожаловать в Work Space!',
+                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 50),
-          SizedBox(
-            child: Builder(
-              builder: (context) => GoogleAuthButton(
-                onPressed: () => startAuth(context),
+            const SizedBox(height: 50),
+            SizedBox(
+              height: 50,
+              child: Builder(
+                builder: (context) => GoogleAuthButton(
+                  onPressed: () => startAuth(context),
+                ),
               ),
             ),
-            height: 50,
-          ),
-          const Padding(
-            padding: EdgeInsets.only(top: 300, left: 40, right: 40),
-            child: ErrorMessageWidget(),
-          )
-        ]),
+            const Padding(
+              padding: EdgeInsets.only(top: 300, left: 40, right: 40),
+              child: ErrorMessageWidget(),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -3,14 +3,6 @@ import 'package:coworking/domain/services/database_account.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Account {
-  static Account? currentAccount;
-  String id;
-
-  String? _userName;
-  String? _email;
-  String? notifyToken;
-  static Completer? hasUpdated;
-
   Account(
     this.id, {
     email,
@@ -20,6 +12,13 @@ class Account {
     _email = email;
     _userName = userName;
   }
+  static Account? currentAccount;
+  String id;
+
+  String? _userName;
+  String? _email;
+  String? notifyToken;
+  static Completer? hasUpdated;
 
   static Account fromFirebaseUser(User user) {
     return Account(
@@ -39,11 +38,11 @@ class Account {
 
   Map<String, dynamic> asMap() {
     Map<String, dynamic> accountMap = {};
-    accountMap["userID"] = id;
-    accountMap["name"] = _userName;
-    accountMap["email"] = _email;
-    accountMap["isAdmin"] = false;
-    accountMap["notifyToken"] = notifyToken;
+    accountMap['userID'] = id;
+    accountMap['name'] = _userName;
+    accountMap['email'] = _email;
+    accountMap['isAdmin'] = false;
+    accountMap['notifyToken'] = notifyToken;
     return accountMap;
   }
 }
