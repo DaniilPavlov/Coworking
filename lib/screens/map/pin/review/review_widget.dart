@@ -29,7 +29,7 @@ class _ReviewWidgetView extends StatelessWidget {
       child: InkWell(
         onTap: () => showModalBottomSheet(
           context: context,
-          // TODO оставить на фул экран или вернуть только в боттом?
+          // TODO: check widget
           isScrollControlled: true,
           builder: (_) {
             return ChangeNotifierProvider.value(
@@ -248,11 +248,10 @@ class _DeleteReviewButton extends StatelessWidget {
       minWidth: 120.0,
       height: 50.0,
       child: ElevatedButton(
-        // TODO при удалении change notifier некорректно dispose (на работу не влияет)
+        // TODO: check change notifier, error during dispose
         onPressed: () async {
           DatabaseReview.deleteReview(model.review);
           Navigator.of(context).pop(context);
-
           model.review.pin?.rating = await DatabasePin.updateRateOfPin(model.review.pin?.id);
         },
         style: ButtonStyle(

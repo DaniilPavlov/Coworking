@@ -24,7 +24,7 @@ class PinScreenModel extends ChangeNotifier {
   TextEditingController nameController = TextEditingController();
   List<double> threeMonthStats = [0, 0, 0, 0, 0];
 
-//TODO добавить подгрузку фотографии и категории
+// TODO: add loading of photos and categories
   Future _asyncInit() async {
     nameController.text = pin.name;
   }
@@ -41,16 +41,14 @@ class PinScreenModel extends ChangeNotifier {
     }
   }
 
-  // TODO при неудачном сохранении фотография все равно загружается в базу, нужно разобраться
+  // TODO: fix uploading of images into database when error happens
   Future<bool> savePin() async {
     try {
       var newImage = File(newPhotoPath);
       var timeKey = DateTime.now();
-
       final Reference postImageRef = FirebaseStorage.instance.ref().child('Pin Images');
       final UploadTask uploadTask = postImageRef.child('$timeKey.jpg').putFile(newImage);
       String stringUrl = await (await uploadTask).ref.getDownloadURL();
-
       Category category = categoryPickerKey.currentState!.value;
       if (formKey.currentState!.validate() &&
           nameController.text != '' &&

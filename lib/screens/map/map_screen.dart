@@ -83,11 +83,10 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
     });
   }
 
-// TODO разобраться с тостом, говорящем что нет соединения
+// TODO: check *no connection* toast
   void watchLocationStatus() {
     locationStream = Geolocator.getServiceStatusStream().listen((ServiceStatus status) async {
       await LocationStatus.checkLocationPermission();
-
       if (LocationStatus.locationEnabled) {
         while (mapController == null) {}
         currentMapPosition = CameraPosition(

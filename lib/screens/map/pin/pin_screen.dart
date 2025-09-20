@@ -82,11 +82,7 @@ class _ReviewsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<PinScreenModel>();
-    // TODO только последние отзывы удаляются корректно
-    // отзывы в начале и середине обновляются только при
-    // перезаходе в пин
-
-    // TODO при изменении отзыв тоже должен перемещаться ниже в списке
+    // TODO: now only last reviews are deleting, fix it
     return StreamBuilder<List<Review>>(
       stream: DatabaseReview.fetchReviewsForPin(model.pin),
       builder: (context, snapshot) {
@@ -161,7 +157,7 @@ class _FloatingReviewButton extends StatelessWidget {
       child: const Icon(Icons.create),
       onPressed: () => showModalBottomSheet(
         context: context,
-        //TODO оставить на фул экран или вернуть только в боттом?
+        // TODO: check widget
         isScrollControlled: true,
         builder: (_) => Scaffold(
           appBar: AppBar(
@@ -307,8 +303,7 @@ class _EditPinButton extends StatelessWidget {
                     onTap: () async {
                       await model.setNewPhoto();
                     },
-                    // TODO переключение виджетов не работает
-                    // при смене фотографии, настроить
+                    // TODO: can't switch widgets after uploading photo
                     child: model.newPhotoPath == ''
                         ? Image.network(
                             model.pin.imageUrl,
@@ -391,7 +386,7 @@ class _EditPinButton extends StatelessWidget {
                     ),
                     onPressed: () => showModalBottomSheet(
                       context: context,
-                      // TODO оставить на фул экран или вернуть только в боттом?
+                      // TODO: check widget
                       isScrollControlled: true,
                       builder: (_) => editPinForm(),
                     ),

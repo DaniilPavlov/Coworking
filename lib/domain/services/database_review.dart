@@ -182,7 +182,7 @@ class DatabaseReview {
     addStrike(review.author.id);
   }
 
-  // TODO: решить что делать со страйками на пользователя
+  // TODO: decide what to do with strikes
   static void addStrike(String? id) {
     FirebaseFirestore.instance.collection('users').where('userID', isEqualTo: id).get().then((query) {
       query.docs.first.reference.update({'strikes': FieldValue.increment(1)});

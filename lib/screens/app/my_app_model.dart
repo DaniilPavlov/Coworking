@@ -21,6 +21,6 @@ class MyAppModel extends ChangeNotifier {
     }
   }
 
-// TODO возможно здесь настроить выход из аккаунта
+// TODO: think about reseting session
   Future<void> resetSession(BuildContext context) async {}
 }
