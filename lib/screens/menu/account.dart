@@ -1,12 +1,11 @@
 import 'package:coworking/domain/entities/account.dart';
-import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/domain/services/database_account.dart';
 import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/domain/services/database_review.dart';
+import 'package:coworking/domain/services/sign_in.dart';
+import 'package:coworking/navigation/main_navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import 'package:coworking/domain/services/sign_in.dart';
 
 // Максимальная и минимальная длина имени
 const int userNameMin = 1;
@@ -44,13 +43,13 @@ class AccountScreen extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: () => formKey.currentState?.formFocus.unfocus(),
         child: Container(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Container(
                 alignment: Alignment.center,
-                margin: const EdgeInsets.all(16.0),
+                margin: const EdgeInsets.all(16),
                 child: FutureBuilder(
                   future: Future.value(SignIn.auth.currentUser),
                   builder: (context, AsyncSnapshot<User?> snapshot) {
@@ -66,7 +65,7 @@ class AccountScreen extends StatelessWidget {
                 ),
               ),
               DisplayNameForm(key: formKey),
-              const SizedBox(height: 32.0),
+              const SizedBox(height: 32),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
@@ -78,7 +77,7 @@ class AccountScreen extends StatelessWidget {
                           if (snapshot.hasData) {
                             return Text(
                               snapshot.data!.toString(),
-                              textScaler: const TextScaler.linear(2.0),
+                              textScaler: const TextScaler.linear(2),
                             );
                           } else {
                             return const CircularProgressIndicator();
@@ -96,7 +95,7 @@ class AccountScreen extends StatelessWidget {
                           if (snapshot.hasData) {
                             return Text(
                               snapshot.data!.toString(),
-                              textScaler: const TextScaler.linear(2.0),
+                              textScaler: const TextScaler.linear(2),
                             );
                           } else {
                             return const CircularProgressIndicator();
@@ -130,8 +129,8 @@ class AccountScreen extends StatelessWidget {
     );
   }
 
-  void handleDeleteButton(BuildContext context) async {
-    bool? confirmed = await showDialog(
+  Future<void> handleDeleteButton(BuildContext context) async {
+    final bool? confirmed = await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AlertDialog(
@@ -151,7 +150,7 @@ class AccountScreen extends StatelessWidget {
     );
 
     if (confirmed != null && context.mounted) {
-      deleteAccount(context);
+      await deleteAccount(context);
     }
   }
 }
@@ -180,12 +179,12 @@ class DisplayNameFormState extends State<DisplayNameForm> {
 
   void submitValue(String? value) {
     if (value == null) return;
-    String? oldDisplayName = FirebaseAuth.instance.currentUser!.displayName;
+    final String? oldDisplayName = FirebaseAuth.instance.currentUser!.displayName;
     DatabaseAccount.updateUsername(value);
 
     setState(() => pending = false);
 
-    SnackBar snackBar = SnackBar(
+    final SnackBar snackBar = SnackBar(
       content: const Text('Ваше имя было изменено'),
       action: SnackBarAction(
         label: 'Отменить',
@@ -233,7 +232,7 @@ class DisplayNameFormState extends State<DisplayNameForm> {
   }
 
   String? validateDisplayName(String? value) {
-    RegExp alphaNumRegEx = RegExp(r'^[a-zA-Z0-9]+$');
+    final RegExp alphaNumRegEx = RegExp(r'^[a-zA-Z0-9]+$');
 
     if (!alphaNumRegEx.hasMatch(value!) && value.isNotEmpty) {
       return 'Ваше имя может состоять только из букв';
@@ -248,12 +247,12 @@ class DisplayNameFormState extends State<DisplayNameForm> {
   }
 }
 
-void deleteAccount(BuildContext context) async {
+Future<void> deleteAccount(BuildContext context) async {
   //изменил рут на тру, теперь все нормально закрывается
-  var currentUser = FirebaseAuth.instance.currentUser;
+  final currentUser = FirebaseAuth.instance.currentUser;
   DatabaseAccount.deleteUser(Account.currentAccount!);
   await currentUser!.delete();
-  SignIn().signOutGoogle();
+  await SignIn().signOutGoogle();
   if (context.mounted) {
     Navigator.of(context).popUntil(ModalRoute.withName(MainNavigationRouteNames.auth));
   }

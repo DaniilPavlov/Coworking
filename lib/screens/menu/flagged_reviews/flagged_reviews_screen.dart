@@ -1,6 +1,6 @@
 import 'package:coworking/domain/entities/review.dart';
-import 'package:coworking/screens/menu/flagged_reviews/flagged_reviews_list.dart';
 import 'package:coworking/domain/services/database_review.dart';
+import 'package:coworking/screens/menu/flagged_reviews/flagged_reviews_list.dart';
 import 'package:flutter/material.dart';
 
 class FlaggedReviewsScreen extends StatelessWidget {
@@ -10,7 +10,6 @@ class FlaggedReviewsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: true,
         title: const Text('Жалобы на отзывы'),
         leading: IconButton(
           icon: const Icon(
@@ -46,7 +45,7 @@ class BodyLayout extends StatelessWidget {
               ),
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                Review review = snapshot.data![index]!;
+                final Review review = snapshot.data![index]!;
                 return FlaggedReviewsListItem(review);
               },
             );

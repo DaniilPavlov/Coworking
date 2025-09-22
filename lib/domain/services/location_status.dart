@@ -12,44 +12,42 @@ class LocationStatus {
   static Position currentPosition = Position(
     longitude: 30.359357,
     latitude: 59.933895,
-    accuracy: 0.0,
-    altitude: 0.0,
-    heading: 0.0,
-    speed: 0.0,
-    speedAccuracy: 0.0,
+    accuracy: 0,
+    altitude: 0,
+    heading: 0,
+    speed: 0,
+    speedAccuracy: 0,
     timestamp: DateTime.now(),
-    altitudeAccuracy: 0.0,
-    headingAccuracy: 0.0,
+    altitudeAccuracy: 0,
+    headingAccuracy: 0,
   );
 
   static Future<Position> checkLocationPermission() async {
     isStarted = true;
     LocationPermission permission;
-
     locationEnabled = await Geolocator.isLocationServiceEnabled();
-    if (locationEnabled == false) {
-      buildToast('Пожалуйста, включите GPS для вашего удобства');
+    if (!locationEnabled) {
+      await buildToast('Пожалуйста, включите GPS для вашего удобства');
       return currentPosition;
     }
-
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        buildToast('Доступ к геолокациюю запрещен');
+        await buildToast('Доступ к геолокациюю запрещен');
         return currentPosition;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      buildToast('Доступ к геолокации запрещен навсегда. Вы всегда можете изменить это в настройках приложения');
+      await buildToast('Доступ к геолокации запрещен навсегда. Вы всегда можете изменить это в настройках приложения');
       return currentPosition;
     }
 
     // из-за всплывающего окна с предложением включить геолокацию сюда
     // проходим с false location
     // добавил try catch, работает супер!
-    if (locationEnabled == true) {
+    if (locationEnabled) {
       try {
         currentPosition = await Geolocator.getCurrentPosition(
           locationSettings: LocationSettings(
@@ -58,7 +56,7 @@ class LocationStatus {
         );
       } catch (e) {
         locationEnabled = false;
-        buildToast('Пожалуйста, включите GPS для вашего удобства');
+        await buildToast('Пожалуйста, включите GPS для вашего удобства');
       }
     }
 

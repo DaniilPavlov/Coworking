@@ -45,7 +45,7 @@ class SignIn {
     return null;
   }
 
-  void signOutGoogle() async {
+  Future<void> signOutGoogle() async {
     await googleSignIn.signOut();
   }
 }

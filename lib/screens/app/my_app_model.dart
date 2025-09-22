@@ -21,6 +21,6 @@ class MyAppModel extends ChangeNotifier {
     }
   }
 
-// TODO: think about reseting session
+// TODO(think): decide about reseting session
   Future<void> resetSession(BuildContext context) async {}
 }

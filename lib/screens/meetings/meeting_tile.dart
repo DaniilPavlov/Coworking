@@ -1,7 +1,7 @@
 import 'package:coworking/domain/entities/meeting.dart';
+import 'package:coworking/screens/meetings/meeting_info.dart';
 import 'package:coworking/utils/time_left.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/screens/meetings/meeting_info.dart';
 
 class MeetingListItem extends StatefulWidget {
   const MeetingListItem(this.meeting, {super.key});
@@ -41,7 +41,7 @@ class MeetingListItemState extends State<MeetingListItem> {
               ),
             ],
           ),
-          padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 16),
           child: InkWell(
             onTap: () => Navigator.push(
               context,
@@ -52,7 +52,6 @@ class MeetingListItemState extends State<MeetingListItem> {
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Text(
                     'Место:  ${widget.meeting.place}',

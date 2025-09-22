@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:coworking/domain/entities/pin.dart';
 import 'package:coworking/domain/entities/review.dart';
-
-import 'package:coworking/screens/map/pin/review/review_form.dart';
 import 'package:coworking/screens/map/pin/pin_form.dart';
+import 'package:coworking/screens/map/pin/review/review_form.dart';
+import 'package:flutter/material.dart';
 
 class CreatePin extends StatefulWidget {
   const CreatePin(this.drawerHeight, {super.key});
@@ -27,10 +25,10 @@ class CreatePinState extends State<CreatePin> with SingleTickerProviderStateMixi
       tabController.animateTo(0);
       return false;
     }
-
     if (reviewFormKey.currentState == null || !reviewFormKey.currentState!.isValid) {
-      tabController.animateTo(1);
-      tabController.addListener(() => reviewFormKey.currentState!.isValid);
+      tabController
+        ..animateTo(1)
+        ..addListener(() => reviewFormKey.currentState!.isValid);
       return false;
     }
 
@@ -38,7 +36,7 @@ class CreatePinState extends State<CreatePin> with SingleTickerProviderStateMixi
   }
 
   Future<Pin> createPin() async {
-    Review review = reviewFormKey.currentState!.getReview();
+    final Review review = reviewFormKey.currentState!.getReview();
     return pinFormKey.currentState!.createPin(review);
   }
 

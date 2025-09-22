@@ -1,7 +1,7 @@
 import 'package:coworking/domain/services/database_meeting.dart';
-import 'package:flutter/material.dart';
-import 'package:coworking/widgets/shadow_container.dart';
 import 'package:coworking/widgets/meetings_background.dart';
+import 'package:coworking/widgets/shadow_container.dart';
+import 'package:flutter/material.dart';
 
 class JoinMeeting extends StatefulWidget {
   const JoinMeeting({super.key});
@@ -11,8 +11,8 @@ class JoinMeeting extends StatefulWidget {
 }
 
 class JoinMeetingState extends State<JoinMeeting> {
-  void _joinMeeting(BuildContext context, String meetingId) async {
-    String returnString = await DatabaseMeeting().joinMeeting(meetingId);
+  Future<void> _joinMeeting(BuildContext context, String meetingId) async {
+    final String returnString = await DatabaseMeeting().joinMeeting(meetingId);
     if (returnString == 'success' && context.mounted) {
       Navigator.pop(context);
     } else if (context.mounted) {
@@ -37,14 +37,14 @@ class JoinMeetingState extends State<JoinMeeting> {
         child: Column(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(20),
               child: Row(
                 children: const <Widget>[BackButton()],
               ),
             ),
             const Spacer(),
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(20),
               child: ShadowContainer(
                 child: Column(
                   children: <Widget>[
@@ -56,7 +56,7 @@ class JoinMeetingState extends State<JoinMeeting> {
                       ),
                     ),
                     const SizedBox(
-                      height: 20.0,
+                      height: 20,
                     ),
                     ElevatedButton(
                       style: ButtonStyle(
@@ -69,7 +69,7 @@ class JoinMeetingState extends State<JoinMeeting> {
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 20.0,
+                            fontSize: 20,
                           ),
                         ),
                       ),

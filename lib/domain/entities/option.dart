@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+@immutable
+// ignore: must_be_immutable
 class Option {
   Option({required this.text, required this.colour});
   String text;

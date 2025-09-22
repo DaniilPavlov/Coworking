@@ -12,8 +12,8 @@ class ReviewWidgetModel extends ChangeNotifier {
   Review review;
 
   bool isFlagged = false;
-  var rateController = TextEditingController();
-  var reviewTextController = TextEditingController();
+  TextEditingController rateController = TextEditingController();
+  TextEditingController reviewTextController = TextEditingController();
 
   Future _asyncInit() async {
     await DatabaseReview.isFlagged(review.id).then((value) {
@@ -24,7 +24,7 @@ class ReviewWidgetModel extends ChangeNotifier {
   }
 
   Future<bool> saveReview() async {
-    final RegExp shutterSpeedRegEx = RegExp('[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)');
+    final RegExp shutterSpeedRegEx = RegExp(r'[0-9]([0-9]*)((\.[0-9][0-9]*)|$)');
     if (review.body != '' &&
         review.userRate.toString() != '' &&
         shutterSpeedRegEx.hasMatch(review.userRate.toString()) &&

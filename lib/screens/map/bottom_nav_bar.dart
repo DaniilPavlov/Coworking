@@ -36,15 +36,12 @@ class BottomBar extends StatelessWidget {
 
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
-
-      //выпуклость под центральную кнопку
-      notchMargin: 8.0,
+      notchMargin: 8,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Row(
-            mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Visibility(
@@ -83,7 +80,7 @@ class BottomBar extends StatelessWidget {
             visible: drawerOpen,
             child: SizeTransition(
               sizeFactor: openAnimation,
-              axisAlignment: -1.0,
+              axisAlignment: -1,
               child: Padding(
                 padding: EdgeInsets.only(bottom: keyboardPadding),
                 //добавил 15, при изменении drawerHeight ничего не происходило
@@ -99,22 +96,22 @@ class BottomBar extends StatelessWidget {
 
 class SearchButton extends StatelessWidget {
   const SearchButton({
-    super.key,
     required this.drawerOpen,
     required this.updateCameraPosition,
+    super.key,
   });
   final bool drawerOpen;
   final Function(Pin) updateCameraPosition;
 
   @override
   Widget build(BuildContext context) {
-    Set<Pin> pins = context.findAncestorStateOfType<MapScreenState>()!.pins;
+    final Set<Pin> pins = context.findAncestorStateOfType<MapScreenState>()!.pins;
     return Visibility(
       visible: !drawerOpen,
       child: IconButton(
         iconSize: 40,
         onPressed: () async {
-          Pin? pin = await showSearch(
+          final Pin? pin = await showSearch(
             context: context,
             delegate: MapSearchDelegate(pins),
           );
@@ -133,7 +130,7 @@ class SearchButton extends StatelessWidget {
 }
 
 class MeetingsButton extends StatelessWidget {
-  const MeetingsButton({super.key, required this.drawerOpen});
+  const MeetingsButton({required this.drawerOpen, super.key});
   final bool drawerOpen;
 
   @override

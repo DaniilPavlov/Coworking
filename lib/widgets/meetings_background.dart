@@ -3,72 +3,72 @@ import 'package:flutter/material.dart';
 class BackgroundMeetings extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    var screenWidth = size.width;
-    var screenHeight = size.height;
-    var paint = Paint();
+    final screenWidth = size.width;
+    final screenHeight = size.height;
+    final paint = Paint();
 
-    Path mainBackground = Path();
-    mainBackground.addRect(Rect.fromLTRB(0, 0, screenWidth, screenHeight));
+    final Path mainBackground = Path()
+    ..addRect(Rect.fromLTRB(0, 0, screenWidth, screenHeight));
     paint.color = Colors.grey.shade100;
     canvas.drawPath(mainBackground, paint);
 
     // Yellow
-    Path yellowWave = Path();
-    yellowWave.lineTo(0, screenHeight);
-    yellowWave.lineTo(screenWidth, screenHeight);
-    yellowWave.cubicTo(
+    final Path yellowWave = Path()
+    ..lineTo(0, screenHeight)
+    ..lineTo(screenWidth, screenHeight)
+    ..cubicTo(
       screenWidth * 0.6,
       screenHeight * 0.05,
       screenWidth * 0.27,
       screenHeight * 0.01,
       screenWidth * 0.18,
       screenHeight * 0.12,
-    );
-    yellowWave.quadraticBezierTo(
+    )
+    ..quadraticBezierTo(
       screenWidth * 0.12,
       screenHeight * 0.2,
       0,
       screenHeight * 0.2,
-    );
-    yellowWave.close();
+    )
+    ..close();
     paint.color = Colors.orange.shade300;
     canvas.drawPath(yellowWave, paint);
 
     // Blue
-    Path blueWave = Path();
-    blueWave.lineTo(screenWidth, 0);
-    blueWave.lineTo(screenWidth, screenHeight);
-    blueWave.quadraticBezierTo(
+    final Path blueWave = Path()
+    ..lineTo(screenWidth, 0)
+    ..lineTo(screenWidth, screenHeight)
+    ..quadraticBezierTo(
       screenWidth * 0.5,
       screenHeight * 0.75,
       screenWidth * 0.2,
       0,
-    );
-    blueWave.close();
+    )
+    ..close();
     paint.color = Colors.blue.shade300;
     canvas.drawPath(blueWave, paint);
 
     // Grey
-    Path greyWave = Path();
-    greyWave.lineTo(screenWidth, 0);
-    greyWave.lineTo(screenWidth, screenHeight * 0.1);
-    greyWave.cubicTo(
+    final Path greyWave = Path()
+    ..lineTo(screenWidth, 0)
+    ..lineTo(screenWidth, screenHeight * 0.1)
+    ..cubicTo(
       screenWidth * 0.95,
       screenHeight * 0.15,
       screenWidth * 0.65,
       screenHeight * 0.15,
       screenWidth * 0.6,
       screenHeight * 0.38,
-    );
-    greyWave.cubicTo(
+    )
+    ..cubicTo(
       screenWidth * 0.52,
       screenHeight * 0.52,
       screenWidth * 0.05,
       screenHeight * 0.45,
       0,
       screenHeight * 0.4,
-    );
-    greyWave.close();
+    )
+    ..close();
     paint.color = Colors.grey.shade800;
     canvas.drawPath(greyWave, paint);
   }

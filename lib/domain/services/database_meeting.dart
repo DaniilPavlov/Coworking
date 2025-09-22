@@ -1,17 +1,18 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/domain/entities/account.dart';
 import 'package:coworking/domain/entities/meeting.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:flutter/services.dart';
 
 class DatabaseMeeting {
   final _firestore = FirebaseFirestore.instance;
 
   Future addMeeting(Meeting meeting) async {
     String retVal = 'error';
-    List<String?> members = [];
-    List<String?> tokens = [];
+    final List<String?> members = [];
+    final List<String?> tokens = [];
     try {
       members.add(Account.currentAccount?.id);
       tokens.add(Account.currentAccount?.notifyToken);
@@ -35,7 +36,7 @@ class DatabaseMeeting {
   Future editMeeting(Meeting meeting) async {
     String retVal = 'error';
     try {
-      FirebaseFirestore.instance.collection('meetings').doc(meeting.id).update(
+      await FirebaseFirestore.instance.collection('meetings').doc(meeting.id).update(
         {'place': meeting.place, 'description': meeting.description, 'dateCompleted': meeting.dateCompleted},
       );
       retVal = 'success';
@@ -49,7 +50,7 @@ class DatabaseMeeting {
   Future changeInfoNotify(Meeting meeting) async {
     String retVal = 'error';
     try {
-      FirebaseFirestore.instance.collection('meetings').doc(meeting.id).update(
+      await FirebaseFirestore.instance.collection('meetings').doc(meeting.id).update(
         {
           'dateCompleted': meeting.dateCompleted,
         },
@@ -70,7 +71,7 @@ class DatabaseMeeting {
       meeting.notify = true;
     }
     try {
-      FirebaseFirestore.instance.collection('meetings').doc(meeting.id).update(
+      await FirebaseFirestore.instance.collection('meetings').doc(meeting.id).update(
         {'notify': meeting.notify},
       );
       retVal = 'success';
@@ -81,7 +82,7 @@ class DatabaseMeeting {
   }
 
   Future<bool> isMeetingOwner(Meeting meeting) {
-    DocumentReference docRef = FirebaseFirestore.instance.collection('meetings').doc(meeting.id);
+    final DocumentReference docRef = FirebaseFirestore.instance.collection('meetings').doc(meeting.id);
     return docRef.get().then((datasnapshot) {
       if (datasnapshot['author'].toString() == Account.currentAccount!.id) {
         return true;
@@ -103,10 +104,10 @@ class DatabaseMeeting {
         .orderBy('dateCompleted', descending: false)
         .snapshots()
         .map((querySnapshot) {
-      List<Meeting> meetings = [];
-      for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
-        Map<String, dynamic>? meetingMap = documentSnapshot.data() as Map<String, dynamic>?;
-        Meeting meeting = Meeting.fromMap(documentSnapshot.id, meetingMap!);
+      final List<Meeting> meetings = [];
+      for (final DocumentSnapshot documentSnapshot in querySnapshot.docs) {
+        final Map<String, dynamic>? meetingMap = documentSnapshot.data() as Map<String, dynamic>?;
+        final Meeting meeting = Meeting.fromMap(documentSnapshot.id, meetingMap!);
         // meeting.pin = await getPinByID(meetingMap["pinID"], context);
         meetings.add(meeting);
       }
@@ -116,8 +117,8 @@ class DatabaseMeeting {
 
   Future<String> joinMeeting(String meetingId) async {
     String retVal = 'error';
-    List<String?> members = [];
-    List<String?> tokens = [];
+    final List<String?> members = [];
+    final List<String?> tokens = [];
     try {
       members.add(Account.currentAccount?.id);
       tokens.add(Account.currentAccount?.notifyToken);
@@ -134,9 +135,9 @@ class DatabaseMeeting {
     return retVal;
   }
 
-  static void leaveMeeting(String meetingId) async {
-    List<String?> members = [];
-    List<String?> tokens = [];
+  static Future<void> leaveMeeting(String meetingId) async {
+    final List<String?> members = [];
+    final List<String?> tokens = [];
     try {
       members.add(Account.currentAccount?.id);
       tokens.add(Account.currentAccount?.notifyToken);

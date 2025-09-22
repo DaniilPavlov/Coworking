@@ -1,18 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/domain/entities/account.dart';
-import 'package:coworking/domain/services/database_meeting.dart';
-import 'package:flutter/material.dart';
 import 'package:coworking/domain/entities/meeting.dart';
+import 'package:coworking/domain/services/database_meeting.dart';
 import 'package:coworking/screens/meetings/new_meeting_form.dart';
-import 'package:coworking/widgets/toast.dart';
 import 'package:coworking/utils/time_left.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:coworking/widgets/meetings_background.dart';
 import 'package:coworking/widgets/shadow_container.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:coworking/widgets/toast.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class MeetingInfo extends StatefulWidget {
-  const MeetingInfo({super.key, required this.meeting});
+  const MeetingInfo({required this.meeting, super.key});
   final Meeting meeting;
 
   @override
@@ -46,11 +46,9 @@ class MeetingInfoState extends State<MeetingInfo> {
           } else {
             buildToast('Вы не автор!');
           }
-          break;
         case 'Скопировать ключ':
           Clipboard.setData(ClipboardData(text: widget.meeting.id ?? ''));
           buildToast('Вы скопировали ключ!${widget.meeting.id!}');
-          break;
         case 'Покинуть':
           if (widget.meeting.author.id == Account.currentAccount!.id) {
             showDialog(
@@ -116,7 +114,6 @@ class MeetingInfoState extends State<MeetingInfo> {
               ),
             );
           }
-          break;
         case 'Удалить':
           if (widget.meeting.author.id == Account.currentAccount!.id) {
             showDialog(
@@ -154,7 +151,6 @@ class MeetingInfoState extends State<MeetingInfo> {
           } else {
             buildToast('Вы не автор!');
           }
-          break;
       }
     }
 
@@ -162,7 +158,6 @@ class MeetingInfoState extends State<MeetingInfo> {
       return SpeedDial(
         icon: Icons.notifications,
         backgroundColor: Colors.orange,
-        visible: true,
         curve: Curves.bounceIn,
         children: [
           // FAB 1
@@ -173,7 +168,7 @@ class MeetingInfoState extends State<MeetingInfo> {
               await DatabaseMeeting().timeNotify(widget.meeting);
             },
             label: 'Напомнить о встрече',
-            labelStyle: const TextStyle(fontWeight: FontWeight.w500, color: Colors.white, fontSize: 16.0),
+            labelStyle: const TextStyle(fontWeight: FontWeight.w500, color: Colors.white, fontSize: 16),
             labelBackgroundColor: Colors.orange,
           ),
           // FAB 2
@@ -197,7 +192,7 @@ class MeetingInfoState extends State<MeetingInfo> {
               await DatabaseMeeting().changeInfoNotify(widget.meeting);
             },
             label: 'Информация о встрече изменилась',
-            labelStyle: const TextStyle(fontWeight: FontWeight.w500, color: Colors.white, fontSize: 16.0),
+            labelStyle: const TextStyle(fontWeight: FontWeight.w500, color: Colors.white, fontSize: 16),
             labelBackgroundColor: Colors.orange,
           ),
         ],
@@ -227,14 +222,14 @@ class MeetingInfoState extends State<MeetingInfo> {
         painter: BackgroundMeetings(),
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 80, top: 20),
+            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 80, top: 20),
             child: ShadowContainer(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   const Text(
                     'Место проведения:',
-                    textScaler: TextScaler.linear(2.0),
+                    textScaler: TextScaler.linear(2),
                     textAlign: TextAlign.center,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -243,7 +238,7 @@ class MeetingInfoState extends State<MeetingInfo> {
                   ),
                   Text(
                     widget.meeting.place,
-                    textScaler: const TextScaler.linear(2.0),
+                    textScaler: const TextScaler.linear(2),
                     style: const TextStyle(fontStyle: FontStyle.italic),
                   ),
                   const Divider(
@@ -252,7 +247,7 @@ class MeetingInfoState extends State<MeetingInfo> {
                   ),
                   const Text(
                     'Описание:',
-                    textScaler: TextScaler.linear(2.0),
+                    textScaler: TextScaler.linear(2),
                     textAlign: TextAlign.center,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -261,7 +256,6 @@ class MeetingInfoState extends State<MeetingInfo> {
                   ),
                   Expanded(
                     child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
                       child: Text(
                         widget.meeting.description,
                         textScaler: const TextScaler.linear(1.5),

@@ -1,13 +1,13 @@
+import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/domain/services/database_review.dart';
-import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/screens/map/pin/review/review_widget_model.dart';
 import 'package:coworking/utils/format_date.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ReviewWidget extends StatelessWidget {
-  const ReviewWidget({super.key, required this.review});
+  const ReviewWidget({required this.review, super.key});
   final Review review;
 
   @override
@@ -25,11 +25,10 @@ class _ReviewWidgetView extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<ReviewWidgetModel>();
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 16),
       child: InkWell(
         onTap: () => showModalBottomSheet(
           context: context,
-          // TODO: check widget
           isScrollControlled: true,
           builder: (_) {
             return ChangeNotifierProvider.value(
@@ -38,7 +37,9 @@ class _ReviewWidgetView extends StatelessWidget {
                 future: DatabaseReview.isReviewOwner(model.review),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return (snapshot.data == true) ? const _AuthorsReviewInfoWidget() : const _OthersReviewInfoWidget();
+                    return (snapshot.data ?? false)
+                        ? const _AuthorsReviewInfoWidget()
+                        : const _OthersReviewInfoWidget();
                   } else {
                     return const Center(child: CircularProgressIndicator());
                   }
@@ -66,7 +67,7 @@ class _AuthorsReviewInfoWidget extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () async {
-              var errorSave = await model.saveReview();
+              final errorSave = await model.saveReview();
               if (errorSave && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -94,11 +95,11 @@ class _AuthorsReviewInfoWidget extends StatelessWidget {
               maxLines: 3,
               decoration: const InputDecoration(
                 hintText: 'Отзыв',
-                contentPadding: EdgeInsets.all(8.0),
+                contentPadding: EdgeInsets.all(8),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 children: const <Widget>[
                   _ReviewCheckBoxes(),
@@ -245,10 +246,9 @@ class _DeleteReviewButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<ReviewWidgetModel>();
     return ButtonTheme(
-      minWidth: 120.0,
-      height: 50.0,
+      minWidth: 120,
+      height: 50,
       child: ElevatedButton(
-        // TODO: check change notifier, error during dispose
         onPressed: () async {
           DatabaseReview.deleteReview(model.review);
           Navigator.of(context).pop(context);
@@ -261,7 +261,7 @@ class _DeleteReviewButton extends StatelessWidget {
           'Удалить',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 26.0,
+            fontSize: 26,
           ),
         ),
       ),
@@ -290,13 +290,13 @@ class _OthersReviewInfoWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Container(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8),
                     child: Row(
                       children: const <Widget>[
                         Expanded(
@@ -309,7 +309,7 @@ class _OthersReviewInfoWidget extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
+                    padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
                     child: Row(
                       children: <Widget>[
                         Expanded(
@@ -319,7 +319,7 @@ class _OthersReviewInfoWidget extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8),
                     child: Row(
                       children: <Widget>[
                         Expanded(
@@ -332,7 +332,7 @@ class _OthersReviewInfoWidget extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8),
                     child: Container(
                       alignment: Alignment.centerLeft,
                       child: Text(

@@ -1,12 +1,12 @@
 import 'package:coworking/domain/entities/account.dart';
-import 'package:coworking/domain/services/database_meeting.dart';
-import 'package:flutter/material.dart';
 import 'package:coworking/domain/entities/meeting.dart';
-import 'package:coworking/screens/meetings/new_meeting_form.dart';
-import 'package:coworking/screens/meetings/meeting_tile.dart';
+import 'package:coworking/domain/services/database_meeting.dart';
 import 'package:coworking/screens/meetings/join_meeting.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:coworking/screens/meetings/meeting_tile.dart';
+import 'package:coworking/screens/meetings/new_meeting_form.dart';
 import 'package:coworking/widgets/meetings_background.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class UserMeetingsPage extends StatelessWidget {
   const UserMeetingsPage({super.key});
@@ -15,7 +15,6 @@ class UserMeetingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: true,
         title: const Text('Ваши встречи'),
         leading: IconButton(
           icon: const Icon(
@@ -62,7 +61,6 @@ class MeetingLayoutState extends State<MeetingLayout> {
       animatedIcon: AnimatedIcons.menu_close,
       animatedIconTheme: const IconThemeData(size: 22),
       backgroundColor: Colors.orange,
-      visible: true,
       curve: Curves.bounceIn,
       children: [
         // FAB 1
@@ -79,7 +77,7 @@ class MeetingLayoutState extends State<MeetingLayout> {
           labelStyle: const TextStyle(
             fontWeight: FontWeight.w500,
             color: Colors.white,
-            fontSize: 16.0,
+            fontSize: 16,
           ),
           labelBackgroundColor: Colors.orange,
         ),
@@ -92,7 +90,7 @@ class MeetingLayoutState extends State<MeetingLayout> {
               context,
               MaterialPageRoute(
                 builder: (context) => const NewMeetingForm(
-                  meeting: null,
+                  
                 ),
               ),
             );
@@ -101,7 +99,7 @@ class MeetingLayoutState extends State<MeetingLayout> {
           labelStyle: const TextStyle(
             fontWeight: FontWeight.w500,
             color: Colors.white,
-            fontSize: 16.0,
+            fontSize: 16,
           ),
           labelBackgroundColor: Colors.orange,
         ),
@@ -109,7 +107,7 @@ class MeetingLayoutState extends State<MeetingLayout> {
     );
   }
 
-  var meetingFormKey = GlobalKey<NewMeetingFormState>();
+  GlobalKey<NewMeetingFormState> meetingFormKey = GlobalKey<NewMeetingFormState>();
 
   @override
   Widget build(BuildContext context) {

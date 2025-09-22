@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/domain/entities/account.dart';
+import 'package:coworking/domain/entities/category.dart';
 import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/domain/services/database_review.dart';
 import 'package:coworking/navigation/main_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:coworking/domain/entities/category.dart';
 
 class Pin {
   Pin(
@@ -52,7 +52,7 @@ class Pin {
 
   void incVisitorCount() {
     _visitorCount++;
-    // TODO: add visits
+    // TODO(feature): add visits
   }
 
   Marker _createMarker(BuildContext context) {
@@ -76,7 +76,7 @@ class Pin {
     Category category,
     double rating,
   ) {
-    Map<String, dynamic> pin = {};
+    final Map<String, dynamic> pin = {};
     pin['name'] = name;
     pin['location'] = GeoPoint(location.latitude, location.longitude);
     pin['visitorCount'] = 0;
@@ -88,9 +88,10 @@ class Pin {
   }
 
   static Pin fromMap(String id, Map<String, dynamic> pinMap, Review? review, BuildContext context) {
+    final geoPoint = pinMap['location'] as GeoPoint;
     return Pin(
       id,
-      LatLng(pinMap['location'].latitude, pinMap['location'].longitude),
+      LatLng(geoPoint.latitude, geoPoint.longitude),
       Account(pinMap['author']),
       pinMap['name'],
       pinMap['imageUrl'],

@@ -15,7 +15,7 @@ class UserReviewsListItem extends ListTile {
           Navigator.pushNamed(context, MainNavigationRouteNames.pinDetails, arguments: review.pin);
         },
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(10),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -40,7 +40,6 @@ class UserReviewsListItem extends ListTile {
                 ),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         review.pin!.name,

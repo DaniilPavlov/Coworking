@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:coworking/domain/services/sign_in.dart';
 import 'package:coworking/navigation/main_navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,7 +19,7 @@ class LoginModel extends ChangeNotifier {
   Future<void> auth(BuildContext context) async {
     _isAuthProgress = true;
     notifyListeners();
-    User? user = await SignIn().signInWithGoogle();
+    final User? user = await SignIn().signInWithGoogle();
     if (user == null) {
       debugPrint('Ошибка подключения');
       _errorMessage = 'Ошибка подключения, попробуйте снова';
@@ -32,7 +34,7 @@ class LoginModel extends ChangeNotifier {
     _isAuthProgress = false;
     notifyListeners();
     if (context.mounted) {
-      Navigator.of(context).pushNamed(MainNavigationRouteNames.mapScreen);
+      unawaited(Navigator.of(context).pushNamed(MainNavigationRouteNames.mapScreen));
     }
   }
 }

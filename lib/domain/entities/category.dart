@@ -1,7 +1,7 @@
+import 'package:coworking/domain/entities/option.dart';
 import 'package:flutter/material.dart';
 
-import 'package:coworking/domain/entities/option.dart';
-
+// ignore: must_be_immutable
 class Category extends Option {
   Category(String name, Color colour) : super(text: name, colour: colour);
 

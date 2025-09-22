@@ -1,10 +1,10 @@
 class TimeLeft {
   String timeLeft(DateTime due) {
     String retVal;
-    Duration timeUntilDue = due.difference(DateTime.now());
-    int daysUntil = timeUntilDue.inDays;
-    int hoursUntil = timeUntilDue.inHours - (daysUntil * 24);
-    int minUntil = timeUntilDue.inMinutes - (daysUntil * 24 * 60) - (hoursUntil * 60);
+    final Duration timeUntilDue = due.difference(DateTime.now());
+    final int daysUntil = timeUntilDue.inDays;
+    final int hoursUntil = timeUntilDue.inHours - (daysUntil * 24);
+    final int minUntil = timeUntilDue.inMinutes - (daysUntil * 24 * 60) - (hoursUntil * 60);
     if (daysUntil > 0) {
       retVal = 'дней: $daysUntil, часов: $hoursUntil, минут: $minUntil';
     } else if (hoursUntil > 0) {

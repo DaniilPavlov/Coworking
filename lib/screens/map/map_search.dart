@@ -30,8 +30,8 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
 
   @override
   Widget buildResults(BuildContext context) {
-    List<Pin> results = <Pin>[];
-    for (Pin pin in pins) {
+    final List<Pin> results = <Pin>[];
+    for (final Pin pin in pins) {
       if (pin.name.contains(RegExp(query, caseSensitive: false))) {
         results.add(pin);
       }
@@ -71,9 +71,9 @@ class MapSearchDelegate extends SearchDelegate<Pin> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    List<Pin> suggestions = <Pin>[];
+    final List<Pin> suggestions = <Pin>[];
 
-    for (Pin pin in pins) {
+    for (final Pin pin in pins) {
       // если в названии пина есть заданный набор букв - выводим
       if (pin.name.contains(RegExp(query, caseSensitive: false)) || distance.distance(pin.name, query) < 4) {
         suggestions.add(pin);

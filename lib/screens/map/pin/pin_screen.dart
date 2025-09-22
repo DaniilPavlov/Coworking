@@ -1,22 +1,22 @@
 import 'dart:io';
 
+import 'package:coworking/domain/entities/category.dart';
+import 'package:coworking/domain/entities/pin.dart';
+import 'package:coworking/domain/entities/review.dart';
 import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/domain/services/database_review.dart';
 import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/screens/map/pin/pin_screen_model.dart';
+import 'package:coworking/screens/map/pin/review/review_form.dart';
+import 'package:coworking/screens/map/pin/review/review_widget.dart';
 import 'package:coworking/widgets/custom_progress_indicator.dart';
 import 'package:coworking/widgets/google_map_button.dart';
-import 'package:flutter/material.dart';
-import 'package:coworking/domain/entities/category.dart';
-import 'package:coworking/domain/entities/pin.dart';
-import 'package:coworking/domain/entities/review.dart';
-import 'package:coworking/screens/map/pin/review/review_widget.dart';
-import 'package:coworking/screens/map/pin/review/review_form.dart';
 import 'package:coworking/widgets/radio_button_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class PinScreen extends StatelessWidget {
-  const PinScreen({super.key, required this.pin});
+  const PinScreen({required this.pin, super.key});
   final Pin pin;
 
   @override
@@ -35,7 +35,6 @@ class _PinScreenView extends StatelessWidget {
     final model = context.watch<PinScreenModel>();
 
     return Scaffold(
-      // appBar: AppBar(backgroundColor: Colors.orange,),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: const _FloatingReviewButton(),
       body: CustomScrollView(
@@ -47,7 +46,7 @@ class _PinScreenView extends StatelessWidget {
               children: <Widget>[
                 const _PinNameWidget(),
                 Row(
-                  children: const <Widget>[
+                  children: const [
                     _CategoryChipWidget(),
                     _WholeTimeRateWidget(),
                   ],
@@ -82,14 +81,13 @@ class _ReviewsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<PinScreenModel>();
-    // TODO: now only last reviews are deleting, fix it
     return StreamBuilder<List<Review>>(
       stream: DatabaseReview.fetchReviewsForPin(model.pin),
       builder: (context, snapshot) {
         return snapshot.hasData
             ? SliverList(
                 delegate: SliverChildBuilderDelegate(
-                  (context, i) => ReviewWidget(review: snapshot.data![i]),
+                  (context, i) => ReviewWidget(key: ValueKey(snapshot.data![i].id), review: snapshot.data![i]),
                   childCount: snapshot.data!.length,
                 ),
               )
@@ -109,7 +107,7 @@ class _PinNameWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = context.watch<PinScreenModel>();
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
+      padding: const EdgeInsets.only(top: 8),
       child: Text(
         model.pin.name,
         overflow: TextOverflow.ellipsis,
@@ -130,9 +128,9 @@ class _WholeTimeRateWidget extends StatelessWidget {
       stream: DatabasePin.fetchPin(model.pin.id),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          model.pin.rating = snapshot.data as double;
+          model.pin.rating = snapshot.data!;
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.only(left: 8, right: 16),
             child: Text(
               'Рейтинг: ${model.pin.rating} / 10',
             ),
@@ -157,7 +155,6 @@ class _FloatingReviewButton extends StatelessWidget {
       child: const Icon(Icons.create),
       onPressed: () => showModalBottomSheet(
         context: context,
-        // TODO: check widget
         isScrollControlled: true,
         builder: (_) => Scaffold(
           appBar: AppBar(
@@ -186,19 +183,18 @@ class _PinAppBar extends StatelessWidget {
     final model = context.watch<PinScreenModel>();
     return SliverAppBar(
       pinned: true,
-      floating: false,
       backgroundColor: Colors.orange,
       expandedHeight: 350,
       actions: <Widget>[
-        Container(
-          decoration: const BoxDecoration(
+        const DecoratedBox(
+          decoration: BoxDecoration(
             color: Colors.orange,
             borderRadius: BorderRadius.all(
               Radius.circular(18),
             ),
           ),
           child: Row(
-            children: const [
+            children: [
               _FavouriteButton(),
               _EditPinButton(),
             ],
@@ -226,15 +222,17 @@ class _FavouriteButton extends StatelessWidget {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Container();
-        } else if (snapshot.data == true) {
-          model.visitedText = 'В избранном';
-          model.visitedColor = Colors.yellow;
+        } else if (snapshot.data ?? false) {
+          model
+            ..visitedText = 'В избранном'
+            ..visitedColor = Colors.yellow;
         } else {
-          model.visitedText = 'Добавить в избранное';
-          model.visitedColor = Colors.grey;
+          model
+            ..visitedText = 'Добавить в избранное'
+            ..visitedColor = Colors.grey;
         }
         return Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8),
           child: ElevatedButton(
             onPressed: () {
               if (snapshot.data == false) {
@@ -247,7 +245,7 @@ class _FavouriteButton extends StatelessWidget {
               backgroundColor: WidgetStateProperty.all(model.visitedColor),
               shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0),
+                  borderRadius: BorderRadius.circular(18),
                 ),
               ),
             ),
@@ -270,7 +268,7 @@ class _EditPinButton extends StatelessWidget {
       return IconButton(
         icon: const Icon(Icons.save),
         onPressed: () async {
-          var errorSave = await model.savePin();
+          final errorSave = await model.savePin();
           if (errorSave && context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -303,7 +301,7 @@ class _EditPinButton extends StatelessWidget {
                     onTap: () async {
                       await model.setNewPhoto();
                     },
-                    // TODO: can't switch widgets after uploading photo
+                    // TODO(check): can't switch widgets after uploading photo
                     child: model.newPhotoPath == ''
                         ? Image.network(
                             model.pin.imageUrl,
@@ -331,7 +329,7 @@ class _EditPinButton extends StatelessWidget {
                     validator: (text) => text!.isEmpty ? 'Необходимо название места' : null,
                     decoration: const InputDecoration(
                       hintText: 'Название места',
-                      contentPadding: EdgeInsets.all(8.0),
+                      contentPadding: EdgeInsets.all(8),
                     ),
                   ),
                   Padding(
@@ -355,7 +353,7 @@ class _EditPinButton extends StatelessWidget {
                         'Удалить',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 16.0,
+                          fontSize: 16,
                         ),
                       ),
                     ),
@@ -372,7 +370,7 @@ class _EditPinButton extends StatelessWidget {
       future: DatabasePin.isPinOwner(model.pin),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return (snapshot.data == true)
+          return (snapshot.data ?? false)
               ? WillPopScope(
                   onWillPop: () async {
                     return true;
@@ -386,7 +384,6 @@ class _EditPinButton extends StatelessWidget {
                     ),
                     onPressed: () => showModalBottomSheet(
                       context: context,
-                      // TODO: check widget
                       isScrollControlled: true,
                       builder: (_) => editPinForm(),
                     ),
@@ -410,7 +407,7 @@ class _CategoryChipWidget extends StatelessWidget {
     return Row(
       children: [
         const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          padding: EdgeInsets.only(left: 16, right: 8),
           child: Text('Категория:'),
         ),
         Chip(
@@ -442,11 +439,12 @@ class _ThreeMonthRateWidget extends StatelessWidget {
           stream: DatabasePin.calculateThreeMonthRate(model.pin.id),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              model.threeMonthStats = snapshot.data as List<double>;
+              debugPrint('banan ${snapshot.data}');
+              model.threeMonthStats = snapshot.data!;
               return (snapshot.hasData)
                   ? GridView.count(
                       physics: const NeverScrollableScrollPhysics(),
-                      childAspectRatio: 6,
+                      childAspectRatio: 4,
                       crossAxisCount: 2,
                       shrinkWrap: true,
                       padding: const EdgeInsets.only(left: 16, right: 16),
@@ -458,7 +456,9 @@ class _ThreeMonthRateWidget extends StatelessWidget {
                         Container(
                           alignment: Alignment.center,
                           child: Text(
-                            '${model.threeMonthStats.elementAt(1)}% ответили да',
+                            model.threeMonthStats.elementAt(1).isNaN
+                                ? 'Нет данных'
+                                : '${model.threeMonthStats.elementAt(1)}% ответили да',
                           ),
                         ),
                         Container(
@@ -468,7 +468,9 @@ class _ThreeMonthRateWidget extends StatelessWidget {
                         Container(
                           alignment: Alignment.center,
                           child: Text(
-                            '${model.threeMonthStats.elementAt(2)}% ответили да',
+                            model.threeMonthStats.elementAt(2).isNaN
+                                ? 'Нет данных'
+                                : '${model.threeMonthStats.elementAt(2)}% ответили да',
                           ),
                         ),
                         Container(
@@ -478,7 +480,9 @@ class _ThreeMonthRateWidget extends StatelessWidget {
                         Container(
                           alignment: Alignment.center,
                           child: Text(
-                            '${model.threeMonthStats.elementAt(3)}% ответили да',
+                            model.threeMonthStats.elementAt(3).isNaN
+                                ? 'Нет данных'
+                                : '${model.threeMonthStats.elementAt(3)}% ответили да',
                           ),
                         ),
                         Container(
@@ -488,7 +492,9 @@ class _ThreeMonthRateWidget extends StatelessWidget {
                         Container(
                           alignment: Alignment.center,
                           child: Text(
-                            '${model.threeMonthStats.elementAt(4)}% ответили да',
+                            model.threeMonthStats.elementAt(4).isNaN
+                                ? 'Нет данных'
+                                : '${model.threeMonthStats.elementAt(4)}% ответили да',
                           ),
                         ),
                         Container(
@@ -498,7 +504,9 @@ class _ThreeMonthRateWidget extends StatelessWidget {
                         Container(
                           alignment: Alignment.center,
                           child: Text(
-                            '${model.threeMonthStats.elementAt(0)}/10',
+                            model.threeMonthStats.elementAt(0).isNaN
+                                ? 'Нет данных'
+                                : '${model.threeMonthStats.elementAt(0)}/10',
                           ),
                         ),
                       ],

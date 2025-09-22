@@ -11,7 +11,7 @@ class FlaggedReviewsListItem extends ListTile {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -30,7 +30,7 @@ class FlaggedReviewsListItem extends ListTile {
               color: Colors.green,
               semanticLabel: 'Allow',
             ),
-            iconSize: 40.0,
+            iconSize: 40,
             color: Colors.grey[600],
             onPressed: () {
               DatabaseReview.justifyFlag(review.id!);
@@ -41,7 +41,7 @@ class FlaggedReviewsListItem extends ListTile {
               Icons.delete,
               semanticLabel: 'Delete',
             ),
-            iconSize: 40.0,
+            iconSize: 40,
             color: Colors.red,
             onPressed: () {
               DatabaseReview.deleteReview(review);
@@ -59,8 +59,7 @@ class _ReviewBody extends ListTile {
     required this.date,
     required this.comment,
   });
-  // ignore: annotate_overrides, overridden_fields
-  final bool enabled = true;
+
   final String name;
   final DateTime date;
   final String comment;
@@ -68,7 +67,7 @@ class _ReviewBody extends ListTile {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,

@@ -37,7 +37,7 @@ class Meeting {
   }
 
   Map<String, dynamic> asMap() {
-    Map<String, dynamic> meeting = {};
+    final Map<String, dynamic> meeting = {};
     meeting['place'] = place;
     meeting['description'] = description;
     meeting['author'] = author.id;

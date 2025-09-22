@@ -7,7 +7,6 @@ class Account {
     this.id, {
     email,
     userName,
-    notifyToken,
   }) {
     _email = email;
     _userName = userName;
@@ -32,12 +31,12 @@ class Account {
     if (_userName != null) {
       return _userName!;
     } else {
-      return await DatabaseAccount.fetchUserNameByID(id);
+      return DatabaseAccount.fetchUserNameByID(id);
     }
   }
 
   Map<String, dynamic> asMap() {
-    Map<String, dynamic> accountMap = {};
+    final Map<String, dynamic> accountMap = {};
     accountMap['userID'] = id;
     accountMap['name'] = _userName;
     accountMap['email'] = _email;

@@ -18,7 +18,7 @@ class FavouritePinsListItem extends ListTile {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(10),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -43,7 +43,6 @@ class FavouritePinsListItem extends ListTile {
                 ),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         pin.name,

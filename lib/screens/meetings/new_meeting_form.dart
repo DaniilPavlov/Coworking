@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coworking/domain/entities/account.dart';
+import 'package:coworking/domain/entities/meeting.dart';
 import 'package:coworking/domain/services/database_meeting.dart';
+import 'package:coworking/widgets/meetings_background.dart';
 import 'package:coworking/widgets/shadow_container.dart';
 import 'package:coworking/widgets/toast.dart';
 import 'package:flutter/material.dart';
-import 'package:coworking/domain/entities/meeting.dart';
 import 'package:intl/intl.dart';
-import 'package:coworking/widgets/meetings_background.dart';
 
 class NewMeetingForm extends StatefulWidget {
   const NewMeetingForm({super.key, this.meeting});
@@ -56,13 +56,13 @@ class NewMeetingFormState extends State<NewMeetingForm> with AutomaticKeepAliveC
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate =
-            DateTime(picked.year, picked.month, picked.day, _selectedTime.hour, _selectedTime.minute, 0, 0, 0);
+            DateTime(picked.year, picked.month, picked.day, _selectedTime.hour, _selectedTime.minute);
       });
     }
   }
 
   Future _selectTime() async {
-    TimeOfDay? pickedTime = await showTimePicker(
+    final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: _selectedTime,
       builder: (BuildContext context, Widget? child) => MediaQuery(
@@ -80,15 +80,12 @@ class NewMeetingFormState extends State<NewMeetingForm> with AutomaticKeepAliveC
           _selectedDate.day,
           _selectedTime.hour,
           _selectedTime.minute,
-          0,
-          0,
-          0,
         );
       });
     }
   }
 
-  void _editMeeting(BuildContext context, Meeting meeting) async {
+  Future<void> _editMeeting(BuildContext context, Meeting meeting) async {
     String returnString;
     if (_selectedDate.isAfter(DateTime.now().add(const Duration(hours: 2)))) {
       returnString = await DatabaseMeeting().editMeeting(meeting);
@@ -103,11 +100,11 @@ class NewMeetingFormState extends State<NewMeetingForm> with AutomaticKeepAliveC
         }
       }
     } else {
-      buildToast('До начала всего 2 часа, это слишком мало!');
+      await buildToast('До начала всего 2 часа, это слишком мало!');
     }
   }
 
-  void _addMeeting(BuildContext context, Meeting meeting) async {
+  Future<void> _addMeeting(BuildContext context, Meeting meeting) async {
     String returnString;
 
     ///возможно изменить время для начала
@@ -118,7 +115,7 @@ class NewMeetingFormState extends State<NewMeetingForm> with AutomaticKeepAliveC
         Navigator.pop(context);
       }
     } else {
-      buildToast('До начала всего 2 часа, это слишком мало!');
+      await buildToast('До начала всего 2 часа, это слишком мало!');
     }
   }
 
@@ -132,7 +129,7 @@ class NewMeetingFormState extends State<NewMeetingForm> with AutomaticKeepAliveC
         child: ListView(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(20),
               child: Row(
                 children: const <Widget>[BackButton()],
               ),
@@ -141,7 +138,7 @@ class NewMeetingFormState extends State<NewMeetingForm> with AutomaticKeepAliveC
               height: 60,
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 20.0, right: 20, top: 60),
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 60),
               child: ShadowContainer(
                 child: Column(
                   children: <Widget>[
@@ -153,7 +150,7 @@ class NewMeetingFormState extends State<NewMeetingForm> with AutomaticKeepAliveC
                       ),
                     ),
                     const SizedBox(
-                      height: 20.0,
+                      height: 20,
                     ),
                     TextFormField(
                       controller: _meetingDescriptionController,
@@ -161,7 +158,7 @@ class NewMeetingFormState extends State<NewMeetingForm> with AutomaticKeepAliveC
                       maxLines: 3,
                       decoration: const InputDecoration(
                         hintText: 'Описание',
-                        contentPadding: EdgeInsets.all(8.0),
+                        contentPadding: EdgeInsets.all(8),
                       ),
                     ),
                     const SizedBox(
@@ -194,20 +191,20 @@ class NewMeetingFormState extends State<NewMeetingForm> with AutomaticKeepAliveC
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 20.0,
+                            fontSize: 20,
                           ),
                         ),
                       ),
                       onPressed: () {
-                        Meeting? meeting = Meeting(null, '', '', Account.currentAccount!, members, tokens, null, false);
+                        final Meeting meeting = Meeting(null, '', '', Account.currentAccount!, members, tokens, null, false);
                         if (_meetingPlaceController.text == '') {
                           buildToast('Требуется добавить место встречи');
                         } else if (_meetingDescriptionController.text == '') {
                           buildToast('Требуется добавить описание встречи');
                         } else {
-                          meeting.place = _meetingPlaceController.text;
-                          meeting.description = _meetingDescriptionController.text;
-                          meeting.dateCompleted = Timestamp.fromDate(_selectedDate);
+                          meeting..place = _meetingPlaceController.text
+                          ..description = _meetingDescriptionController.text
+                          ..dateCompleted = Timestamp.fromDate(_selectedDate);
                           if (isOld) {
                             meeting.id = widget.meeting!.id;
                             _editMeeting(context, meeting);

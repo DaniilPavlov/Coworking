@@ -1,8 +1,8 @@
-import 'package:coworking/domain/entities/pin.dart';
-import 'package:coworking/screens/menu/favourite_pins/favourite_pins_list.dart';
-import 'package:coworking/domain/services/database_pin.dart';
-import 'package:flutter/material.dart';
 import 'package:coworking/domain/entities/account.dart';
+import 'package:coworking/domain/entities/pin.dart';
+import 'package:coworking/domain/services/database_pin.dart';
+import 'package:coworking/screens/menu/favourite_pins/favourite_pins_list.dart';
+import 'package:flutter/material.dart';
 
 class FavouritePinsScreen extends StatelessWidget {
   const FavouritePinsScreen({super.key});
@@ -11,7 +11,6 @@ class FavouritePinsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: true,
         backgroundColor: Theme.of(context).primaryColor,
         title: const Text('Понравившиеся места'),
         leading: IconButton(
@@ -68,7 +67,7 @@ class BodyLayout extends StatelessWidget {
                     return ListView.builder(
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
-                        Pin pin = snapshot.data![index];
+                        final Pin pin = snapshot.data![index];
                         return FavouritePinsListItem(pin);
                       },
                     );

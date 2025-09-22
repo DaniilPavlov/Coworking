@@ -41,7 +41,6 @@ class MainNavigation {
     switch (settings.name) {
       case MainNavigationRouteNames.mapScreen:
         final arguments = settings.arguments;
-
         if (arguments == null) {
           return MaterialPageRoute(builder: (context) => MapScreen());
         }

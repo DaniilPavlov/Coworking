@@ -55,7 +55,7 @@ class PinFormState extends State<PinForm> with AutomaticKeepAliveClientMixin<Pin
             options: Category.all(),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 40.0, left: 20.0, right: 20.0),
+            padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
             child: TextFormField(
               controller: nameController,
               validator: (text) => text!.isEmpty ? 'Необходимо название места' : null,
@@ -63,7 +63,7 @@ class PinFormState extends State<PinForm> with AutomaticKeepAliveClientMixin<Pin
               decoration: const InputDecoration(
                 hintText: 'Название места',
                 border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.all(8.0),
+                contentPadding: EdgeInsets.all(8),
               ),
             ),
           ),
@@ -75,12 +75,12 @@ class PinFormState extends State<PinForm> with AutomaticKeepAliveClientMixin<Pin
   bool get isValid => formKey.currentState!.validate();
 
   Future<Pin> createPin(Review review) async {
-    File image = imagePickerKey.currentState!.value;
-    String name = nameController.text;
+    final File image = imagePickerKey.currentState!.value;
+    final String name = nameController.text;
 
-    Category category = categoryPickerKey.currentState!.value;
+    final Category category = categoryPickerKey.currentState!.value;
 
-    CameraPosition position = context.findAncestorStateOfType<MapScreenState>()!.currentMapPosition;
+    final CameraPosition position = context.findAncestorStateOfType<MapScreenState>()!.currentMapPosition;
     return DatabasePin.newPin(
       position.target,
       name,

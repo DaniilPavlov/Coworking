@@ -4,16 +4,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class DatabaseAccount {
-  var firebaseInstance = FirebaseFirestore.instance;
+  FirebaseFirestore firebaseInstance = FirebaseFirestore.instance;
 
   static void deleteUser(Account account) {
     FirebaseFirestore.instance.collection('meetings').where('author', isEqualTo: account.id).get().then((query) {
-      for (var document in query.docs) {
+      for (final document in query.docs) {
         document.reference.delete();
       }
     });
-    List<String?> members = [];
-    List<String?> tokens = [];
+    final List<String?> members = [];
+    final List<String?> tokens = [];
     members.add(Account.currentAccount!.id);
     tokens.add(Account.currentAccount!.notifyToken);
     FirebaseFirestore.instance
@@ -21,7 +21,7 @@ class DatabaseAccount {
         .where('tokens', arrayContains: account.notifyToken)
         .get()
         .then((query) {
-      for (var document in query.docs) {
+      for (final document in query.docs) {
         FirebaseFirestore.instance.collection('meetings').doc(document.id).update({
           'members': FieldValue.arrayRemove(members),
           'tokens': FieldValue.arrayRemove(tokens),
@@ -30,7 +30,7 @@ class DatabaseAccount {
     });
     debugPrint(account.id);
     FirebaseFirestore.instance.collection('users').where('userID', isEqualTo: account.id).get().then((query) {
-      for (var document in query.docs) {
+      for (final document in query.docs) {
         document.reference.delete();
       }
     });

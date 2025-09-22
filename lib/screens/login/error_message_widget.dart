@@ -1,7 +1,6 @@
+import 'package:coworking/screens/login/login_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'package:coworking/screens/login/login_model.dart';
 
 class ErrorMessageWidget extends StatelessWidget {
   const ErrorMessageWidget({super.key});
@@ -9,7 +8,7 @@ class ErrorMessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<LoginModel>();
-    if (model.errorMessage == null && model.isAuthProgress == false) {
+    if (model.errorMessage == null && !model.isAuthProgress) {
       return const SizedBox.shrink();
     }
     if (model.isAuthProgress) {
@@ -36,7 +35,7 @@ class ErrorMessageWidget extends StatelessWidget {
               ),
             ],
           ),
-          padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
           child: Center(
             child: Text(
               model.errorMessage!,

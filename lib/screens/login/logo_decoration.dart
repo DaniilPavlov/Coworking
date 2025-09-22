@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class LogoDecoration extends StatelessWidget {
-  const LogoDecoration({super.key, required this.child});
+  const LogoDecoration({required this.child, super.key});
   final Widget child;
 
   @override

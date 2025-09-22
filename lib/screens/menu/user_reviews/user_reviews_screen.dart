@@ -1,8 +1,8 @@
-import 'package:coworking/domain/entities/review.dart';
-import 'package:coworking/screens/menu/user_reviews/user_reviews_list.dart';
-import 'package:coworking/domain/services/database_review.dart';
-import 'package:flutter/material.dart';
 import 'package:coworking/domain/entities/account.dart';
+import 'package:coworking/domain/entities/review.dart';
+import 'package:coworking/domain/services/database_review.dart';
+import 'package:coworking/screens/menu/user_reviews/user_reviews_list.dart';
+import 'package:flutter/material.dart';
 
 class UserReviewsScreen extends StatelessWidget {
   const UserReviewsScreen({super.key});
@@ -11,7 +11,6 @@ class UserReviewsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: true,
         backgroundColor: Theme.of(context).primaryColor,
         title: const Text('Ваши отзывы'),
         leading: IconButton(
@@ -62,7 +61,7 @@ class BodyLayout extends StatelessWidget {
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                Review review = snapshot.data![index];
+                final Review review = snapshot.data![index];
                 return UserReviewsListItem(review);
               },
             );

@@ -1,6 +1,6 @@
 import 'package:coworking/domain/entities/account.dart';
-import 'package:flutter/material.dart';
 import 'package:coworking/domain/entities/review.dart';
+import 'package:flutter/material.dart';
 
 late TextEditingController rateController;
 bool isFood = false;
@@ -54,7 +54,7 @@ class ReviewFormState extends State<ReviewForm> with AutomaticKeepAliveClientMix
               height: 10,
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+              padding: const EdgeInsets.only(left: 20, right: 20),
               child: TextFormField(
                 controller: reviewController,
                 validator: (text) => text!.isEmpty ? 'Отзыв обязателен' : null,
@@ -62,7 +62,7 @@ class ReviewFormState extends State<ReviewForm> with AutomaticKeepAliveClientMix
                 decoration: const InputDecoration(
                   hintText: 'Отзыв',
                   border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.all(8.0),
+                  contentPadding: EdgeInsets.all(8),
                 ),
               ),
             ),
@@ -71,7 +71,7 @@ class ReviewFormState extends State<ReviewForm> with AutomaticKeepAliveClientMix
               child: Column(
                 children: const <Widget>[
                   Padding(
-                    padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
+                    padding: EdgeInsets.only(top: 10, bottom: 10),
                     child: Text(
                       'Раздел оценки места',
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -118,7 +118,7 @@ class ReviewFormState extends State<ReviewForm> with AutomaticKeepAliveClientMix
         isFree,
         isRazors,
         isWiFi,
-        (double.parse(rateController.text) / 2),
+        double.parse(rateController.text) / 2,
       ),
     );
   }
@@ -137,7 +137,7 @@ class _PlaceRateSectionState extends State<_PlaceRateSection> {
     return Column(
       children: [
         GridView.count(
-          childAspectRatio: 5,
+          childAspectRatio: 4,
           crossAxisCount: 2,
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
@@ -156,7 +156,6 @@ class _PlaceRateSectionState extends State<_PlaceRateSection> {
                     isFood = value!;
                   });
                 },
-                tristate: false,
               ),
             ),
             Container(
@@ -173,7 +172,6 @@ class _PlaceRateSectionState extends State<_PlaceRateSection> {
                     isFree = value!;
                   });
                 },
-                tristate: false,
               ),
             ),
             Container(
@@ -190,7 +188,6 @@ class _PlaceRateSectionState extends State<_PlaceRateSection> {
                     isRazors = value!;
                   });
                 },
-                tristate: false,
               ),
             ),
             Container(
@@ -207,7 +204,6 @@ class _PlaceRateSectionState extends State<_PlaceRateSection> {
                     isWiFi = value!;
                   });
                 },
-                tristate: false,
               ),
             ),
           ],
@@ -225,7 +221,7 @@ class _PlaceRateSectionState extends State<_PlaceRateSection> {
             controller: rateController,
             maxLength: 4,
             validator: (input) {
-              final RegExp shutterSpeedRegEx = RegExp('[0-9]([0-9]*)((\\.[0-9][0-9]*)|\$)');
+              final RegExp shutterSpeedRegEx = RegExp(r'[0-9]([0-9]*)((\.[0-9][0-9]*)|$)');
               if (input!.isEmpty) {
                 return 'Вы не ввели оценку';
               } else if (!shutterSpeedRegEx.hasMatch(input)) {

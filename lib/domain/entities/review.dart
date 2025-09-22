@@ -28,7 +28,7 @@ class Review {
   double totalRate;
 
   Map<String, dynamic> asMap() {
-    Map<String, dynamic> review = {};
+    final Map<String, dynamic> review = {};
     review['author'] = author.id;
     review['dateAdded'] = Timestamp.fromDate(timestamp);
     review['content'] = body;
@@ -43,17 +43,18 @@ class Review {
   }
 
   static Map<String, dynamic> newReviewMap(Review review, String pinID) {
-    Map<String, dynamic> map = review.asMap();
+    final Map<String, dynamic> map = review.asMap();
     map['pinID'] = pinID;
     return map;
   }
 
   static Review fromMap(String id, Map<String, dynamic> data) {
+    final date = data['dateAdded'] as Timestamp;
     return Review(
       id,
       Account(data['author']),
       data['content'],
-      data['dateAdded'].toDate(),
+      date.toDate(),
       data['isFood'],
       data['isFree'],
       data['isRazors'],

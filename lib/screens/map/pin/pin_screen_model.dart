@@ -15,8 +15,8 @@ class PinScreenModel extends ChangeNotifier {
   }
   Pin pin;
 
-  var visitedText = '';
-  var visitedColor = Colors.orange;
+  String visitedText = '';
+  MaterialColor visitedColor = Colors.orange;
   String newPhotoPath = '';
   GlobalKey<ReviewFormState> reviewFormKey = GlobalKey<ReviewFormState>();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -24,16 +24,16 @@ class PinScreenModel extends ChangeNotifier {
   TextEditingController nameController = TextEditingController();
   List<double> threeMonthStats = [0, 0, 0, 0, 0];
 
-// TODO: add loading of photos and categories
+// TODO(feature): add loading of photos and categories
   Future _asyncInit() async {
     nameController.text = pin.name;
   }
 
   Future<void> createReview(BuildContext context) async {
     if (reviewFormKey.currentState!.isValid) {
-      Review review = reviewFormKey.currentState!.getReview();
-      pin.addReview(review);
-      pin.rating = await DatabasePin.updateRateOfPin(pin.id);
+      final Review review = reviewFormKey.currentState!.getReview();
+      pin..addReview(review)
+      ..rating = await DatabasePin.updateRateOfPin(pin.id);
       notifyListeners();
       if (context.mounted) {
         Navigator.pop(context);
@@ -41,15 +41,15 @@ class PinScreenModel extends ChangeNotifier {
     }
   }
 
-  // TODO: fix uploading of images into database when error happens
+  // TODO(fix): fix uploading of images into database when error happens
   Future<bool> savePin() async {
     try {
-      var newImage = File(newPhotoPath);
-      var timeKey = DateTime.now();
+      final newImage = File(newPhotoPath);
+      final timeKey = DateTime.now();
       final Reference postImageRef = FirebaseStorage.instance.ref().child('Pin Images');
       final UploadTask uploadTask = postImageRef.child('$timeKey.jpg').putFile(newImage);
-      String stringUrl = await (await uploadTask).ref.getDownloadURL();
-      Category category = categoryPickerKey.currentState!.value;
+      final String stringUrl = await (await uploadTask).ref.getDownloadURL();
+      final Category category = categoryPickerKey.currentState!.value;
       if (formKey.currentState!.validate() &&
           nameController.text != '' &&
           category.text != '' &&
@@ -73,7 +73,7 @@ class PinScreenModel extends ChangeNotifier {
   Future<void> setNewPhoto() async {
     final ImagePicker picker = ImagePicker();
     try {
-      var pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
       newPhotoPath = pickedFile!.path;
       notifyListeners();
     } catch (e) {

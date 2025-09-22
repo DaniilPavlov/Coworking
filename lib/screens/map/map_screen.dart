@@ -1,20 +1,21 @@
 import 'dart:async';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:coworking/domain/entities/pin.dart';
 import 'package:coworking/domain/services/database_pin.dart';
 import 'package:coworking/domain/services/location_status.dart';
 import 'package:coworking/navigation/main_navigation.dart';
 import 'package:coworking/screens/login/logo_decoration.dart';
 import 'package:coworking/screens/map/bottom_nav_bar.dart';
-import 'package:coworking/domain/entities/pin.dart';
+import 'package:coworking/screens/map/pin/create_pin.dart';
+import 'package:coworking/screens/menu/menu_drawer.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:io';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/foundation.dart';
-import 'package:coworking/screens/menu/menu_drawer.dart';
-import 'package:coworking/screens/map/pin/create_pin.dart';
 
 GoogleMapController? mapController;
 
@@ -62,7 +63,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
   }
 
   // закрываем дроуер
-  void closeDrawer() async {
+  Future<void> closeDrawer() async {
     await drawerAnimator.reverse();
     setState(() {
       showDrawer = false;
@@ -83,7 +84,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
     });
   }
 
-// TODO: check *no connection* toast
+// TODO(check): check *no connection* toast
   void watchLocationStatus() {
     locationStream = Geolocator.getServiceStatusStream().listen((ServiceStatus status) async {
       await LocationStatus.checkLocationPermission();
@@ -96,7 +97,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
           ),
           zoom: MapScreen.kDefaultZoom,
         );
-        mapController!.moveCamera(CameraUpdate.newCameraPosition(currentMapPosition));
+        await mapController!.moveCamera(CameraUpdate.newCameraPosition(currentMapPosition));
       }
     });
   }
@@ -104,7 +105,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
   void queryPins() {
     pinsStream = DatabasePin.fetchPins(context).listen((pinChangesList) {
       setState(() {
-        for (PinChange pinChange in pinChangesList) {
+        for (final PinChange pinChange in pinChangesList) {
           if (pinChange.type == DocumentChangeType.added) {
             debugPrint('БЫЛ ДОБАВЛЕН МАРКЕР');
             pins.add(pinChange.pin);
@@ -115,10 +116,10 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
             pins.remove(pinChange.pin);
           } else if (pinChange.type == DocumentChangeType.modified) {
             debugPrint('1 ИЗ МАРКЕРОВ БЫЛ ИЗМЕНЕН');
-            for (var element in pins) {
+            for (final element in pins) {
               if (element.author.toString() == pinChange.pin.author.toString() &&
-                  element.name.toString() == pinChange.pin.name.toString() &&
-                  element.imageUrl.toString() == pinChange.pin.imageUrl.toString() &&
+                  element.name == pinChange.pin.name &&
+                  element.imageUrl == pinChange.pin.imageUrl &&
                   element.category.toString() == pinChange.pin.category.toString() &&
                   element.marker != pinChange.pin.marker) {
                 element.marker = pinChange.pin.marker;
@@ -139,9 +140,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
       vsync: this,
       duration: const Duration(milliseconds: 250),
     );
-
     pinFormKey = GlobalKey<CreatePinState>();
-
     fabAddPin = FloatingActionButton(
       tooltip: 'Add pin',
       onPressed: openDrawer,
@@ -150,7 +149,6 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
         Icons.add_location,
       ),
     );
-
     fabConfirmPin = FloatingActionButton(
       tooltip: 'Confirm',
       onPressed: () {
@@ -165,18 +163,13 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
       backgroundColor: Colors.green,
       child: const Icon(Icons.check),
     );
-
     currentFab = fabAddPin;
-
     queryPins();
-
     getLocation = LocationStatus.checkLocationPermission();
-
     watchLocationStatus();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint('onMessage: $message');
     });
-
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       debugPrint('onLaunch: $message');
       if (mounted) {
@@ -193,7 +186,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
   }
 
   void shouldMoveLocation() {
-    if (LocationStatus.locationEnabled && LocationStatus.isMapControllerConnected == false && mapController != null) {
+    if (LocationStatus.locationEnabled && !LocationStatus.isMapControllerConnected && mapController != null) {
       LocationStatus.isMapControllerConnected = !LocationStatus.isMapControllerConnected;
       currentMapPosition = CameraPosition(
         target: LatLng(
@@ -222,7 +215,7 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
                     'Вы действительно хотите выйти?',
                     style: TextStyle(color: Colors.orange),
                   ),
-                  actions: <Widget>[
+                  actions: [
                     ElevatedButton(
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all(
@@ -305,10 +298,10 @@ class MapScreenState extends State<MapScreen> with SingleTickerProviderStateMixi
 
 class MapBody extends StatefulWidget {
   const MapBody({
-    super.key,
     required this.mapMoveCallback,
     required this.initialPosition,
     required this.mapOverlap,
+    super.key,
   });
 
   final Function(CameraPosition) mapMoveCallback;
@@ -342,53 +335,46 @@ class MapBodyState extends State<MapBody> {
       children: <Widget>[
         AnimatedBuilder(
           animation: pinAnimation,
-
-          ///Была ошибка с жестом 3 пальцев, добавил ListView с itemExtent
-          builder: (context, _) => ListView(
-            itemExtent: MediaQuery.of(context).size.height - widget.mapOverlap.bottom + 20,
-            children: <Widget>[
-              GoogleMap(
-                initialCameraPosition: widget.initialPosition,
-                onMapCreated: onMapCreated,
-                padding: widget.mapOverlap +
-                    EdgeInsets.only(
-                      bottom: drawerHeight * pinAnimation.value,
-                    ),
-                // поднимаем +- и надпись гугл
-                markers: markers,
-                myLocationEnabled: LocationStatus.locationEnabled,
-                myLocationButtonEnabled: LocationStatus.locationEnabled,
-                onCameraMove: widget.mapMoveCallback,
-                gestureRecognizers: {}
-                  ..add(
-                    Factory<PanGestureRecognizer>(
-                      PanGestureRecognizer.new,
-                    ),
-                  )
-                  ..add(
-                    Factory<ScaleGestureRecognizer>(
-                      ScaleGestureRecognizer.new,
-                    ),
-                  )
-                  ..add(
-                    Factory<TapGestureRecognizer>(
-                      TapGestureRecognizer.new,
-                    ),
-                  )
-                  ..add(
-                    Factory<VerticalDragGestureRecognizer>(
-                      VerticalDragGestureRecognizer.new,
-                    ),
-                  ),
+          builder: (context, _) => GoogleMap(
+            initialCameraPosition: widget.initialPosition,
+            onMapCreated: onMapCreated,
+            padding: widget.mapOverlap +
+                EdgeInsets.only(
+                  bottom: drawerHeight * pinAnimation.value,
+                ),
+            // поднимаем +- и надпись гугл
+            markers: markers,
+            myLocationEnabled: LocationStatus.locationEnabled,
+            myLocationButtonEnabled: LocationStatus.locationEnabled,
+            onCameraMove: widget.mapMoveCallback,
+            gestureRecognizers: {}
+              ..add(
+                Factory<PanGestureRecognizer>(
+                  PanGestureRecognizer.new,
+                ),
+              )
+              ..add(
+                Factory<ScaleGestureRecognizer>(
+                  ScaleGestureRecognizer.new,
+                ),
+              )
+              ..add(
+                Factory<TapGestureRecognizer>(
+                  TapGestureRecognizer.new,
+                ),
+              )
+              ..add(
+                Factory<VerticalDragGestureRecognizer>(
+                  VerticalDragGestureRecognizer.new,
+                ),
               ),
-            ],
           ),
         ),
         Align(
           child: Transform.translate(
             // настройка положения пина
             offset: Offset(
-              0.0,
+              0,
               (widget.mapOverlap.top - drawerHeight - widget.mapOverlap.bottom + 20) / 2,
             ),
 
@@ -396,10 +382,10 @@ class MapBodyState extends State<MapBody> {
             child: ScaleTransition(
               scale: pinAnimation, // масштабирование пина
               child: const FractionalTranslation(
-                translation: Offset(0.0, -0.5), // корректируем пин в центр
+                translation: Offset(0, -0.5), // корректируем пин в центр
                 child: Icon(
                   Icons.location_on,
-                  size: 48.0,
+                  size: 48,
                   color: Colors.red,
                 ),
               ),

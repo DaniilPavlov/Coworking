@@ -13,6 +13,6 @@ Future<bool?> buildToast(
     timeInSecForIosWeb: 2,
     backgroundColor: backgroundColor,
     textColor: textColor,
-    fontSize: 16.0,
+    fontSize: 16,
   );
 }

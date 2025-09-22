@@ -17,14 +17,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'WorkSpace',
       theme: ThemeData(
-        /* light theme settings */
         brightness: Brightness.light,
         primaryColor: Colors.orange,
         primarySwatch: Colors.orange,
         textSelectionTheme: const TextSelectionThemeData(cursorColor: Colors.orange),
       ),
       darkTheme: ThemeData(
-        /* dark theme settings */
         brightness: Brightness.dark,
         primaryColor: Colors.orange,
         primarySwatch: Colors.orange,
@@ -32,11 +30,7 @@ class MyApp extends StatelessWidget {
         textSelectionTheme: const TextSelectionThemeData(cursorColor: Colors.orange),
       ),
       themeMode: ThemeMode.dark,
-      /* ThemeMode.system to follow system theme, 
-         ThemeMode.light for light theme, 
-         ThemeMode.dark for dark theme
-      */
-      initialRoute: mainNavigation.initialRoute(MyAppModel.isAuth == false),
+      initialRoute: mainNavigation.initialRoute(!MyAppModel.isAuth),
       routes: mainNavigation.routes,
       onGenerateRoute: mainNavigation.onGenerateRoute,
     );

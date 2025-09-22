@@ -18,17 +18,16 @@ class ImagePickerBoxState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 100.0,
-          height: 100.0,
-          padding: const EdgeInsets.all(4.0),
+          width: 100,
+          height: 100,
+          padding: const EdgeInsets.all(4),
           child: OutlinedButton(
             clipBehavior: Clip.antiAlias,
             onPressed: () async {
               try {
-                var pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+                final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
                 state.didChange(File(pickedFile!.path));
               } catch (e) {
                 debugPrint(e.toString());
@@ -41,16 +40,15 @@ class ImagePickerBoxState extends StatelessWidget {
                   )
                 : Image.file(
                     state.value!,
-                    width: 100.0,
-                    height: 100.0,
+                    width: 100,
+                    height: 100,
                     semanticLabel: 'Uploaded image',
                     fit: BoxFit.cover,
                   ),
           ),
         ),
-        state.hasError
-            ? Padding(
-                padding: const EdgeInsets.all(8.0),
+        if (state.hasError) Padding(
+                padding: const EdgeInsets.all(8),
                 child: Text(
                   state.errorText!,
                   style: TextStyle(
@@ -58,8 +56,7 @@ class ImagePickerBoxState extends StatelessWidget {
                     fontSize: Theme.of(context).textTheme.bodyMedium!.fontSize,
                   ),
                 ),
-              )
-            : Container(),
+              ) else Container(),
       ],
     );
   }

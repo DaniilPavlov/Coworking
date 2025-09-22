@@ -34,7 +34,7 @@ dependencies:
     sdk: flutter
   flutter_form_builder: ^10.2.0
   flutter_speed_dial: ^7.0.0
-  fluttertoast: ^8.2.14
+  fluttertoast: ^9.0.0
   geolocator: ^14.0.2
   google_maps_flutter: ^2.13.1
   google_sign_in: ^6.3.0
@@ -47,12 +47,12 @@ dependencies:
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.4
+  flutter_test:
+    sdk: flutter
   meykuless_lint_rules:
     git:
       url: https://github.com/DaniilPavlov/meykuless_lint_rules.git
-      ref: 3a306a7d92684ba4402de5df59f30c5e49f1fff8
-  flutter_test:
-    sdk: flutter
+      ref: 3ba5652f8a54126678b8e96232d1a89f110875e9
 
 flutter_icons:
   android: "launcher_icon"
