@@ -42,3 +42,5 @@ app.*.map.json
 
 # Feribase related
 **google-services.json
+
+android/debug.keystore
